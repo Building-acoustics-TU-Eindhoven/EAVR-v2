@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Wall
   - WallToggle
+  - Model
   layers:
   - Default
   - TransparentFX

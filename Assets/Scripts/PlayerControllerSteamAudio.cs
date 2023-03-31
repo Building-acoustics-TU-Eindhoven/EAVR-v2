@@ -49,9 +49,8 @@ public class PlayerControllerSteamAudio : MonoBehaviour
     void Update()
     {
         if (Input.GetKeyDown("space"))
-        {
-            transform.Translate(Vector3.up * 260 * Time.deltaTime, Space.World);
-        }
+            characterController.Move(new Vector3 (0.0f, 10.0f, 0.0f));
+
     }
 
     void LateUpdate()
@@ -88,10 +87,13 @@ public class PlayerControllerSteamAudio : MonoBehaviour
         // Update the position.
         float movementX = Input.GetAxis("Horizontal");
         float movementY = Input.GetAxis("Vertical");
+
         Vector3 movementDirection = new Vector3(movementX, 0.0f, movementY);
+
         movementDirection = mainCamera.transform.localRotation * movementDirection;
-        movementDirection.y = 0.0f;
+
         characterController.SimpleMove(movementSpeed * movementDirection);
+
     }
 
     // Sets the cursor lock for first-person control.

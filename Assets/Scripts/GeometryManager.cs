@@ -1,7 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 using TMPro;
+using SteamAudio;
+using Vector3 = UnityEngine.Vector3;
 public class GeometryManager : MonoBehaviour
 {
     int curMaterial = 0;
@@ -10,9 +13,10 @@ public class GeometryManager : MonoBehaviour
     public AudioSource audioSource;
 
     int totMaterials = -1;
-    
-    bool[] shouldChangeWallMaterial = new bool [6] { true, true, true, true, true, true };
+
+    bool[] shouldChangeWallMaterial = new bool[6] { true, true, true, true, true, true };
     float scale = 1.0f;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -22,7 +26,10 @@ public class GeometryManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (GUILayout.Button("Load Model"))
+        {
+            
+        }
     }
 
     public void SetActiveMaterial()
@@ -37,9 +44,9 @@ public class GeometryManager : MonoBehaviour
                 for (int i = 0; i < totMaterials; ++i)
                 {
                     if (i == curMaterial)
-                        child.GetChild(i).gameObject.SetActive (true);
+                        child.GetChild(i).gameObject.SetActive(true);
                     else
-                        child.GetChild(i).gameObject.SetActive (false);
+                        child.GetChild(i).gameObject.SetActive(false);
                 }
             }
             ++j;
@@ -47,7 +54,7 @@ public class GeometryManager : MonoBehaviour
 
     }
 
-    public void SetShouldChangeWallMaterial (int wall, bool shouldChange)
+    public void SetShouldChangeWallMaterial(int wall, bool shouldChange)
     {
         shouldChangeWallMaterial[wall] = shouldChange;
     }
@@ -55,29 +62,24 @@ public class GeometryManager : MonoBehaviour
     public void ChangeMaterial()
     {
         curMaterial = (curMaterial + 1) % totMaterials;
-        SetActiveMaterial();          
+        SetActiveMaterial();
     }
 
-    public void ChangeMaterial (int mat)
+    public void ChangeMaterial(int mat)
     {
         // first option is "Choose material..
         if (mat == 0)
             return;
 
-        curMaterial = mat-1;
-        SetActiveMaterial();          
+        curMaterial = mat - 1;
+        SetActiveMaterial();
     }
 
 
-    public void ChangeSize (float multiplier)
+    public void ChangeSize(float multiplier)
     {
         scale = multiplier;
-        this.transform.localScale = new Vector3 (scale, scale, scale);
+        this.transform.localScale = new Vector3(scale, scale, scale);
         audioSource.transform.position = audioSourceLocation.transform.position;
-    }
-
-    public void RegenerateDynamicObjects()
-    {
-        //...?
     }
 }
