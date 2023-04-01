@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1cb82a87a4954a947923856a12b49b38, type: 3}
   m_Name: Carpet
   m_EditorClassIdentifier: 
-  lowFreqAbsorption: 1
-  midFreqAbsorption: 1
-  highFreqAbsorption: 1
+  lowFreqAbsorption: 0.24
+  midFreqAbsorption: 0.69
+  highFreqAbsorption: 0.73
   scattering: 0.05
   lowFreqTransmission: 0.02
   midFreqTransmission: 0.005

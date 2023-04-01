@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.Windows;
 using UnityEditor;
@@ -13,6 +14,27 @@ public class GeometryManagerEditor : Editor
     private string filepath = "./Assets/Models/10mcube.gltf";
     public GameObject _loadedGameObject;
 
+    List<UnityEngine.Material> visualMaterials = new List<UnityEngine.Material>();
+    List<SteamAudioMaterial> steamAudioMaterials = new List<SteamAudioMaterial>();
+    private void Awake() 
+    {
+        // Collect visual materials
+        string[] visualMaterialFiles = System.IO.Directory.GetFiles("Assets/Materials", "*.mat", SearchOption.TopDirectoryOnly);
+
+        foreach (var file in visualMaterialFiles)
+        {
+            visualMaterials.Add(AssetDatabase.LoadAssetAtPath(file, typeof(UnityEngine.Material)) as UnityEngine.Material);
+        }
+
+        // Collect Steam Audio materials
+        string[] steamAudioMaterialFiles = System.IO.Directory.GetFiles("Assets/Plugins/SteamAudio/Resources/Materials", "*.asset", SearchOption.TopDirectoryOnly);
+
+        foreach (var file in steamAudioMaterialFiles)
+        {
+            steamAudioMaterials.Add(AssetDatabase.LoadAssetAtPath(file, typeof(SteamAudioMaterial)) as SteamAudioMaterial);
+        }
+
+    }
     public override void OnInspectorGUI()
     {
         base.OnInspectorGUI();
@@ -43,12 +65,16 @@ public class GeometryManagerEditor : Editor
         
         if (_loadedGameObject != null)
         {
-            Directory.Delete("Assets/DynamicObjects/TempFolder");
-            Directory.CreateDirectory("Assets/DynamicObjects/TempFolder");
+            // Regenerate temporary folder with Dynamic Object Assets
+            UnityEngine.Windows.Directory.Delete("Assets/DynamicObjects/TempFolder");
+            UnityEngine.Windows.Directory.CreateDirectory("Assets/DynamicObjects/TempFolder");
 
+            // Get Meshfilters
             MeshFilter[] mff = _loadedGameObject.GetComponentsInChildren<MeshFilter>();
 
             Debug.Log("found this number of meshFilter groups : " + mff.Length);
+
+            // Initialise every mesh filter with all possible materials
             int counter = 0;
             foreach (MeshFilter mf in mff)
             {
@@ -63,24 +89,56 @@ public class GeometryManagerEditor : Editor
                 go.AddComponent(typeof(MeshCollider));
                 go.layer = 10;
 
-                // Add Steam Audio Components
-                AddGeometryAndSetMaterial (go);
-                AddDynamicObjectAndCreateSerializedData (go, counter);
-                
-                // Export the dynamic object
-                SteamAudioManager.ExportDynamicObject (go.GetComponent<SteamAudioDynamicObject>(), false);
+                //// Add children to each mesh: one per material ////
+                string activeMaterial = GetMaterialBasedOnMeshName (go.name);
+
+                bool firstChild = true;
+                foreach (SteamAudioMaterial steamAudioMaterial in steamAudioMaterials)
+                {
+                    // Add child to mesh
+                    GameObject goChild = Instantiate<GameObject>(firstChild ? mf.gameObject : mf.transform.GetChild(0).gameObject, mf.gameObject.transform);
+                    goChild.name = counter + "_" + steamAudioMaterial.name;
+
+                    // Add Steam Audio Components
+
+                    if (firstChild)
+                    {
+                        // Add SteamAudioGeometry component
+                        goChild.AddComponent (typeof(SteamAudioGeometry));
+                        
+                        // Add dynamic object component
+                        goChild.AddComponent (typeof (SteamAudioDynamicObject));
+                        
+                        firstChild = false;
+                    }
+
+                    // Set active so we can do things with it
+                    goChild.SetActive (true);
+
+                    //// EDIT VISUAL MATERIAL ////
+                    
+                    // Get the visual material name from the steam audio material
+                    string visualMaterialName = GetMaterialFromName (steamAudioMaterial.name);
+                    EditMeshRendererMaterial (goChild, visualMaterialName);
+
+                    // Set the Steam Audio Material property of the SteamAudioGeometry
+                    SetSteamAudioMaterial (goChild, steamAudioMaterial);
+
+                    // Crate the SerializedData for the SteamAudioDynamicObject
+                    CreateDynamicObjectSerializedData (goChild, name, counter);
+
+                    // Export the dynamic object
+                    SteamAudioManager.ExportDynamicObject (goChild.GetComponent<SteamAudioDynamicObject>(), false);
+
+                    goChild.SetActive(steamAudioMaterial.name == activeMaterial);
+                }
+                mf.GetComponent<MeshRenderer>().enabled = false;
                 ++counter;
             }
 
             Vector3 average = Average(mff);
 
             _loadedGameObject.transform.GetChild(0).position = new Vector3 (-average.x, 0, -average.z);
-            // get a bounding box 
-            // Bounds b = _loadedGameObject.gameObject.GetComponentInChildren<MeshFilter>().mesh.bounds;
-
-            // Vector3 offset = b.center;
-            //myResonanceAudioRoom.transform.position = new Vector3 (-b.extents.x, b.extents.y, -b.extents.z);
-
         }
         else
         {
@@ -88,34 +146,24 @@ public class GeometryManagerEditor : Editor
         }
     }
 
-    public void RegenerateDynamicObjects()
+    private void EditMeshRendererMaterial(GameObject goChild, string visualMaterialName)
     {
-        GameObject root = GameObject.FindGameObjectWithTag("Model");
-        if (root != null)
-            DestroyImmediate(root);
+        // Serialize the material of the mesh renderer of the newly instantiated child
+        UnityEditor.SerializedObject meshRenderer = new UnityEditor.SerializedObject (goChild.GetComponent<MeshRenderer>());
+        var matsSO = meshRenderer.FindProperty("materials");
 
-        // TEMPORARY FOR WORKFLOW
-        string filepath = EditorUtility.OpenFilePanel("Load GLTF", "", "gltf");
-        // string filepath = "./Assets/Models/10mcube.gltf";
-        _loadedGameObject = Importer.LoadFromFile(filepath);
-        _loadedGameObject.tag = "Model";
-        ImportProcedure();
+        // Set the visual material of the mesh renderer to the one 
+        foreach (UnityEngine.Material mat in visualMaterials)
+            if (mat.name == visualMaterialName)
+                goChild.GetComponent<MeshRenderer>().sharedMaterial = mat;
+
+        meshRenderer.ApplyModifiedProperties();
+
     }
-
-    private void AddGeometryAndSetMaterial (GameObject go)
+    private void SetSteamAudioMaterial (GameObject goChild, SteamAudioMaterial newMaterialAsset)
     {
-        // Name of the mesh
-        string matName = GetMaterialBasedOnMeshName (go.name); 
-        
-        // Get material asset based on mesh name
-        SteamAudioMaterial newMaterialAsset = AssetDatabase.LoadAssetAtPath<SteamAudioMaterial>
-            ("Assets/Plugins/SteamAudio/Resources/Materials/" + matName + ".asset");
-
-        // Add SteamAudioGeometry component
-        go.AddComponent (typeof(SteamAudioGeometry));
-
         // Make the component a SerializedObject
-        UnityEditor.SerializedObject dynGeometry = new UnityEditor.SerializedObject (go.GetComponent<SteamAudioGeometry>());
+        UnityEditor.SerializedObject dynGeometry = new UnityEditor.SerializedObject (goChild.GetComponent<SteamAudioGeometry>());
 
         // Apply the material asset to the Material field 
         SerializedProperty matAsset = dynGeometry.FindProperty("material");        
@@ -126,24 +174,18 @@ public class GeometryManagerEditor : Editor
 
     }
 
-    private void AddDynamicObjectAndCreateSerializedData(GameObject go, int counter)
-    {
-        // Add dynamic object component
-        go.AddComponent (typeof(SteamAudioDynamicObject));
-            // Create dynamic object asset ...
-        string filename = "Assets/DynamicObjects/TempFolder/" + counter + "_" + name + ".asset";
-        var dynObj = new UnityEditor.SerializedObject (go.GetComponent<SteamAudioDynamicObject>());
-
-            // ... and add it to the dynamic object
+    private void CreateDynamicObjectSerializedData (GameObject goChild, string goName, int counter)
+    {  
+        // Create dynamic object asset ...
+        string filename = "Assets/DynamicObjects/TempFolder/" + goChild.name + "_" + goName + ".asset";
+        var dynObj = new UnityEditor.SerializedObject (goChild.GetComponent<SteamAudioDynamicObject>());
         SerializedProperty mAsset = dynObj.FindProperty("asset");
+
+        // ... and add it to the dynamic object
         var dataAsset = ScriptableObject.CreateInstance<SerializedData>();
         AssetDatabase.CreateAsset(dataAsset, filename);
-        if (mAsset.objectReferenceValue == null)
-        {
-            mAsset.objectReferenceValue = dataAsset;
-            dynObj.ApplyModifiedProperties();
-        }
-
+        mAsset.objectReferenceValue = dataAsset;
+        dynObj.ApplyModifiedProperties();
 
     }
     public string GetMaterialBasedOnMeshName (string meshname)
@@ -151,7 +193,7 @@ public class GeometryManagerEditor : Editor
         switch (meshname)
         {
             case "Transparent":
-                return "Default";
+                return "Transparent";
             case "AcousticCeilingTiles":
                 return "Default";
             
@@ -161,6 +203,7 @@ public class GeometryManagerEditor : Editor
             
             case "ConcreteBlockCoarse":
             case "ConcreteBlockPainted":
+            case "PolishedConcreteOrTile":
                 return "Concrete";
 
             case "CurtainHeavy":
@@ -195,9 +238,6 @@ public class GeometryManagerEditor : Editor
             case "PlywoodPanel":
                 return "Default";
 
-            case "PolishedConcreteOrTile":
-                return "Default";
-
             case "Sheetrock":
                 return "Rock";
 
@@ -224,6 +264,37 @@ public class GeometryManagerEditor : Editor
                 return "Default";
         }
 
+    }
+
+    public void RegenerateDynamicObjects()
+    {
+        GameObject root = GameObject.FindGameObjectWithTag("Model");
+        if (root != null)
+            DestroyImmediate(root);
+
+        // TEMPORARY FOR WORKFLOW
+        string filepath = EditorUtility.OpenFilePanel("Load GLTF", "", "gltf");
+        // string filepath = "./Assets/Models/TrappenZaal.gltf";
+        _loadedGameObject = Importer.LoadFromFile(filepath);
+        _loadedGameObject.tag = "Model";
+        ImportProcedure();
+    }
+
+    public string GetMaterialFromName(string name)
+    {
+        switch (name)
+        {
+            case "Brick":
+            case "Carpet":
+            case "Concrete":
+            case "Glass":
+            case "Gravel":
+            case "Metal":
+            case "Wood":
+                return name;
+            default:
+                return "Default";
+        }
     }
 
 }
