@@ -38,12 +38,17 @@ public class PlayerControllerSteamAudio : MonoBehaviour
     private const float sensitivity = 5.0f;
 
     private bool canvasActive = true;
+
+    public GameObject reticleCanvas;
+
     void Start()
     {
         characterController = GetComponent<CharacterController>();
         Vector3 rotation = mainCamera.transform.localRotation.eulerAngles;
         rotationX = rotation.x;
         rotationY = rotation.y;
+        reticleCanvas.SetActive (!canvasActive);
+
     }
 
     void Update()
@@ -113,6 +118,7 @@ public class PlayerControllerSteamAudio : MonoBehaviour
 
     public void SetCanvasActive(bool c)
     {
+        reticleCanvas.SetActive (!c);
         canvasActive = c;
     }
 }

@@ -86,17 +86,22 @@ public class GeometryManagerEditor : Editor
                     continue;
 
                 // Add meshcollider
-                go.AddComponent(typeof(MeshCollider));
                 go.layer = 10;
 
                 //// Add children to each mesh: one per material ////
                 string activeMaterial = GetMaterialBasedOnMeshName (go.name);
 
+                GameObject selectionGo = Instantiate<GameObject> (mf.gameObject);
                 bool firstChild = true;
                 foreach (SteamAudioMaterial steamAudioMaterial in steamAudioMaterials)
                 {
                     // Add child to mesh
                     GameObject goChild = Instantiate<GameObject>(firstChild ? mf.gameObject : mf.transform.GetChild(0).gameObject, mf.gameObject.transform);
+                    if (firstChild)
+                    {
+                        goChild.AddComponent(typeof(MeshCollider));
+                    }
+
                     goChild.name = counter + "_" + steamAudioMaterial.name;
 
                     // Add Steam Audio Components
@@ -132,6 +137,8 @@ public class GeometryManagerEditor : Editor
 
                     goChild.SetActive(steamAudioMaterial.name == activeMaterial);
                 }
+                AddSelectionGeometry (selectionGo, mf, counter);
+
                 mf.GetComponent<MeshRenderer>().enabled = false;
                 ++counter;
             }
@@ -145,7 +152,24 @@ public class GeometryManagerEditor : Editor
             Debug.Log("loaded null");
         }
     }
+    
+    private void AddSelectionGeometry (GameObject selectionGo, MeshFilter mf, int counter)
+    {
+                            // Add child to mesh
+        // GameObject goChild = Instantiate<GameObject>(mf.transform.GetChild(0).gameObject, mf.gameObject.transform);
+        selectionGo.transform.SetParent (mf.gameObject.transform);
 
+        selectionGo.name = counter + "_Selection";
+        // Add Steam Audio Components
+
+        // Set active so we can do things with it
+        selectionGo.SetActive (true);
+
+        //// EDIT VISUAL MATERIAL ////
+        EditMeshRendererMaterial (selectionGo, "Selection");
+        selectionGo.SetActive(false);
+
+    }
     private void EditMeshRendererMaterial(GameObject goChild, string visualMaterialName)
     {
         // Serialize the material of the mesh renderer of the newly instantiated child
@@ -272,7 +296,6 @@ public class GeometryManagerEditor : Editor
         if (root != null)
             DestroyImmediate(root);
 
-        // TEMPORARY FOR WORKFLOW
         string filepath = EditorUtility.OpenFilePanel("Load GLTF", "", "gltf");
         // string filepath = "./Assets/Models/TrappenZaal.gltf";
         _loadedGameObject = Importer.LoadFromFile(filepath);

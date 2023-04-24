@@ -9,12 +9,15 @@ public class SteamAudioDropdownManager : MonoBehaviour
     public Transform floor;
 
     public List<TMP_Dropdown.OptionData> m_NewDataList = new List<TMP_Dropdown.OptionData>();
+    private GameObject root;
 
     int numMaterials = -1;
     // Start is called before the first frame update
     void Start()
     {
-        numMaterials = floor.childCount;
+        root = GameObject.Find("root");
+        // numMaterials = floor.childCount;
+        numMaterials = root.transform.GetChild(0).GetChild(0).transform.childCount;
         InitialiseDropdown();
     }
 
@@ -31,8 +34,8 @@ public class SteamAudioDropdownManager : MonoBehaviour
         {
             m_NewDataList.Add(new TMP_Dropdown.OptionData());
 
-            string material = floor.GetChild(i).name;
-            material = material.Substring (0, material.Length - 5);
+            string material = root.transform.GetChild(0).GetChild(0).GetChild(i).name;
+            material = material.Substring (material.LastIndexOf('_') + 1);
             m_NewDataList[i].text = material;
         }
 

@@ -8,6 +8,8 @@ public class GameManagerSteamAudio : MonoBehaviour
     private bool mouseIsUp = true;
     public GameObject root = null;
     // Start is called before the first frame update
+
+    private bool curActive = true;
     void Start()
     {
         root = GameObject.FindGameObjectWithTag("Model"); 
@@ -18,10 +20,10 @@ public class GameManagerSteamAudio : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(1) && mouseIsUp)
         {
-            bool curActive = !transform.GetChild(0).gameObject.activeSelf;
+            curActive = !transform.GetChild(0).gameObject.activeSelf;
             transform.GetChild(0).gameObject.SetActive(curActive);
             Cursor.lockState = curActive ? CursorLockMode.None : CursorLockMode.Locked;
-            Cursor.visible = curActive;
+            Cursor.visible = true;
             player.SetCanvasActive (curActive);
 
             mouseIsUp = false;
@@ -36,5 +38,10 @@ public class GameManagerSteamAudio : MonoBehaviour
     public void ChangeModelSize (float scale)
     {
         root.transform.localScale = new Vector3 (scale, scale, scale);
+    }
+
+    public bool IsCanvasActive()
+    {
+        return curActive;
     }
 }
