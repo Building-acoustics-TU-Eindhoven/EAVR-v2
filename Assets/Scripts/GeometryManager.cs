@@ -17,7 +17,7 @@ public class GeometryManager : MonoBehaviour
     bool[] shouldChangeWallMaterial = new bool[6] { true, true, true, true, true, true };
     float scale = 1.0f;
 
-    private Transform selectedWall;
+    private List<Transform> selectedWalls = new List<Transform>();
 
     // Start is called before the first frame update
     void Start()
@@ -33,22 +33,24 @@ public class GeometryManager : MonoBehaviour
     public void SetActiveMaterial()
     {
 
-        if (selectedWall == null)
+        if (selectedWalls.Count == 0)
             return;
             
         if (totMaterials == -1)
-            totMaterials = selectedWall.childCount;
+            totMaterials = selectedWalls[0].childCount;
 
-        int i = 0;
-        foreach (Transform child in selectedWall)
+        foreach (Transform selectedWall in selectedWalls)
         {
-            if (i == curMaterial)
-                child.gameObject.SetActive(true);
-            else
-                child.gameObject.SetActive(false);
-            ++i;
+            int i = 0;
+            foreach (Transform child in selectedWall)
+            {
+                if (i == curMaterial)
+                    child.gameObject.SetActive(true);
+                else if (i != selectedWall.childCount-1)
+                    child.gameObject.SetActive(false);
+                ++i;
+            }
         }
-
         /// Changing all materials ///
         // GameObject root = GameObject.Find("root");
         // foreach (Transform child in root.transform.GetChild(0).transform)
@@ -105,7 +107,7 @@ public class GeometryManager : MonoBehaviour
         if (mat == 0)
             return;
 
-        if (selectedWall == null)
+        if (selectedWalls.Count == 0)
         {
             Debug.LogWarning ("Please select a wall first!");
             return;
@@ -123,8 +125,30 @@ public class GeometryManager : MonoBehaviour
         audioSource.transform.position = audioSourceLocation.transform.position;
     }
 
-    public void SetSelectedWall (Transform s)
+    public void ClearSelectedWalls()
     {
-        selectedWall = s;
+        selectedWalls.Clear();
+    }
+
+    public void AddSelectedWall (Transform s)
+    {
+        selectedWalls.Add(s);
+    }
+
+    public List<Transform> GetSelectedWalls()
+    {
+        return selectedWalls;
+    }
+    
+    public string GetActiveMaterialOf (int idx)
+    {
+        foreach (Transform child in selectedWalls[0])
+        {
+            if (child.gameObject.activeSelf)
+            {
+                return child.name.Substring (child.name.LastIndexOf('_') + 1);
+            }
+        }
+        return "";
     }
 }

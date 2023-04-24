@@ -20,8 +20,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 0
   maxOcclusionSamples: 16
-  realTimeRays: 65536
-  realTimeBounces: 64
+  realTimeRays: 4096
+  realTimeBounces: 16
   realTimeDuration: 1
   realTimeAmbisonicOrder: 1
   realTimeMaxSources: 32
