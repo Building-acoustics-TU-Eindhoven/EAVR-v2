@@ -6,8 +6,6 @@ using TMPro;
 public class SteamAudioDropdownManager : MonoBehaviour
 {
     public TMP_Dropdown dropdown;
-    public Transform floor;
-
     public List<TMP_Dropdown.OptionData> m_NewDataList = new List<TMP_Dropdown.OptionData>();
     private GameObject root;
 
@@ -17,7 +15,13 @@ public class SteamAudioDropdownManager : MonoBehaviour
     {
         root = GameObject.Find("root");
         // numMaterials = floor.childCount;
-        numMaterials = root.transform.GetChild(0).GetChild(0).transform.childCount;
+        if (root.transform.GetChild(0).name == "Room")
+        {
+            numMaterials = root.transform.GetChild(0).GetChild(0).transform.childCount;
+        } else {
+            numMaterials = root.transform.GetChild(0).transform.childCount;
+        }
+
         InitialiseDropdown();
     }
 
@@ -34,7 +38,13 @@ public class SteamAudioDropdownManager : MonoBehaviour
         {
             m_NewDataList.Add(new TMP_Dropdown.OptionData());
 
-            string material = root.transform.GetChild(0).GetChild(0).GetChild(i).name;
+            string material;
+            if (root.transform.GetChild(0).name == "Room")
+            {
+                material = root.transform.GetChild(0).GetChild(0).GetChild(i).name;
+            } else {
+                material = root.transform.GetChild(0).GetChild(i).name;
+            }
             material = material.Substring (material.LastIndexOf('_') + 1);
             m_NewDataList[i].text = material;
         }

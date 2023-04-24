@@ -101,8 +101,8 @@ public class PlayerRayCast : MonoBehaviour
                         selectedWallText.text = "Selected wall: " + geometryManager.GetSelectedWalls()[0].name;
                         selectedMaterialText.text = "Selected material: " + geometryManager.GetActiveMaterialOf(0);
                     } else {
-                        selectedWallText.text = "Selected wall: Multiple";
-                        selectedMaterialText.text = "Selected material: Multiple";
+                        selectedWallText.text = "Selected wall: Multiple (" + geometryManager.GetSelectedWalls().Count + ")";
+                        selectedMaterialText.text = "Selected material: Multiple (" + geometryManager.GetSelectedWalls().Count + ")";
                     }
                 }
             }
