@@ -14,3 +14,4 @@ To work with this project, follow these steps:
     3. Navigate to Assets/Models/ and select one of the \*.gltf files.
     4. Enjoy your freshly loaded model!
 
+![eavrInstructionsUnity](https://user-images.githubusercontent.com/32464520/235452874-126dcb11-d03a-4cb7-91bf-147377ab88e7.png)
