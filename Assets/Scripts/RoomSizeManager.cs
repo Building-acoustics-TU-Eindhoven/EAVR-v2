@@ -24,12 +24,39 @@ public class RoomSizeManager : MonoBehaviour
 
     private Vector3 originalSize;
 
+    Bounds getRenderBounds(GameObject objeto){
+        Bounds bounds = new  Bounds(Vector3.zero,Vector3.zero);
+        Renderer render = objeto.GetComponent<Renderer>();
+        if(render!=null){
+            return render.bounds;
+        }
+        return bounds;
+    }
+
+    public Bounds getBounds(GameObject objeto){
+        Bounds bounds;
+        Renderer childRender;
+        bounds = getRenderBounds(objeto);
+        if(bounds.extents.x == 0){
+            bounds = new Bounds(objeto.transform.position,Vector3.zero);
+            foreach (Transform child in objeto.transform) {
+                childRender = child.GetComponent<Renderer>();
+                if (childRender) {
+                    bounds.Encapsulate(childRender.bounds);
+                }else{
+                    bounds.Encapsulate(getBounds(child.gameObject));
+                }
+            }
+        }
+        return bounds;
+    }
+
     // Start is called before the first frame update
     void Start()
     {
         root = GameObject.Find("root");
-
-        Bounds b = root.transform.GetChild(0).GetComponent<MeshFilter>().mesh.bounds;
+        Bounds b = getBounds(root);
+        // Bounds b = root.transform.GetChild(0).GetComponent<MeshFilter>().sharedMesh.bounds;
 
         // Vector3 offset = b.center;
         originalSize = b.size;
