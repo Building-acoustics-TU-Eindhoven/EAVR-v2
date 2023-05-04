@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class GameManagerSteamAudio : MonoBehaviour
 {
-    public PlayerControllerSteamAudio player;
+    public PlayerManager playerManager;
     private bool mouseIsUp = true;
     public GameObject root = null;
     // Start is called before the first frame update
@@ -24,7 +24,7 @@ public class GameManagerSteamAudio : MonoBehaviour
             transform.GetChild(0).gameObject.SetActive(curActive);
             Cursor.lockState = curActive ? CursorLockMode.None : CursorLockMode.Locked;
             Cursor.visible = true;
-            player.SetCanvasActive (curActive);
+            playerManager.SetCanvasActive (curActive);
 
             mouseIsUp = false;
         }
