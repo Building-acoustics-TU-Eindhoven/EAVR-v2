@@ -93,7 +93,7 @@ public class SourcePanelManager : MonoBehaviour
 
     public void SetGainText(float dB)
     {
-        gainText.text = "Gain = " + dB.ToString() + " dB";
+        gainText.text = "Gain = " + Mathf.Round(dB).ToString() + " dB";
     }
 
     public void RefreshTextAndUIElements()
@@ -107,7 +107,7 @@ public class SourcePanelManager : MonoBehaviour
 
         SetPositionThroughSliderVals(xVal, yVal, zVal);
 
-        SetGainText(Mathf.Pow (10, curSpeakerSource.GetComponent<SteamAudioSource>().directMixLevel));
+        SetGainText (20 * Mathf.Log10 (curSpeakerSource.GetComponent<SteamAudioSource>().directMixLevel));
 
         m_dropdown.SetValueWithoutNotify(curSpeakerSource.GetComponent<SourceController>().activeSourceIdx);
     }

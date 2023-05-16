@@ -107,7 +107,7 @@ public class AudioSourceManager : MonoBehaviour
         {
             foreach (GameObject source in allSources)
             {
-                GlobalFunctions.GetChildWithName(source, "SpeakerSource").GetComponent<SourceController>().StopAudio();
+                source.GetComponent<SourceController>().StopAudio();
             }
             stopButtonPressedLast = false;
         }
