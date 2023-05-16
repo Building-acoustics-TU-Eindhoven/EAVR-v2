@@ -14,7 +14,6 @@ public class AudioSourceManager : MonoBehaviour
 
     [HideInInspector]
     public int totNumSources = 0;
-    public RoomSizeManager roomSizeManager;
     public GameObject initSource;
     public GameObject root;
     
@@ -23,7 +22,7 @@ public class AudioSourceManager : MonoBehaviour
     List<GameObject> allSources;
 
     public List<AudioClip> clipList;
-
+    public SourcePanelManager sourcePanelManager;
     private bool stopButtonPressedLast = false;
 
     private List<Vector3> ratioVec = new List<Vector3>();
@@ -48,6 +47,7 @@ public class AudioSourceManager : MonoBehaviour
         sourceColliderDiameter = 2.0f * initSource.GetComponent<CapsuleCollider>().radius;
         sourceColliderHeight = 2.0f * initSource.GetComponent<CapsuleCollider>().height;
 
+        curSpeakerSource = initSource;
     }
 
     // Update is called once per frame
@@ -146,7 +146,8 @@ public class AudioSourceManager : MonoBehaviour
     public void ChangeSourceIdx (int i)
     {
         sourceIdx = i;
-        curSpeakerSource = GlobalFunctions.GetChildWithName(allSources[sourceIdx], "SpeakerSource");
+        curSpeakerSource = allSources[sourceIdx];
+        sourcePanelManager.RefreshTextAndUIElements();
     }
 
     public void AddSource(bool init = false)
@@ -163,6 +164,7 @@ public class AudioSourceManager : MonoBehaviour
             Debug.Log(ratioVec[0].y);
             initSource.SetActive(false);
             ChangeSourceIdx(0);
+
         }
         else
         {
@@ -199,6 +201,7 @@ public class AudioSourceManager : MonoBehaviour
         float curGain = 20 * Mathf.Log10(source.directMixLevel);
         float nextGain = curGain + 3.0f;
         source.directMixLevel = Mathf.Pow(10.0f, nextGain / 20.0f);
+        source.reflectionsMixLevel = source.directMixLevel;
         curSpeakerSource.GetComponent<SourceController>().SetGainDb (nextGain);
         return nextGain;
     }
@@ -209,6 +212,7 @@ public class AudioSourceManager : MonoBehaviour
         float curGain = 20 * Mathf.Log10(source.directMixLevel);
         float nextGain = curGain - 3.0f;
         source.directMixLevel = Mathf.Pow(10.0f, nextGain / 20.0f);
+        source.reflectionsMixLevel = source.directMixLevel;
         curSpeakerSource.GetComponent<SourceController>().SetGainDb (nextGain);
         return nextGain;
     }
@@ -232,7 +236,7 @@ public class AudioSourceManager : MonoBehaviour
         ratioVec[sourceIdx] = new Vector3 (x, ratioVec[sourceIdx].y, ratioVec[sourceIdx].z);
         //ratioVec[sourceIdx] = new Vector3 (x, ratioVec[sourceIdx].y, ratioVec[sourceIdx].z);
         SetPosition(allSources[sourceIdx].transform, 
-                        new Vector3((x - 0.5f) * (root.transform.localScale.x - sourceColliderDiameter) + root.transform.position.x,
+                        new Vector3((x - 0.5f) * (origRoomWidth * root.transform.localScale.x - sourceColliderDiameter) + root.transform.position.x,
                                     allSources[sourceIdx].transform.position.y,
                                     allSources[sourceIdx].transform.position.z));
 
@@ -242,7 +246,7 @@ public class AudioSourceManager : MonoBehaviour
     {
         for (int i = 0; i < totNumSources; ++i)
             SetPosition(allSources[i].transform,
-                        new Vector3(ratioVec[i].x * (roomSize - sourceColliderDiameter) + root.transform.position.x,
+                        new Vector3((ratioVec[i].x - 0.5f) * (roomSize - sourceColliderDiameter) + root.transform.position.x,
                              allSources[i].transform.position.y,
                              allSources[i].transform.position.z));
 
@@ -253,7 +257,7 @@ public class AudioSourceManager : MonoBehaviour
         ratioVec[sourceIdx] = new Vector3(ratioVec[sourceIdx].x, y, ratioVec[sourceIdx].z);
         SetPosition(allSources[sourceIdx].transform,
                         new Vector3(allSources[sourceIdx].transform.position.x,
-                                    (y - 0.5f) * (root.transform.localScale.y - sourceColliderHeight * 0.5f) + root.transform.position.y - sourceColliderHeight * 0.25f,
+                                    y * (origRoomHeight * root.transform.localScale.y - sourceColliderHeight) + root.transform.position.y + sourceColliderHeight * 0.5f,
                                     allSources[sourceIdx].transform.position.z));
     }
 
@@ -270,19 +274,22 @@ public class AudioSourceManager : MonoBehaviour
     public void SetSpeakerZ(float z)
     {
         ratioVec[sourceIdx] = new Vector3(ratioVec[sourceIdx].x, ratioVec[sourceIdx].y, z);
+        Debug.Log (z);
         SetPosition(allSources[sourceIdx].transform,
                         new Vector3(allSources[sourceIdx].transform.position.x,
                             allSources[sourceIdx].transform.position.y,
-                            (z - 0.5f) * (root.transform.localScale.z - sourceColliderDiameter) + root.transform.position.z));
+                            (z - 0.5f) * (origRoomDepth * root.transform.localScale.z - sourceColliderDiameter) + root.transform.position.z));
     }
 
     public void SetSpeakersFromRoomSizeZ(float roomSize)
     {
+        Debug.Log (ratioVec[0].z);
+
         for (int i = 0; i < totNumSources; ++i)
             SetPosition(allSources[i].transform,
                         new Vector3(allSources[i].transform.position.x,
                             allSources[i].transform.position.y,
-                            ratioVec[i].z * (roomSize - sourceColliderDiameter) + root.transform.position.z));
+                            (ratioVec[i].z - 0.5f) * (roomSize - sourceColliderDiameter) + root.transform.position.z));
     }
 
     public void SetOriginalRoomDimensions (float roomWidth, float roomHeight, float roomDepth)
