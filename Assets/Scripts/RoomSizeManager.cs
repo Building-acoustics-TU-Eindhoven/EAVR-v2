@@ -10,6 +10,7 @@ public class RoomSizeManager : MonoBehaviour
     // public SourceManager sourceManager;
     public GameObject playerGO;
     public PlayerManager playerManager;
+    public AudioSourceManager audioSourceManager;
     public GameObject roomsizeGO;
     // public SpeakerWallManager speakerWallManager;
 
@@ -20,7 +21,10 @@ public class RoomSizeManager : MonoBehaviour
     private float sourceX, sourceY, sourceZ;
     private float playerX = 0.5f;
     private float playerZ = 0.5f;
-    private float roomWidth, roomHeight, roomDepth;
+
+    private List<Vector3> sourcePositions = new List<Vector3>();
+
+    public float roomWidth, roomHeight, roomDepth;
 
     private Vector3 originalSize;
 
@@ -72,8 +76,8 @@ public class RoomSizeManager : MonoBehaviour
         ySlider = GlobalFunctions.GetChildWithName(roomsizeGO, "ySlider").GetComponent<Slider>();
         zSlider = GlobalFunctions.GetChildWithName(roomsizeGO, "zSlider").GetComponent<Slider>();
 
-
-
+        SetPlayerTransform();
+        audioSourceManager.SetOriginalRoomDimensions (roomWidth, roomHeight, roomDepth);
     }
 
     public void SetRoomSizeThroughSliderVals(float x, float y, float z)
@@ -155,7 +159,7 @@ public class RoomSizeManager : MonoBehaviour
         root.transform.localScale = new Vector3(x, root.transform.localScale.y, root.transform.localScale.z);
         xText.text = x.ToString("0.0");
 
-        // sourceManager.SetSpeakersFromRoomSizeX(x);
+        audioSourceManager.SetSpeakersFromRoomSizeX (x * roomWidth);
         playerManager.SetPlayerX(playerX, x * roomWidth);
         // speakerWallManager.UpdateSpeakerGrid();
     }
@@ -165,7 +169,7 @@ public class RoomSizeManager : MonoBehaviour
         root.transform.localScale = new Vector3(root.transform.localScale.x, y, root.transform.localScale.z);
         yText.text = y.ToString("0.0");
 
-        // sourceManager.SetSpeakersFromRoomSizeY(y);
+        audioSourceManager.SetSpeakersFromRoomSizeY (y * roomHeight);
         // speakerWallManager.UpdateSpeakerGrid();
     }
 
@@ -174,7 +178,7 @@ public class RoomSizeManager : MonoBehaviour
         root.transform.localScale = new Vector3(root.transform.localScale.x, root.transform.localScale.y, z);
         zText.text = z.ToString("0.0");
 
-        // sourceManager.SetSpeakersFromRoomSizeZ(z);
+        audioSourceManager.SetSpeakersFromRoomSizeZ (z * roomDepth);
         playerManager.SetPlayerZ(playerZ, z * roomDepth);
         // speakerWallManager.UpdateSpeakerGrid();
     }
@@ -197,11 +201,24 @@ public class RoomSizeManager : MonoBehaviour
     public void SetPlayerTransform()
     {
         playerX = (playerGO.transform.position.x - root.transform.localPosition.x) / roomWidth;
-        //playerY = playerGO.transform.position.y / roomHeight;
         playerZ = (playerGO.transform.position.z - root.transform.localPosition.z) / roomDepth;
-
-        Debug.Log(playerX + " " + playerZ);
     }
+
+    // public void SetSourceTransform (Vector3 pos, int sourceIdx)
+    // {
+    //     sourcePositions[sourceIdx] = (new Vector3 (
+    //         (pos.x - root.transform.localPosition.x) / roomWidth,
+    //         (pos.y - root.transform.localPosition.y) / roomHeight,
+    //         (pos.z - root.transform.localPosition.z) / roomDepth)
+    //     );
+    // }
+
+
+    // public void SetSourceTransforms()
+    // {
+    //     for (int i = 0; i < sourcePositions.Count; ++i)
+    //         SetSourceTransform(sourcePositions[i], i);
+    // }
 
     //public void SetPlayerY(float y)
     //{

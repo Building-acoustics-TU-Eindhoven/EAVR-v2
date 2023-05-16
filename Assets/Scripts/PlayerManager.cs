@@ -58,6 +58,7 @@ public class PlayerManager : MonoBehaviour
         reticleCanvas.SetActive (!canvasActive);
 
         playerColliderDiameter = GetComponent<CapsuleCollider>().radius * 2;
+
     }
 
     void Update()
