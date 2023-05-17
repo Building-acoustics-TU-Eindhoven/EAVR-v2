@@ -138,26 +138,31 @@ public class PlayerManager : MonoBehaviour
         canvasActive = c;
     }
 
-    public void SetPlayerX(float x, float roomSize)
+    public void SetPlayerPos (Vector3 pos, Vector3 roomDimensions)
     {
-        transform.position = new Vector3(x * (roomSize - playerColliderDiameter) + root.transform.position.x,
+        SetPlayerX (pos.x, roomDimensions.x);
+        SetPlayerY (pos.y, roomDimensions.y);
+        SetPlayerZ (pos.z, roomDimensions.z);
+    }
+
+    public void SetPlayerX(float x, float roomWidth)
+    {
+        transform.position = new Vector3(x * (roomWidth - playerColliderDiameter) + root.transform.position.x,
                                          transform.position.y,
                                          transform.position.z);
     }
 
-    public void SetPlayerY(float y, float roomSize)
+    public void SetPlayerY(float y, float roomHeight)
     {
         transform.position = new Vector3(transform.position.x,
-                                         y * roomSize + root.transform.position.y,
+                                         y * roomHeight + root.transform.position.y,
                                          transform.position.z);
     }
 
-    public void SetPlayerZ(float z, float roomSize)
+    public void SetPlayerZ(float z, float roomDepth)
     {
         transform.position = new Vector3(transform.position.x,
                                          transform.position.y,
-                                         z * (roomSize - playerColliderDiameter) + root.transform.position.z);
-        Debug.Log("New Player Location: " + (z * (roomSize - playerColliderDiameter) + root.transform.position.z));
-
+                                         z * (roomDepth - playerColliderDiameter) + root.transform.position.z);
     }
 }

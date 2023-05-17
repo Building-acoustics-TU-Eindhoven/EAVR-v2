@@ -100,17 +100,17 @@ public class SourcePanelManager : MonoBehaviour
     {
         sourceIdxText.text = activeSourceNumber.ToString();
 
-        GameObject curSpeakerSource = sourceManager.GetCurSpeakerSource();
-        Vector3 test = sourceManager.GetSourceRatioPositionAt (sourceManager.sourceIdx);
-        // float xVal = (curSpeakerSource.transform.position.x - root.transform.position.x) / (roomSizeManager.roomWidth - sourceManager.sourceColliderDiameter) + 0.5f;
-        // float yVal = (curSpeakerSource.transform.position.y - root.transform.position.y) / (roomSizeManager.roomHeight - sourceManager.sourceColliderHeight);
-        // float zVal = (curSpeakerSource.transform.position.z - root.transform.position.z) / (roomSizeManager.roomDepth - sourceManager.sourceColliderDiameter) + 0.5f;
+        GameObject curSource = sourceManager.GetCurSource();
+        // Vector3 test = sourceManager.GetSourceRatioPositionAt (sourceManager.sourceIdx);
+        // float xVal = (curSource.transform.position.x - root.transform.position.x) / (roomSizeManager.roomWidth - sourceManager.sourceColliderDiameter) + 0.5f;
+        // float yVal = (curSource.transform.position.y - root.transform.position.y) / (roomSizeManager.roomHeight - sourceManager.sourceColliderHeight);
+        // float zVal = (curSource.transform.position.z - root.transform.position.z) / (roomSizeManager.roomDepth - sourceManager.sourceColliderDiameter) + 0.5f;
 
-        SetPositionThroughSliderVals(test.x, test.y, test.z);
+        // SetPositionThroughSlidersVals(test.x, test.y, test.z);
 
-        SetGainText (20 * Mathf.Log10 (curSpeakerSource.GetComponent<SteamAudioSource>().directMixLevel));
+        SetGainText (20 * Mathf.Log10 (curSource.GetComponent<SteamAudioSource>().directMixLevel));
 
-        m_dropdown.SetValueWithoutNotify(curSpeakerSource.GetComponent<SourceController>().activeSourceIdx);
+        m_dropdown.SetValueWithoutNotify(curSource.GetComponent<SourceController>().activeSourceIdx);
     }
 
     public void SetPositionThroughSliderVals(float x, float y, float z)
@@ -209,21 +209,21 @@ public class SourcePanelManager : MonoBehaviour
 
     public void SetX(float x)
     {
-        sourceManager.SetSpeakerX (x);
+        sourceManager.SetSourceX (x);
         xText.text = x.ToString("0.0");
         prevSourceX = x;
     }
 
     public void SetY(float y)
     {
-        sourceManager.SetSpeakerY(y);
+        sourceManager.SetSourceY(y);
         yText.text = y.ToString("0.0");
         prevSourceY = y;
     }
 
     public void SetZ(float z)
     {
-        sourceManager.SetSpeakerZ(z);
+        sourceManager.SetSourceZ(z);
         zText.text = z.ToString("0.0");
         prevSourceZ = z;
     }

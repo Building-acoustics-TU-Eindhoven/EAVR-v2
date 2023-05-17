@@ -17,7 +17,7 @@ public class AudioSourceManager : MonoBehaviour
     public GameObject initSource;
     public GameObject root;
     
-    private GameObject curSpeakerSource;
+    private GameObject curSource;
 
     List<GameObject> allSources;
 
@@ -47,7 +47,7 @@ public class AudioSourceManager : MonoBehaviour
         sourceColliderDiameter = 2.0f * initSource.GetComponent<CapsuleCollider>().radius;
         sourceColliderHeight = 2.0f * initSource.GetComponent<CapsuleCollider>().height;
 
-        curSpeakerSource = initSource;
+        curSource = initSource;
     }
 
     // Update is called once per frame
@@ -90,19 +90,19 @@ public class AudioSourceManager : MonoBehaviour
         }
     }
 
-    public GameObject GetCurSpeakerSource()
+    public GameObject GetCurSource()
     {
-        return curSpeakerSource;
+        return curSource;
     }
 
-    public List<GameObject> GetAllSpeakerSources()
+    public List<GameObject> GetAllSources()
     {
         return allSources;
     }
 
     public void PauseAudio()
     {
-        curSpeakerSource.GetComponent<SourceController>().PauseAudio();
+        curSource.GetComponent<SourceController>().PauseAudio();
         stopButtonPressedLast = false;
     }
 
@@ -118,20 +118,20 @@ public class AudioSourceManager : MonoBehaviour
         }
         else
         {
-            curSpeakerSource.GetComponent<SourceController>().StopAudio();
+            curSource.GetComponent<SourceController>().StopAudio();
             stopButtonPressedLast = true;
         }
     }
 
     public void LoopAudio()
     {
-        curSpeakerSource.GetComponent<SourceController>().LoopAudio (true);
+        curSource.GetComponent<SourceController>().LoopAudio (true);
         stopButtonPressedLast = false;
     }
 
     public void PlayAudio()
     {
-        curSpeakerSource.GetComponent<SourceController>().PlayFromStart();
+        curSource.GetComponent<SourceController>().PlayFromStart();
         stopButtonPressedLast = false;
     }
 
@@ -139,8 +139,8 @@ public class AudioSourceManager : MonoBehaviour
     {
         AudioClip selectedClip = clipList[dropDownValue];
 
-        curSpeakerSource.GetComponent<SourceController>().activeSourceIdx = dropDownValue;
-        curSpeakerSource.GetComponent<SourceController>().SwitchClipAndPlay(clipList[dropDownValue]);
+        curSource.GetComponent<SourceController>().activeSourceIdx = dropDownValue;
+        curSource.GetComponent<SourceController>().SwitchClipAndPlay(clipList[dropDownValue]);
 
         string clipName = selectedClip.name;
 
@@ -151,7 +151,7 @@ public class AudioSourceManager : MonoBehaviour
     public void ChangeSourceIdx (int i)
     {
         sourceIdx = i;
-        curSpeakerSource = allSources[sourceIdx];
+        curSource = allSources[sourceIdx];
         sourcePanelManager.RefreshTextAndUIElements();
     }
 
@@ -168,6 +168,7 @@ public class AudioSourceManager : MonoBehaviour
                 Mathf.Clamp01((initSource.transform.position.z - root.transform.position.z) / (origRoomDepth * root.transform.localScale.z))));
             Debug.Log(ratioVec[0].y);
             initSource.SetActive(false);
+            allSources[0].SetActive(true);
             ChangeSourceIdx(0);
 
         }
@@ -177,15 +178,26 @@ public class AudioSourceManager : MonoBehaviour
             allSources.Add(Instantiate(allSources[sourceIdx], this.transform));
         }
 
-        // GlobalFunctions.GetChildWithName(allSources[totNumSources - 1], "SpeakerSource").
+        // GlobalFunctions.GetChildWithName(allSources[totNumSources - 1], "Source").
         Debug.Log("ActiveSourceIdx = " + allSources[totNumSources - 1].GetComponent<SourceController>().activeSourceIdx);
         // allSources[totNumSources - 1].GetComponent<SourceController>().activeSourceIdx =
-            // curSpeakerSource.GetComponent<SourceController>().activeSourceIdx;
+            // curSource.GetComponent<SourceController>().activeSourceIdx;
     }
 
-    public bool RemoveSource()
+    public void RemoveAllSources()
     {
-        if (totNumSources == 1)
+        sourceIdx = totNumSources - 1;
+        int i = totNumSources;
+        while (i > 0)
+        {
+            RemoveSource (true);
+            i = totNumSources;
+        }
+    }
+
+    public bool RemoveSource (bool loadingNewObservation = false)
+    {
+        if (totNumSources == 1 && !loadingNewObservation)
         {
             Debug.Log("Can't have 0 sources!");
             return false;
@@ -212,23 +224,23 @@ public class AudioSourceManager : MonoBehaviour
 
     public float IncreaseGain3dB()
     {
-        SteamAudioSource source = curSpeakerSource.GetComponent<SteamAudioSource>();
+        SteamAudioSource source = curSource.GetComponent<SteamAudioSource>();
         float curGain = ConvertTodB (source.directMixLevel);
         float nextGain = curGain + 3.0f;
         source.directMixLevel = ConvertFromdB (nextGain);
         source.reflectionsMixLevel = source.directMixLevel;
-        curSpeakerSource.GetComponent<SourceController>().SetGainDb (nextGain);
+        curSource.GetComponent<SourceController>().SetGainDb (nextGain);
         return nextGain;
     }
 
     public float DecreaseGain3dB()
     {
-        SteamAudioSource source = curSpeakerSource.GetComponent<SteamAudioSource>();
+        SteamAudioSource source = curSource.GetComponent<SteamAudioSource>();
         float curGain = ConvertTodB (source.directMixLevel);
         float nextGain = curGain - 3.0f;
         source.directMixLevel = ConvertFromdB (nextGain);
         source.reflectionsMixLevel = source.directMixLevel;
-        curSpeakerSource.GetComponent<SourceController>().SetGainDb (nextGain);
+        curSource.GetComponent<SourceController>().SetGainDb (nextGain);
         return nextGain;
     }
 
@@ -236,73 +248,78 @@ public class AudioSourceManager : MonoBehaviour
     {
         foreach (Transform source in this.transform)
         {
-            SetPosition(source, vec);
+            SetSourcePosition(vec, source);
         }
 
     }
 
-    public void SetPosition(Transform source, Vector3 vec)
+    public void SetNormalisedSourcePosition (Vector3 vec)
     {
-        source.position = vec;
+        SetSourceX(vec.x);
+        SetSourceY(vec.y);
+        SetSourceZ(vec.z);
     }
 
-    public void SetSpeakerX(float x)
+
+    public void SetSourcePosition (Vector3 vec, Transform source = null)
+    {
+        if (source == null)
+            allSources[sourceIdx].transform.position = vec;
+        else
+            source.position = vec;
+    }
+
+    public void SetSourceX(float x)
     {
         ratioVec[sourceIdx] = new Vector3 (x, ratioVec[sourceIdx].y, ratioVec[sourceIdx].z);
         //ratioVec[sourceIdx] = new Vector3 (x, ratioVec[sourceIdx].y, ratioVec[sourceIdx].z);
-        SetPosition(allSources[sourceIdx].transform, 
-                        new Vector3((x - 0.5f) * (origRoomWidth * root.transform.localScale.x - sourceColliderDiameter) + root.transform.position.x,
+        SetSourcePosition(new Vector3((x - 0.5f) * (origRoomWidth * root.transform.localScale.x - sourceColliderDiameter) + root.transform.position.x,
                                     allSources[sourceIdx].transform.position.y,
                                     allSources[sourceIdx].transform.position.z));
 
     }
 
-    public void SetSpeakersFromRoomSizeX(float roomSize)
+    public void SetSourcesFromRoomSizeX(float roomSize)
     {
         for (int i = 0; i < totNumSources; ++i)
-            SetPosition(allSources[i].transform,
-                        new Vector3((ratioVec[i].x - 0.5f) * (roomSize - sourceColliderDiameter) + root.transform.position.x,
+            SetSourcePosition(new Vector3((ratioVec[i].x - 0.5f) * (roomSize - sourceColliderDiameter) + root.transform.position.x,
                              allSources[i].transform.position.y,
                              allSources[i].transform.position.z));
 
     }
 
-    public void SetSpeakerY(float y)
+    public void SetSourceY(float y)
     {
         ratioVec[sourceIdx] = new Vector3(ratioVec[sourceIdx].x, y, ratioVec[sourceIdx].z);
-        SetPosition(allSources[sourceIdx].transform,
-                        new Vector3(allSources[sourceIdx].transform.position.x,
+        SetSourcePosition(new Vector3(allSources[sourceIdx].transform.position.x,
                                     y * (origRoomHeight * root.transform.localScale.y - sourceColliderHeight) + root.transform.position.y + sourceColliderHeight * 0.5f,
                                     allSources[sourceIdx].transform.position.z));
     }
 
-    public void SetSpeakersFromRoomSizeY(float roomSize)
+    public void SetSourcesFromRoomSizeY(float roomSize)
     {
         for (int i = 0; i < totNumSources; ++i)
-            SetPosition(allSources[i].transform,
-                        new Vector3(allSources[i].transform.position.x,
+            SetSourcePosition(new Vector3(allSources[i].transform.position.x,
                             ratioVec[i].y * (roomSize - sourceColliderHeight) + root.transform.position.y + sourceColliderHeight * 0.5f,
                              allSources[i].transform.position.z));
     }
 
 
-    public void SetSpeakerZ(float z)
+    public void SetSourceZ(float z)
     {
         ratioVec[sourceIdx] = new Vector3(ratioVec[sourceIdx].x, ratioVec[sourceIdx].y, z);
         Debug.Log (z);
-        SetPosition(allSources[sourceIdx].transform,
-                        new Vector3(allSources[sourceIdx].transform.position.x,
+        SetSourcePosition(new Vector3(allSources[sourceIdx].transform.position.x,
                             allSources[sourceIdx].transform.position.y,
                             (z - 0.5f) * (origRoomDepth * root.transform.localScale.z - sourceColliderDiameter) + root.transform.position.z));
     }
 
-    public void SetSpeakersFromRoomSizeZ(float roomSize)
+    public void SetSourcesFromRoomSizeZ(float roomSize)
     {
         Debug.Log (ratioVec[0].z);
 
         for (int i = 0; i < totNumSources; ++i)
-            SetPosition(allSources[i].transform,
-                        new Vector3(allSources[i].transform.position.x,
+            SetSourcePosition(new Vector3(allSources[i].transform.position.x,
                             allSources[i].transform.position.y,
                             (ratioVec[i].z - 0.5f) * (roomSize - sourceColliderDiameter) + root.transform.position.z));
     }

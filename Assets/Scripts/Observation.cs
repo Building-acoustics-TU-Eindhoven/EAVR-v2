@@ -15,6 +15,7 @@ public class Observation{
 
     public string name;
     public float observationTime;
+    public Vector3 roomOrigSize;
     public Vector3 roomScaling;
 
     // public float RT_low;
