@@ -101,11 +101,12 @@ public class SourcePanelManager : MonoBehaviour
         sourceIdxText.text = activeSourceNumber.ToString();
 
         GameObject curSpeakerSource = sourceManager.GetCurSpeakerSource();
-        float xVal = (curSpeakerSource.transform.parent.position.x - root.transform.position.x) / roomSizeManager.roomWidth + 0.5f;
-        float yVal = (curSpeakerSource.transform.parent.position.y - root.transform.position.y) / roomSizeManager.roomHeight;
-        float zVal = (curSpeakerSource.transform.parent.position.z - root.transform.position.z) / roomSizeManager.roomDepth + 0.5f;
+        Vector3 test = sourceManager.GetSourceRatioPositionAt (sourceManager.sourceIdx);
+        // float xVal = (curSpeakerSource.transform.position.x - root.transform.position.x) / (roomSizeManager.roomWidth - sourceManager.sourceColliderDiameter) + 0.5f;
+        // float yVal = (curSpeakerSource.transform.position.y - root.transform.position.y) / (roomSizeManager.roomHeight - sourceManager.sourceColliderHeight);
+        // float zVal = (curSpeakerSource.transform.position.z - root.transform.position.z) / (roomSizeManager.roomDepth - sourceManager.sourceColliderDiameter) + 0.5f;
 
-        SetPositionThroughSliderVals(xVal, yVal, zVal);
+        SetPositionThroughSliderVals(test.x, test.y, test.z);
 
         SetGainText (20 * Mathf.Log10 (curSpeakerSource.GetComponent<SteamAudioSource>().directMixLevel));
 
@@ -210,7 +211,6 @@ public class SourcePanelManager : MonoBehaviour
     {
         sourceManager.SetSpeakerX (x);
         xText.text = x.ToString("0.0");
-        roomSizeManager.SetSourceX(x);
         prevSourceX = x;
     }
 
@@ -218,7 +218,6 @@ public class SourcePanelManager : MonoBehaviour
     {
         sourceManager.SetSpeakerY(y);
         yText.text = y.ToString("0.0");
-        roomSizeManager.SetSourceY(y);
         prevSourceY = y;
     }
 
@@ -226,7 +225,6 @@ public class SourcePanelManager : MonoBehaviour
     {
         sourceManager.SetSpeakerZ(z);
         zText.text = z.ToString("0.0");
-        roomSizeManager.SetSourceZ(z);
         prevSourceZ = z;
     }
 }

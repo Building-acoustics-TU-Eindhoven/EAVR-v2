@@ -27,8 +27,8 @@ public class AudioSourceManager : MonoBehaviour
 
     private List<Vector3> ratioVec = new List<Vector3>();
 
-    private float sourceColliderDiameter;
-    private float sourceColliderHeight;
+    public float sourceColliderDiameter;
+    public float sourceColliderHeight;
 
     private float origRoomWidth, origRoomHeight, origRoomDepth;
     // Start is called before the first frame update
@@ -93,6 +93,11 @@ public class AudioSourceManager : MonoBehaviour
     public GameObject GetCurSpeakerSource()
     {
         return curSpeakerSource;
+    }
+
+    public List<GameObject> GetAllSpeakerSources()
+    {
+        return allSources;
     }
 
     public void PauseAudio()
@@ -195,12 +200,22 @@ public class AudioSourceManager : MonoBehaviour
         return true;
     }
 
+    public float ConvertTodB (float linGain)
+    {
+        return 20 * Mathf.Log10 (linGain);
+    }
+
+    public float ConvertFromdB (float dBgain)
+    {
+        return Mathf.Pow(10.0f, dBgain / 20.0f);
+    }
+
     public float IncreaseGain3dB()
     {
         SteamAudioSource source = curSpeakerSource.GetComponent<SteamAudioSource>();
-        float curGain = 20 * Mathf.Log10(source.directMixLevel);
+        float curGain = ConvertTodB (source.directMixLevel);
         float nextGain = curGain + 3.0f;
-        source.directMixLevel = Mathf.Pow(10.0f, nextGain / 20.0f);
+        source.directMixLevel = ConvertFromdB (nextGain);
         source.reflectionsMixLevel = source.directMixLevel;
         curSpeakerSource.GetComponent<SourceController>().SetGainDb (nextGain);
         return nextGain;
@@ -209,9 +224,9 @@ public class AudioSourceManager : MonoBehaviour
     public float DecreaseGain3dB()
     {
         SteamAudioSource source = curSpeakerSource.GetComponent<SteamAudioSource>();
-        float curGain = 20 * Mathf.Log10(source.directMixLevel);
+        float curGain = ConvertTodB (source.directMixLevel);
         float nextGain = curGain - 3.0f;
-        source.directMixLevel = Mathf.Pow(10.0f, nextGain / 20.0f);
+        source.directMixLevel = ConvertFromdB (nextGain);
         source.reflectionsMixLevel = source.directMixLevel;
         curSpeakerSource.GetComponent<SourceController>().SetGainDb (nextGain);
         return nextGain;
@@ -300,4 +315,14 @@ public class AudioSourceManager : MonoBehaviour
         
         AddSource(true);
     }
+
+    public List<Vector3> GetSourceRatioPositions()
+    {
+        return ratioVec;
+    }
+    public Vector3 GetSourceRatioPositionAt (int idx)
+    {
+        return ratioVec[idx];
+    }
+
 }

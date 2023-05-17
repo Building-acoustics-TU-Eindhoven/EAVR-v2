@@ -17,8 +17,6 @@ public class RoomSizeManager : MonoBehaviour
     private TMP_InputField xText, yText, zText;
     private float prevXval, prevYval, prevZval;
     private Slider xSlider, ySlider, zSlider;
-
-    private float sourceX, sourceY, sourceZ;
     private float playerX = 0.5f;
     private float playerZ = 0.5f;
 
@@ -182,26 +180,20 @@ public class RoomSizeManager : MonoBehaviour
         playerManager.SetPlayerZ(playerZ, z * roomDepth);
         // speakerWallManager.UpdateSpeakerGrid();
     }
-
-    public void SetSourceX(float x)
-    {
-        sourceX = x;
-    }
-
-    public void SetSourceY(float y)
-    {
-        sourceY = y;
-    }
-
-    public void SetSourceZ(float z)
-    {
-        sourceZ = z;
-    }
-
     public void SetPlayerTransform()
     {
         playerX = (playerGO.transform.position.x - root.transform.localPosition.x) / roomWidth;
         playerZ = (playerGO.transform.position.z - root.transform.localPosition.z) / roomDepth;
+    }
+
+    public Vector3 GetNormalisedPlayerPos()
+    {
+        return new Vector3 (
+            (playerGO.transform.position.x - root.transform.localPosition.x) / roomWidth,
+            (playerGO.transform.position.y - root.transform.localPosition.y) / roomHeight,
+            (playerGO.transform.position.z - root.transform.localPosition.z) / roomDepth
+        );
+
     }
 
     // public void SetSourceTransform (Vector3 pos, int sourceIdx)
