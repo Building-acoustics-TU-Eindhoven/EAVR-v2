@@ -18,14 +18,15 @@ public class SaveLoadController : MonoBehaviour
     public GameObject observationItem;
     public List<GameObject> assessmentList;
 
-
+    private SteamAudioManager steamAudioManager;
     public SourcePanelManager sourcePanelManager;
     public AudioSourceManager audioSourceManager;
     public RoomSizeManager roomSizeManager;
-
+    bool observationLoaded = false;
     // Start is called before the first frame update
     void Start()
     {
+        steamAudioManager = GameObject.Find("Steam Audio Manager").GetComponent<SteamAudioManager>();
         root = GameObject.Find("root");
 
         DateTime dt = DateTime.Now;
@@ -55,12 +56,14 @@ public class SaveLoadController : MonoBehaviour
         DateTime dt = DateTime.Now;
         _AssessmentData.assessment_name = "Observation_Record";
 
+        _AssessmentData.currentObservation = new Observation();
         _AssessmentData.currentObservation.name = _AssessmentData.observations.Count + "_" + recordName;
         _AssessmentData.currentObservation.observationTime = timestamp;
         _AssessmentData.currentObservation.roomOrigSize = roomSizeManager.originalSize;
         _AssessmentData.currentObservation.roomScaling = root.transform.localScale;
         _AssessmentData.currentObservation.playerXYZ = roomSizeManager.GetNormalisedPlayerPos();
         _AssessmentData.currentObservation.rotation = Camera.main.transform.rotation;
+        Debug.Log("Pos save: " + roomSizeManager.GetNormalisedPlayerPos());
 
         int sourceId = 0;
         foreach (GameObject source in audioSourceManager.GetAllSources())
@@ -249,9 +252,13 @@ public class SaveLoadController : MonoBehaviour
 
     public void LoadObservation (Observation obs)
     {
-        // Apply player position
-        playerGO.GetComponent<PlayerManager>().SetPlayerPos (obs.playerXYZ, Vector3.Scale(obs.roomOrigSize, obs.roomScaling));
-        Camera.main.transform.rotation = obs.rotation;
+        observationLoaded = false;
+        steamAudioManager.enabled = false;
+
+        foreach (GameObject source in audioSourceManager.GetAllSources())
+        {
+            source.SetActive (false);
+        }
 
         // Load room scaling (via sliders)
         roomSizeManager.SetRoomSizeSliders (obs.roomScaling);
@@ -262,7 +269,7 @@ public class SaveLoadController : MonoBehaviour
         for (int i = 0; i < obs.sourceClipNames.Count; ++i)
         {
             audioSourceManager.AddSource(i == 0);
-
+            audioSourceManager.GetCurSource().SetActive (false);
             // Apply gaindB
             audioSourceManager.GetCurSource().GetComponent<SteamAudioSource>().directMixLevel = audioSourceManager.ConvertFromdB (obs.sourceGaindBs[i]);
             audioSourceManager.GetCurSource().GetComponent<SteamAudioSource>().reflectionsMixLevel = audioSourceManager.ConvertFromdB (obs.sourceGaindBs[i]);
@@ -286,8 +293,26 @@ public class SaveLoadController : MonoBehaviour
 
         }
         sourcePanelManager.ChangeSourceIdx (obs.sourceClipNames.Count - 1);
+
+        foreach (GameObject source in audioSourceManager.GetAllSources())
+            source.SetActive (true);
+
+        // Apply player position
+        playerGO.GetComponent<PlayerManager>().SetPlayerPos (obs.playerXYZ, Vector3.Scale(obs.roomOrigSize, obs.roomScaling));
+        playerGO.GetComponent<PlayerManager>().mainCamera.transform.localRotation = obs.rotation;
+        playerGO.GetComponent<PlayerManager>().SetRotationAndPosition();
+
+        observationLoaded = true;
     }
 
+    void LateUpdate() 
+    {
+        if (observationLoaded)
+        {
+            steamAudioManager.enabled = true;
+            observationLoaded = false;
+        }
+    }
     public void DeleteObservation (Observation obs)
     {
         _AssessmentData.observations.Remove(obs);

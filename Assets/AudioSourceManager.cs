@@ -169,8 +169,6 @@ public class AudioSourceManager : MonoBehaviour
             Debug.Log(ratioVec[0].y);
             initSource.SetActive(false);
             allSources[0].SetActive(true);
-            ChangeSourceIdx(0);
-
         }
         else
         {
@@ -182,6 +180,8 @@ public class AudioSourceManager : MonoBehaviour
         Debug.Log("ActiveSourceIdx = " + allSources[totNumSources - 1].GetComponent<SourceController>().activeSourceIdx);
         // allSources[totNumSources - 1].GetComponent<SourceController>().activeSourceIdx =
             // curSource.GetComponent<SourceController>().activeSourceIdx;
+        ChangeSourceIdx (totNumSources-1);
+
     }
 
     public void RemoveAllSources()
@@ -284,7 +284,7 @@ public class AudioSourceManager : MonoBehaviour
         for (int i = 0; i < totNumSources; ++i)
             SetSourcePosition(new Vector3((ratioVec[i].x - 0.5f) * (roomSize - sourceColliderDiameter) + root.transform.position.x,
                              allSources[i].transform.position.y,
-                             allSources[i].transform.position.z));
+                             allSources[i].transform.position.z), allSources[i].transform);
 
     }
 
@@ -301,7 +301,7 @@ public class AudioSourceManager : MonoBehaviour
         for (int i = 0; i < totNumSources; ++i)
             SetSourcePosition(new Vector3(allSources[i].transform.position.x,
                             ratioVec[i].y * (roomSize - sourceColliderHeight) + root.transform.position.y + sourceColliderHeight * 0.5f,
-                             allSources[i].transform.position.z));
+                             allSources[i].transform.position.z), allSources[i].transform);
     }
 
 
@@ -321,7 +321,7 @@ public class AudioSourceManager : MonoBehaviour
         for (int i = 0; i < totNumSources; ++i)
             SetSourcePosition(new Vector3(allSources[i].transform.position.x,
                             allSources[i].transform.position.y,
-                            (ratioVec[i].z - 0.5f) * (roomSize - sourceColliderDiameter) + root.transform.position.z));
+                            (ratioVec[i].z - 0.5f) * (roomSize - sourceColliderDiameter) + root.transform.position.z), allSources[i].transform);
     }
 
     public void SetOriginalRoomDimensions (float roomWidth, float roomHeight, float roomDepth)

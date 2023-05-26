@@ -31,6 +31,8 @@ public class SourcePanelManager : MonoBehaviour
 
     private Slider xSlider, ySlider, zSlider;
     private float prevSourceX, prevSourceY, prevSourceZ;
+    private bool init = false;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -55,6 +57,9 @@ public class SourcePanelManager : MonoBehaviour
         sourceManager.AddLocalFilesToClipList();
 
         CreateDropdownList();
+
+        init = true;
+        RefreshTextAndUIElements();
 
     }
 
@@ -98,6 +103,8 @@ public class SourcePanelManager : MonoBehaviour
 
     public void RefreshTextAndUIElements()
     {
+        if (!init)
+            return;
         sourceIdxText.text = activeSourceNumber.ToString();
 
         GameObject curSource = sourceManager.GetCurSource();
@@ -107,12 +114,16 @@ public class SourcePanelManager : MonoBehaviour
         // float zVal = (curSource.transform.position.z - root.transform.position.z) / (roomSizeManager.roomDepth - sourceManager.sourceColliderDiameter) + 0.5f;
 
         // SetPositionThroughSlidersVals(test.x, test.y, test.z);
-
+        SetPositionThroughSliderVals (sourceManager.GetSourceRatioPositionAt (sourceManager.sourceIdx));
         SetGainText (20 * Mathf.Log10 (curSource.GetComponent<SteamAudioSource>().directMixLevel));
 
         m_dropdown.SetValueWithoutNotify(curSource.GetComponent<SourceController>().activeSourceIdx);
     }
 
+    public void SetPositionThroughSliderVals(Vector3 pos)
+    {
+        SetPositionThroughSliderVals (pos.x, pos.y, pos.z);
+    }
     public void SetPositionThroughSliderVals(float x, float y, float z)
     {
         Debug.Log(x + " " + y + " " + z);

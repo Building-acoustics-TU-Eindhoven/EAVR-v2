@@ -61,6 +61,19 @@ public class PlayerManager : MonoBehaviour
 
     }
 
+    public void SetRotationAndPosition()
+    {
+        Vector3 rotation = mainCamera.transform.localRotation.eulerAngles;
+
+        if (rotation.x > 80.0f)
+            rotationX = rotation.x - 360f;
+        else
+            rotationX = rotation.x;
+        rotationY = rotation.y;
+
+        // characterController.center = mainCamera.transform.position
+    }
+
     void Update()
     {
         if (Input.GetKeyDown("space"))
@@ -140,9 +153,10 @@ public class PlayerManager : MonoBehaviour
 
     public void SetPlayerPos (Vector3 pos, Vector3 roomDimensions)
     {
-        SetPlayerX (pos.x, roomDimensions.x);
-        SetPlayerY (pos.y, roomDimensions.y);
-        SetPlayerZ (pos.z, roomDimensions.z);
+        Vector3 test = new Vector3((pos.x - 0.5f) * (roomDimensions.x - playerColliderDiameter) + root.transform.position.x,
+                                         pos.y * roomDimensions.y + root.transform.position.y,
+                                         (pos.z - 0.5f) * (roomDimensions.z - playerColliderDiameter) + root.transform.position.z);
+        transform.position = test;
     }
 
     public void SetPlayerX(float x, float roomWidth)
