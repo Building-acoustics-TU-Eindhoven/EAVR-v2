@@ -427,11 +427,15 @@ private string filepath = "./Assets/Models/10mcube.gltf";
     public void RegenerateDynamicObjects()
     {
         GameObject root = GameObject.FindGameObjectWithTag("Model");
-        if (root != null)
-            DestroyImmediate(root);
 
         string filepath = EditorUtility.OpenFilePanel("Load GLTF", "", "gltf");
         // string filepath = "./Assets/Models/TrappenZaal.gltf";
+        if (filepath == "")
+            return;
+        
+        if (root != null)
+            DestroyImmediate(root);
+
         _loadedGameObject = Importer.LoadFromFile(filepath);
         _loadedGameObject.tag = "Model";
         ImportProcedure();

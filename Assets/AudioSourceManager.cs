@@ -139,7 +139,7 @@ public class AudioSourceManager : MonoBehaviour
     {
         AudioClip selectedClip = clipList[dropDownValue];
 
-        curSource.GetComponent<SourceController>().activeSourceIdx = dropDownValue;
+        curSource.GetComponent<SourceController>().activeClipIdx = dropDownValue;
         curSource.GetComponent<SourceController>().SwitchClipAndPlay(clipList[dropDownValue]);
 
         string clipName = selectedClip.name;
@@ -177,7 +177,6 @@ public class AudioSourceManager : MonoBehaviour
         }
 
         // GlobalFunctions.GetChildWithName(allSources[totNumSources - 1], "Source").
-        Debug.Log("ActiveSourceIdx = " + allSources[totNumSources - 1].GetComponent<SourceController>().activeSourceIdx);
         // allSources[totNumSources - 1].GetComponent<SourceController>().activeSourceIdx =
             // curSource.GetComponent<SourceController>().activeSourceIdx;
         ChangeSourceIdx (totNumSources-1);
