@@ -39,6 +39,7 @@ public class SaveLoadController : MonoBehaviour
         AssessmentData _assessments = JsonUtility.FromJson<AssessmentData>(System.IO.File.ReadAllText(path));
 
         _AssessmentData.observations = _assessments.observations;
+        Debug.Log(Application.persistentDataPath);
 
         UpdateButtons();
     }
@@ -122,7 +123,7 @@ public class SaveLoadController : MonoBehaviour
     {
 
         //AssessmentData _assessments = new AssessmentData();
-
+        Debug.Log(Application.persistentDataPath);
         string path = Application.persistentDataPath + "/AssessmentData_" + _AssessmentData.assessment_name + ".json";
         string json;
 
@@ -246,6 +247,7 @@ public class SaveLoadController : MonoBehaviour
         }
         //obsIndex = 0;
         viewportContent.GetChild(0).gameObject.SetActive(false);
+        viewportContent.GetChild(1).gameObject.SetActive(false);
         ScrollViewCallback(startIdx);
 
     }
