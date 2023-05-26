@@ -117,7 +117,7 @@ public class SourcePanelManager : MonoBehaviour
         SetPositionThroughSliderVals (sourceManager.GetSourceRatioPositionAt (sourceManager.sourceIdx));
         SetGainText (20 * Mathf.Log10 (curSource.GetComponent<SteamAudioSource>().directMixLevel));
 
-        m_dropdown.SetValueWithoutNotify(curSource.GetComponent<SourceController>().activeSourceIdx);
+        m_dropdown.SetValueWithoutNotify(curSource.GetComponent<SourceController>().activeClipIdx);
     }
 
     public void SetPositionThroughSliderVals(Vector3 pos)

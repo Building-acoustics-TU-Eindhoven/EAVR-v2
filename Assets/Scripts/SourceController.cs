@@ -14,7 +14,7 @@ public class SourceController : MonoBehaviour
     //private AudioClip clip;
 
     private AudioSource audioSource;
-    public int activeSourceIdx { get; set; }
+    public int activeClipIdx { get; set; }
 
     public float gainDB = 0.0f;
     private float prevRMSval = 0.0f;

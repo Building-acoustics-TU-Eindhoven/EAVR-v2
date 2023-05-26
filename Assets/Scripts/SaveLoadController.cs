@@ -289,6 +289,7 @@ public class SaveLoadController : MonoBehaviour
                 if (audioSourceManager.clipList[ii].name == obs.sourceClipNames[i])
                 {
                     audioSourceManager.GetCurSource().GetComponent<AudioSource>().clip = audioSourceManager.clipList[ii];
+                    audioSourceManager.GetCurSource().GetComponent<SourceController>().activeClipIdx = ii;
                     clipIsFound = true;
                     break;
                 }
