@@ -58,7 +58,14 @@ public class SaveLoadController : MonoBehaviour
         _AssessmentData.assessment_name = "Observation_Record";
 
         _AssessmentData.currentObservation = new Observation();
-        _AssessmentData.currentObservation.name = _AssessmentData.observations.Count + "_" + recordName;
+        if (_AssessmentData.observations.Count == 0)
+            _AssessmentData.currentObservation.name = "0_" + recordName;
+        else
+        {
+            string lastObsName = _AssessmentData.observations[_AssessmentData.observations.Count-1].name;
+            _AssessmentData.currentObservation.name = (int.Parse(lastObsName.Substring(0, 1)) + 1).ToString() + "_" + recordName;
+        }
+
         _AssessmentData.currentObservation.observationTime = timestamp;
         _AssessmentData.currentObservation.roomOrigSize = roomSizeManager.originalSize;
         _AssessmentData.currentObservation.roomScaling = root.transform.localScale;
@@ -81,10 +88,11 @@ public class SaveLoadController : MonoBehaviour
             // Set gaindB
             _AssessmentData.currentObservation.sourceGaindBs.Add(audioSourceManager.ConvertTodB(source.GetComponent<SteamAudioSource>().directMixLevel));
 
+            _AssessmentData.currentObservation.sourcePositions.Add (audioSourceManager.GetSourceRatioPositionAt(sourceId));
+
             ++sourceId;
         }
         // Add to the list of sources in the current observation
-        _AssessmentData.currentObservation.sourcePositions = audioSourceManager.GetSourceRatioPositions();
 
         Debug.Log("test " + _AssessmentData.observations.Count);
 
@@ -209,7 +217,7 @@ public class SaveLoadController : MonoBehaviour
                 //if (!currentlyShownObservationNames.Contains(obs.name))
                 //{
                 GameObject newItem = Instantiate(observationItem, viewportContent);
-                newItem.transform.position = new Vector3 (newItem.transform.position.x, newItem.transform.position.y - obsIndex * 120.0f, newItem.transform.position.z);
+                // newItem.transform.position = new Vector3 (newItem.transform.position.x, newItem.transform.position.y - (obsIndex + 1) * 120.0f, newItem.transform.position.z);
                 // newItem.GetComponent<RectTransform>().offsetMax = new Vector2 (
                     // newItem.GetComponent<RectTransform>().position.x, 
                     // - obsIndex * 45.0f);
@@ -247,7 +255,7 @@ public class SaveLoadController : MonoBehaviour
         }
         //obsIndex = 0;
         viewportContent.GetChild(0).gameObject.SetActive(false);
-        viewportContent.GetChild(1).gameObject.SetActive(false);
+        // viewportContent.GetChild(1).gameObject.SetActive(false);
         ScrollViewCallback(startIdx);
 
     }
@@ -271,7 +279,7 @@ public class SaveLoadController : MonoBehaviour
         for (int i = 0; i < obs.sourceClipNames.Count; ++i)
         {
             audioSourceManager.AddSource(i == 0);
-            audioSourceManager.GetCurSource().SetActive (false);
+
             // Apply gaindB
             audioSourceManager.GetCurSource().GetComponent<SteamAudioSource>().directMixLevel = audioSourceManager.ConvertFromdB (obs.sourceGaindBs[i]);
             audioSourceManager.GetCurSource().GetComponent<SteamAudioSource>().reflectionsMixLevel = audioSourceManager.ConvertFromdB (obs.sourceGaindBs[i]);
@@ -335,7 +343,7 @@ public class SaveLoadController : MonoBehaviour
         {
             Transform child = viewportContent.GetChild(childIdx);
             child.GetComponent<RectTransform>().localPosition = new Vector3(child.GetComponent<RectTransform>().localPosition.x,
-                                                                             -(i - 1) * itemHeight,
+                                                                             -(i) * itemHeight,
                                                                              child.GetComponent<RectTransform>().localPosition.z);
             ++i;
         }
