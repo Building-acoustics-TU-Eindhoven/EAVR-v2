@@ -198,9 +198,9 @@ public class RoomSizeManager : MonoBehaviour
     public Vector3 GetNormalisedPlayerPos()
     {
         return new Vector3 (
-            (playerGO.transform.position.x - root.transform.localPosition.x) / curRoomWidth + 0.5f,
+            (playerGO.transform.position.x - root.transform.localPosition.x) / (curRoomWidth - playerManager.playerColliderDiameter) + 0.5f,
             (playerGO.transform.position.y - root.transform.localPosition.y) / curRoomHeight,
-            (playerGO.transform.position.z - root.transform.localPosition.z) / curRoomDepth + 0.5f
+            (playerGO.transform.position.z - root.transform.localPosition.z) / (curRoomDepth - playerManager.playerColliderDiameter) + 0.5f
         );
 
     }

@@ -204,6 +204,7 @@ public class AudioSourceManager : MonoBehaviour
         }
         --totNumSources;
         Destroy (allSources[sourceIdx]);
+        ratioVec.RemoveAt(sourceIdx);
         allSources.RemoveAt(sourceIdx);
 
         if (sourceIdx == totNumSources)

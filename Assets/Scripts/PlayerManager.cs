@@ -46,7 +46,7 @@ public class PlayerManager : MonoBehaviour
 
     public GameObject reticleCanvas;
 
-    private float playerColliderDiameter;
+    public float playerColliderDiameter;
     void Start()
     {
         root = GameObject.Find("root");
