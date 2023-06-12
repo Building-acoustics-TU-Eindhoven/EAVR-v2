@@ -76,6 +76,9 @@ public class PlayerManager : MonoBehaviour
 
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Escape))
+            Application.Quit();
+
         if (Input.GetKeyDown("space"))
             characterController.Move(new Vector3 (0.0f, 10.0f, 0.0f));
         // Register player-move keypresses and forward them to the roomSizeManager so that the player's relative position to the roomsize doesn't change

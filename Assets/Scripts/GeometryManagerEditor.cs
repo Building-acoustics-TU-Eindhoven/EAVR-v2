@@ -1,10 +1,11 @@
+#if UNITY_EDITOR
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.Windows;
 using UnityEditor;
-using UnityEditor.SceneManagement;
+// using UnityEditor.SceneManagement;
 
 [CustomEditor(typeof(GeometryManager))]
 public class GeometryManagerEditor : Editor
@@ -24,3 +25,4 @@ public class GeometryManagerEditor : Editor
         }
     }
 }
+#endif
