@@ -23,13 +23,14 @@ public class GeometryManager : MonoBehaviour
     private List<Transform> selectedWalls = new List<Transform>();
 
 private string filepath = "./Assets/Models/10mcube.gltf";
-    List<UnityEngine.Material> visualMaterials = new List<UnityEngine.Material>();
+    public List<UnityEngine.Material> visualMaterials = new List<UnityEngine.Material>();
     List<SteamAudioMaterial> steamAudioMaterials = new List<SteamAudioMaterial>();
 
     // Start is called before the first frame update
     void Start()
     {
         // SetActiveMaterial();
+        CollectMaterials();
     }
 
     // Update is called once per frame
@@ -37,13 +38,17 @@ private string filepath = "./Assets/Models/10mcube.gltf";
     {
     }
 
-#if UNITY_EDITOR
     // Called in the Awake function of the GeometryManagerEditor
     public void CollectMaterials()
     {
+#if UNITY_EDITOR
+        // UnityEditor.SerializedObject meshRenderer = new UnityEditor.SerializedObject (goChild.GetComponent<MeshRenderer>());
+        // UnityEditor.SerializedProperty visualMaterialsList = this.visualMaterials;        
+
         // Collect visual materials
         string[] visualMaterialFiles = System.IO.Directory.GetFiles("Assets/Materials", "*.mat", SearchOption.TopDirectoryOnly);
 
+        visualMaterials.Clear();
         foreach (var file in visualMaterialFiles)
         {
             visualMaterials.Add(AssetDatabase.LoadAssetAtPath(file, typeof(UnityEngine.Material)) as UnityEngine.Material);
@@ -52,12 +57,14 @@ private string filepath = "./Assets/Models/10mcube.gltf";
         // Collect Steam Audio materials
         string[] steamAudioMaterialFiles = System.IO.Directory.GetFiles("Assets/Plugins/SteamAudio/Resources/Materials", "*.asset", SearchOption.TopDirectoryOnly);
 
+        steamAudioMaterials.Clear();
         foreach (var file in steamAudioMaterialFiles)
         {
             steamAudioMaterials.Add(AssetDatabase.LoadAssetAtPath(file, typeof(SteamAudioMaterial)) as SteamAudioMaterial);
         }
-    }
 #endif
+        Debug.Log("Tot num materials = " + visualMaterials.Count);
+    }
     public void SetActiveMaterial()
     {
 
@@ -227,7 +234,7 @@ private string filepath = "./Assets/Models/10mcube.gltf";
                 //// Add children to each mesh: one per material ////
                 string activeMaterial = GetMaterialBasedOnMeshName (go.name);
 
-                GameObject selectionGo = Instantiate<GameObject> (mf.gameObject);
+                // GameObject selectionGo = Instantiate<GameObject> (mf.gameObject);
                 bool firstChild = true;
                 foreach (SteamAudioMaterial steamAudioMaterial in steamAudioMaterials)
                 {
@@ -239,6 +246,7 @@ private string filepath = "./Assets/Models/10mcube.gltf";
                     }
 
                     goChild.name = counter + "_" + steamAudioMaterial.name;
+                    goChild.tag = "Selectable";
 
                     // Add Steam Audio Components
 
@@ -273,7 +281,7 @@ private string filepath = "./Assets/Models/10mcube.gltf";
 
                     goChild.SetActive(steamAudioMaterial.name == activeMaterial);
                 }
-                AddSelectionGeometry (selectionGo, mf, counter);
+                // AddSelectionGeometry (selectionGo, mf, counter);
 
                 mf.GetComponent<MeshRenderer>().enabled = false;
                 ++counter;
@@ -289,23 +297,23 @@ private string filepath = "./Assets/Models/10mcube.gltf";
         }
     }
     
-    private void AddSelectionGeometry (GameObject selectionGo, MeshFilter mf, int counter)
-    {
-                            // Add child to mesh
-        // GameObject goChild = Instantiate<GameObject>(mf.transform.GetChild(0).gameObject, mf.gameObject.transform);
-        selectionGo.transform.SetParent (mf.gameObject.transform);
+    // private void AddSelectionGeometry (GameObject selectionGo, MeshFilter mf, int counter)
+    // {
+    //                         // Add child to mesh
+    //     // GameObject goChild = Instantiate<GameObject>(mf.transform.GetChild(0).gameObject, mf.gameObject.transform);
+    //     selectionGo.transform.SetParent (mf.gameObject.transform);
 
-        selectionGo.name = counter + "_Selection";
-        // Add Steam Audio Components
+    //     selectionGo.name = counter + "_Selection";
+    //     // Add Steam Audio Components
 
-        // Set active so we can do things with it
-        selectionGo.SetActive (true);
+    //     // Set active so we can do things with it
+    //     selectionGo.SetActive (true);
 
-        //// EDIT VISUAL MATERIAL ////
-        EditMeshRendererMaterial (selectionGo, "Selection");
-        selectionGo.SetActive(false);
+    //     //// EDIT VISUAL MATERIAL ////
+    //     EditMeshRendererMaterial (selectionGo, "Selection");
+    //     selectionGo.SetActive(false);
 
-    }
+    // }
     private void EditMeshRendererMaterial(GameObject goChild, string visualMaterialName)
     {
 #if UNITY_EDITOR

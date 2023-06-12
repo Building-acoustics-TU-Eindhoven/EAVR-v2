@@ -83,13 +83,13 @@ public class PlayerRayCast : MonoBehaviour
                     }
 
                     // Set the selected children active 
-                    foreach (Transform child in hit.transform.parent.parent)
-                    {
-                        // Is child selected
-                        bool childIsSelected = geometryManager.GetSelectedWalls().Contains (child);
-                        Debug.Log ("Is child selected? " + childIsSelected);
-                        child.GetChild(hit.transform.parent.childCount - 1).gameObject.SetActive(childIsSelected);
-                    }
+                    // foreach (Transform child in hit.transform.parent.parent)
+                    // {
+                    //     // Is child selected
+                    //     bool childIsSelected = geometryManager.GetSelectedWalls().Contains (child);
+                    //     Debug.Log ("Is child selected? " + childIsSelected);
+                    //     child.GetChild(hit.transform.parent.childCount - 1).gameObject.SetActive(childIsSelected);
+                    // }
 
                     if (geometryManager.GetSelectedWalls().Count == 0)
                     {
