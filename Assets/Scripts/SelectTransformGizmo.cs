@@ -54,12 +54,33 @@ public class SelectTransformGizmo : MonoBehaviour
         runtimeTransformGameObj.SetActive(false);
     }
 
+
+    private void RemoveFromSelection (Transform selToRemove)
+    {
+        foreach (Transform sel in selection)
+        {
+            if (sel != selToRemove)
+                continue;
+            Transform activeChild = GetActiveChild(sel);
+            Material[] materials = new Material[activeChild.GetComponent<MeshRenderer>().materials.Length];
+            for (int i = 0; i < activeChild.GetComponent<MeshRenderer>().materials.Length; ++i)
+                materials[i] = GetOriginalMaterial (activeChild.name);
+            
+            activeChild.GetComponent<MeshRenderer>().materials = materials;
+            selection.Remove (selToRemove);
+            return;
+        }
+    }
     private void ClearSelection()
     {
         foreach (Transform sel in selection)
         {
             Transform activeChild = GetActiveChild(sel);
-            activeChild.GetComponent<MeshRenderer>().material = GetOriginalMaterial (activeChild.name);
+            Material[] materials = new Material[activeChild.GetComponent<MeshRenderer>().materials.Length];
+            for (int i = 0; i < activeChild.GetComponent<MeshRenderer>().materials.Length; ++i)
+                materials[i] = GetOriginalMaterial (activeChild.name);
+            
+            activeChild.GetComponent<MeshRenderer>().materials = materials;
         }
         selection.Clear();
     }
@@ -126,9 +147,7 @@ public class SelectTransformGizmo : MonoBehaviour
                     {
                         if (shiftDown || selection.Count == 1)
                         {
-                            Transform activeChild = GetActiveChild(selection[0]);
-                            activeChild.GetComponent<MeshRenderer>().material = GetOriginalMaterial (activeChild.name);
-                            selection.Remove (parentWall);
+                            RemoveFromSelection (parentWall);
                         }
                         else
                         {
@@ -158,7 +177,8 @@ public class SelectTransformGizmo : MonoBehaviour
                             originalMaterialSelection = GetOriginalMaterial (activeChild.name);
 
                             selectionMaterial.mainTextureScale = originalMaterialSelection.mainTextureScale;
-                            activeChild.GetComponent<MeshRenderer>().material.Lerp(selectionMaterial, originalMaterialSelection, 0.5f);
+                            foreach (Material mat in activeChild.GetComponent<MeshRenderer>().materials)
+                                mat.Lerp(selectionMaterial, originalMaterialSelection, 0.5f);
 
 
                             // runtimeTransformHandle.target = highlight;

@@ -324,7 +324,13 @@ private string filepath = "./Assets/Models/10mcube.gltf";
         // Set the visual material of the mesh renderer to the one 
         foreach (UnityEngine.Material mat in visualMaterials)
             if (mat.name == visualMaterialName)
-                goChild.GetComponent<MeshRenderer>().sharedMaterial = mat;
+            {
+                UnityEngine.Material[] materials = new UnityEngine.Material[goChild.GetComponent<MeshRenderer>().sharedMaterials.Length];
+                for (int i = 0; i < goChild.GetComponent<MeshRenderer>().sharedMaterials.Length; ++i)
+                    materials[i] = mat;
+                
+                goChild.GetComponent<MeshRenderer>().sharedMaterials = materials;
+            }
 
         meshRenderer.ApplyModifiedProperties();
 #else
