@@ -7,6 +7,8 @@ TagManager:
   - Wall
   - WallToggle
   - Model
+  - TextBriefPopup
+  - Selectable
   layers:
   - Default
   - TransparentFX
