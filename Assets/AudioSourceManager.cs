@@ -161,11 +161,12 @@ public class AudioSourceManager : MonoBehaviour
         // Duplicate currently selected source
         if (init)
         {
+            
             allSources.Add(Instantiate(initSource, this.transform));
             ratioVec.Add (new Vector3 (
-                Mathf.Clamp01((initSource.transform.position.x - root.transform.position.x) / (origRoomWidth * root.transform.localScale.x)),
+                Mathf.Clamp01((initSource.transform.position.x - root.transform.position.x) / (origRoomWidth * root.transform.localScale.x - sourceColliderDiameter) + 0.5f),
                 Mathf.Clamp01((initSource.transform.position.y - 0.5f * sourceColliderHeight - root.transform.position.y) / (origRoomHeight * root.transform.localScale.y - sourceColliderHeight * 1.0f)),
-                Mathf.Clamp01((initSource.transform.position.z - root.transform.position.z) / (origRoomDepth * root.transform.localScale.z))));
+                Mathf.Clamp01((initSource.transform.position.z - root.transform.position.z) / (origRoomDepth * root.transform.localScale.z - sourceColliderDiameter) + 0.5f)));
             Debug.Log(ratioVec[0].y);
             initSource.SetActive(false);
             allSources[0].SetActive(true);
