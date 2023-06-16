@@ -76,15 +76,7 @@ private string filepath = "./Assets/Models/10mcube.gltf";
 
         foreach (Transform selectedWall in selectedWalls)
         {
-            int i = 0;
-            foreach (Transform child in selectedWall)
-            {
-                if (i == curMaterial)
-                    child.gameObject.SetActive(true);
-                else
-                    child.gameObject.SetActive(false);
-                ++i;
-            }
+            selectedWall.GetComponent<WallManager>().SetActiveMaterial (curMaterial);
         }
         /// Changing all materials ///
         // GameObject root = GameObject.Find("root");
@@ -177,7 +169,7 @@ private string filepath = "./Assets/Models/10mcube.gltf";
     
     public string GetActiveMaterialOf (int idx)
     {
-        foreach (Transform child in selectedWalls[0])
+        foreach (Transform child in selectedWalls[idx])
         {
             if (child.gameObject.activeSelf)
             {
@@ -237,6 +229,7 @@ private string filepath = "./Assets/Models/10mcube.gltf";
                 // Add meshcollider
                 go.layer = 10;
 
+                go.AddComponent<WallManager>();
                 //// Add children to each mesh: one per material ////
                 string activeMaterial = GetMaterialBasedOnMeshName (go.name);
 

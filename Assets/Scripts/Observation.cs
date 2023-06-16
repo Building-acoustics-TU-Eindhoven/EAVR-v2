@@ -29,7 +29,7 @@ public class Observation{
     public List<Vector3> sourcePositions = new List<Vector3>();
     public List<string> sourceClipNames = new List<string>();
     public List<float> sourceGaindBs = new List<float>();
-    public List<string> matList;
+    public List<int> matList;
     public List<string> meshFilterNames;
     
 }
