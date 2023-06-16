@@ -81,7 +81,7 @@ private string filepath = "./Assets/Models/10mcube.gltf";
             {
                 if (i == curMaterial)
                     child.gameObject.SetActive(true);
-                else if (i != selectedWall.childCount-1)
+                else
                     child.gameObject.SetActive(false);
                 ++i;
             }
@@ -221,12 +221,18 @@ private string filepath = "./Assets/Models/10mcube.gltf";
             int counter = 0;
             foreach (MeshFilter mf in mff)
             {
+                Vector2[] test = mf.sharedMesh.uv;
+                Debug.Log ("uv Length = " + test.Length);
                 // Add components to the imported meshfilter
                 GameObject go = mf.gameObject;
 
                 var name = go.name;
                 if (name == "Room")
+                {
+                    DestroyImmediate(go.gameObject.GetComponent<MeshRenderer>());
+                    // Destroy(go.gameObject.GetComponent<MeshFilter>());
                     continue;
+                }
 
                 // Add meshcollider
                 go.layer = 10;
@@ -461,8 +467,11 @@ private string filepath = "./Assets/Models/10mcube.gltf";
         if (root != null)
             DestroyImmediate(root);
 
+        Debug.Log("Loading game object");
         _loadedGameObject = Importer.LoadFromFile(filepath);
         _loadedGameObject.tag = "Model";
+        Debug.Log("Loaded game object");
+
         ImportProcedure();
 #endif
     }
