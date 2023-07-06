@@ -2,6 +2,8 @@
 
 The Eindhoven Acoustic Virtual Reality (EAVR) project is part of an ongoing research in the Building Acoustics Group at the Built Environment Department of Eindhoven University of Technology (TU/e).
 
+Working applications for Windows and Mac can be found via https://github.com/SilvinWillemsen/EAVR-steam-audio/releases/. The model that is loaded is the Trappenzaal in the Vertigo building at Eindhoven Univeristy of Technology.
+
 To work with this project, follow these steps:
 1. Download and install Unity Hub: https://unity.com/download
 2. Download and install Unity version 2021.3.21f1: https://unity.com/releases/editor/qa/lts-releases
