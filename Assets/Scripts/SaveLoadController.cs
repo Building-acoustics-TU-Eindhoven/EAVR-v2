@@ -22,6 +22,7 @@ public class SaveLoadController : MonoBehaviour
     public SourcePanelManager sourcePanelManager;
     public AudioSourceManager audioSourceManager;
     public RoomSizeManager roomSizeManager;
+    public GeometryManager geometryManager;
     bool observationLoaded = false;
     // Start is called before the first frame update
     void Start()
@@ -93,9 +94,11 @@ public class SaveLoadController : MonoBehaviour
             ++sourceId;
         }
         // Add to the list of sources in the current observation
+        List<int> matList = new List<int>();
+        foreach (Transform child in root.transform.GetChild(0))
+            matList.Add (child.GetComponent<WallManager>().GetActiveMaterialIdx());
 
-        Debug.Log("test " + _AssessmentData.observations.Count);
-
+        _AssessmentData.currentObservation.matList = matList;    
         //TODO make sure that we are not leaving data out
 
     }
@@ -146,12 +149,9 @@ public class SaveLoadController : MonoBehaviour
             //Convert the file
             json = JsonUtility.ToJson(_AssessmentData);
 
-
             System.IO.File.WriteAllText(path, json);
 
             Debug.Log("saved new assessment: " + "sessionName");
-
-
         }
         else
         {
@@ -313,6 +313,18 @@ public class SaveLoadController : MonoBehaviour
         playerGO.GetComponent<PlayerManager>().mainCamera.transform.localRotation = obs.rotation;
         playerGO.GetComponent<PlayerManager>().SetRotationAndPosition();
 
+        if (root.transform.GetChild(0).childCount != obs.matList.Count)
+        {
+            Debug.Log ("Observation doesn't match loaded model.");
+        } else {
+            int i = 0;
+            foreach (Transform child in root.transform.GetChild(0))
+            {
+                child.GetComponent<WallManager>().SetActiveMaterial (obs.matList[i]);
+                ++i;
+            }
+        }
+
         observationLoaded = true;
     }
 
@@ -338,7 +350,7 @@ public class SaveLoadController : MonoBehaviour
     public void ScrollViewCallback(int startIdx)
     {
         float itemHeight = viewportContent.GetChild(0).GetComponent<RectTransform>().rect.height * 1.5f;
-        viewportContent.GetComponent<RectTransform>().sizeDelta = new Vector2(viewportContent.GetComponent<RectTransform>().rect.width, (viewportContent.childCount - startIdx - 1) * itemHeight);
+        viewportContent.GetComponent<RectTransform>().sizeDelta = new Vector2(viewportContent.GetComponent<RectTransform>().rect.width, (viewportContent.childCount - startIdx) * itemHeight);
         int i = 0;
         for (int childIdx = startIdx; childIdx < viewportContent.childCount; ++childIdx)
         {

@@ -76,15 +76,7 @@ private string filepath = "./Assets/Models/10mcube.gltf";
 
         foreach (Transform selectedWall in selectedWalls)
         {
-            int i = 0;
-            foreach (Transform child in selectedWall)
-            {
-                if (i == curMaterial)
-                    child.gameObject.SetActive(true);
-                else if (i != selectedWall.childCount-1)
-                    child.gameObject.SetActive(false);
-                ++i;
-            }
+            selectedWall.GetComponent<WallManager>().SetActiveMaterial (curMaterial);
         }
         /// Changing all materials ///
         // GameObject root = GameObject.Find("root");
@@ -177,7 +169,7 @@ private string filepath = "./Assets/Models/10mcube.gltf";
     
     public string GetActiveMaterialOf (int idx)
     {
-        foreach (Transform child in selectedWalls[0])
+        foreach (Transform child in selectedWalls[idx])
         {
             if (child.gameObject.activeSelf)
             {
@@ -221,16 +213,23 @@ private string filepath = "./Assets/Models/10mcube.gltf";
             int counter = 0;
             foreach (MeshFilter mf in mff)
             {
+                Vector2[] test = mf.sharedMesh.uv;
+                Debug.Log ("uv Length = " + test.Length);
                 // Add components to the imported meshfilter
                 GameObject go = mf.gameObject;
 
                 var name = go.name;
                 if (name == "Room")
+                {
+                    DestroyImmediate(go.gameObject.GetComponent<MeshRenderer>());
+                    // Destroy(go.gameObject.GetComponent<MeshFilter>());
                     continue;
+                }
 
                 // Add meshcollider
                 go.layer = 10;
 
+                go.AddComponent<WallManager>();
                 //// Add children to each mesh: one per material ////
                 string activeMaterial = GetMaterialBasedOnMeshName (go.name);
 
@@ -461,8 +460,11 @@ private string filepath = "./Assets/Models/10mcube.gltf";
         if (root != null)
             DestroyImmediate(root);
 
+        Debug.Log("Loading game object");
         _loadedGameObject = Importer.LoadFromFile(filepath);
         _loadedGameObject.tag = "Model";
+        Debug.Log("Loaded game object");
+
         ImportProcedure();
 #endif
     }
