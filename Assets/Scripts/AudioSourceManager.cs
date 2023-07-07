@@ -1,3 +1,9 @@
+/**
+ * @author [Silvin Willemsen]
+ * @email [s.willemsen@tue.nl]
+ * @desc [A class to manage the audio sources]
+*/
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -40,10 +46,6 @@ public class AudioSourceManager : MonoBehaviour
 
         // Used to be a call to AddSource() here, now waiting for room to be initialised and call to this function happens in SetOriginalRoomDimensions()
 
-        // GlobalFunctions.GetChildWithName(allSources[sourceIdx], "JaneAvatar").SetActive(true);
-        // GlobalFunctions.GetChildWithName(allSources[sourceIdx], "MaleAvatar").SetActive(false);
-        // GlobalFunctions.GetChildWithName(allSources[sourceIdx], "SourceSimple").SetActive(false);
-
         sourceColliderDiameter = 2.0f * initSource.GetComponent<CapsuleCollider>().radius;
         sourceColliderHeight = 2.0f * initSource.GetComponent<CapsuleCollider>().height;
 
@@ -68,10 +70,7 @@ public class AudioSourceManager : MonoBehaviour
 
                 string address = Path.Combine(path, item.Name).Replace("\\", "/");
 
-                // Debug.Log(address);
-                // UnityWebRequest AudioFiles = UnityWebRequestMultimedia.GetAudioClip("file://" + address, AudioType.WAV);
                 UnityWebRequest AudioFiles = UnityWebRequestMultimedia.GetAudioClip(address, AudioType.WAV);
-                // UnityWebRequest AudioFiles = UnityWebRequestMultimedia.GetAudioClip("/Users/amilo/Library/Application Support/DefaultCompany/Attempt/Audios/Harvard_L69_S01_5.wav", AudioType.WAV);
 
                 yield return AudioFiles.SendWebRequest();
                 if (AudioFiles.isNetworkError)
@@ -334,10 +333,7 @@ public class AudioSourceManager : MonoBehaviour
         AddSource(true);
     }
 
-    public List<Vector3> GetSourceRatioPositions()
-    {
-        return ratioVec;
-    }
+    // Returns the 3D position of an audio source 
     public Vector3 GetSourceRatioPositionAt (int idx)
     {
         return ratioVec[idx];
