@@ -34,17 +34,21 @@ To work with this project, follow these steps:
 The most important folders in this repository are shown below 
 - root  
     - Assets
-        - Audio
-            > A collection of audio files that are included in the application. (*Please note that adding audio files here will not add them to the application.*)
+        - *Audio*
+            
+            A collection of audio files that are included in the application. (*Please note that adding audio files here will not add them to the application.*)
         
         - ⋮
-        - Models
-            > A collection of .gltf files (3D models) that can be loaded into the application according to the instructions in Section 1.
+        - *Models*
+            
+            A collection of .gltf files (3D models) that can be loaded into the application according to the instructions in Section 1.
         - ⋮
-        - Scenes
-            > Contains the Unity scenes.
-        - Scripts
-            > The C# scripts that form the main functionality of the application.
+        - *Scenes*
+            
+            Contains the Unity scenes.
+        - *Scripts*
+            
+            The C# scripts that form the main functionality of the application.
         - ⋮
     - ⋮
 
