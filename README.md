@@ -16,7 +16,7 @@ To work with this project, follow these steps:
 6. To load a different model:
     1. Select the **GeometryManager** GameObject in the Hierarchy window.
     2. Click on the **Load New Model** button in the Inspector window.
-    3. Navigate to **Assets/Models/** and select one of the \*.gltf files.
+    3. Navigate to **"Assets/Models/"** and select one of the \*.gltf files.
     4. **Enjoy** your freshly loaded model!
 
 ![eavrInstructionsUnity](https://user-images.githubusercontent.com/32464520/235452874-126dcb11-d03a-4cb7-91bf-147377ab88e7.png)
@@ -28,6 +28,25 @@ To work with this project, follow these steps:
 4. **Create** a model following this video https://surfdrive.surf.nl/files/index.php/s/67aTHu1AYFVeHT0#/files_mediaviewer/CreateModelExample.mp4.
 5. Export the model to .gltf using the glTF export extension and save it to somewhere you can find.
 6. **Load** the model following the steps in Section 1.
+
+
+## 3. Repository structure
+The most important folders in this repository are shown below 
+- root  
+    - Assets
+        - Audio
+            > A collection of audio files that are included in the application. (*Please note that adding audio files here will not add them to the application.*)
+        
+        - ⋮
+        - Models
+            > A collection of .gltf files (3D models) that can be loaded into the application according to the instructions in Section 1.
+        - ⋮
+        - Scenes
+            > Contains the Unity scenes.
+        - Scripts
+            > The C# scripts that form the main functionality of the application.
+        - ⋮
+    - ⋮
 
 ## References
 [1] A. Milo and M. Hornikx, "Acoustic Virtual Reality as a Learning Framework for Built Environment Students," *Euronoise*, 2021.
