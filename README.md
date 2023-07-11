@@ -1,6 +1,6 @@
 # EAVR-steam-audio
 
-The Eindhoven Acoustic Virtual Reality (EAVR) project is part of an ongoing research in the Building Acoustics Group at the Built Environment Department of Eindhoven University of Technology (TU/e). This project is based on previous work by A. Milo and M. Hornikx [1, 2]. 
+The Eindhoven Acoustic Virtual Reality (EAVR) project is part of an ongoing research in the Building Acoustics Group at the Built Environment Department of Eindhoven University of Technology (TU/e). This project is based on previous work by A. Milo and M. Hornikx [1, 2]. The goal of this project is to ... and the students can learn ...
 
 ## Releases
 Working applications for Windows and Mac can be found via https://github.com/SilvinWillemsen/EAVR-steam-audio/releases/. The model that is loaded is the Trappenzaal in the Vertigo building at Eindhoven Univeristy of Technology.
