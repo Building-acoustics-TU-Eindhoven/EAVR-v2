@@ -1,6 +1,11 @@
 # EAVR-steam-audio
 
-The Eindhoven Acoustic Virtual Reality (EAVR) project is part of an ongoing research in the Building Acoustics Group at the Built Environment Department of Eindhoven University of Technology (TU/e). This project is based on previous work by A. Milo and M. Hornikx [1, 2]. The goal of this project is to ... and the students can learn ...
+The Eindhoven Acoustic Virtual Reality (EAVR) project is part of an ongoing research in the Building Acoustics Group at the Built Environment Department of Eindhoven University of Technology (TU/e). This project is based on previous work by A. Milo and M. Hornikx [1, 2]. The goal of this project is to interactively teach students principles in the field of acoustics, by changing various aspects of the VR environment. These aspects include 
+- Room size
+- Source position
+- Listener position (by walking around the room)
+- Materials of the walls
+- ..etc..
 
 ## Releases
 Working applications for Windows and Mac can be found via https://github.com/SilvinWillemsen/EAVR-steam-audio/releases/. The model that is loaded is the Trappenzaal in the Vertigo building at Eindhoven Univeristy of Technology.
@@ -16,7 +21,7 @@ When control panel is disabled:
 - `Shift + Left-click`: Select multiple walls.
 
 When the control panel is enabled:
-- `Choose material..`: change the material of the currently selected wall(s).
+- `Choose material..`: change the material of the currently selected wall(s). If no wall is selected ("Selected Wall: None"), the change in material will not have any effect.
 - `Room`
     - `scaling`: change the scaling of the room in x, y and z direction individually (range: x0.5-x2.0).
 - `Source`
@@ -49,6 +54,7 @@ When the control panel is enabled:
 3. Navigate to **"Assets/Models/"** and select one of the \*.gltf files.
 4. Go to **"Assets/Scenes/"** and select and load the scene SteamAudio.
 5. Press play and **enjoy** your freshly loaded model!
+6. Please refer to the controls above for instructions on how to use the application.
 
 ![eavrInstructionsUnity](https://user-images.githubusercontent.com/32464520/235452874-126dcb11-d03a-4cb7-91bf-147377ab88e7.png)
 
