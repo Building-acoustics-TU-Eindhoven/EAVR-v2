@@ -313,7 +313,7 @@ public class AudioSourceManager : MonoBehaviour
                             allSources[sourceIdx].transform.position.y,
                             (z - 0.5f) * (origRoomDepth * root.transform.localScale.z - sourceColliderDiameter) + root.transform.position.z));
     }
-
+ 
     public void SetSourcesFromRoomSizeZ(float roomSize)
     {
         Debug.Log (ratioVec[0].z);
