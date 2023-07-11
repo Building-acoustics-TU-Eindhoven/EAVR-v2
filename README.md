@@ -50,6 +50,8 @@ When the control panel is enabled:
 4. Go to **"Assets/Scenes/"** and select and load the scene SteamAudio.
 5. Press play and **enjoy** your freshly loaded model!
 
+   ADD INFORMATION ON how to select a material, that you first need to select a surface
+
 ![eavrInstructionsUnity](https://user-images.githubusercontent.com/32464520/235452874-126dcb11-d03a-4cb7-91bf-147377ab88e7.png)
 
 ## 2. Creating your own model
