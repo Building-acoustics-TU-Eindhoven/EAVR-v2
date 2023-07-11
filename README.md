@@ -47,7 +47,8 @@ When the control panel is enabled:
 1. Select the **GeometryManager** GameObject in the Hierarchy window.
 2. Click on the **Load New Model** button in the Inspector window.
 3. Navigate to **"Assets/Models/"** and select one of the \*.gltf files.
-4. **Enjoy** your freshly loaded model!
+4. Go to **"Assets/Scenes/"** and select and load the scene SteamAudio.
+5. Press play and **enjoy** your freshly loaded model!
 
 ![eavrInstructionsUnity](https://user-images.githubusercontent.com/32464520/235452874-126dcb11-d03a-4cb7-91bf-147377ab88e7.png)
 
