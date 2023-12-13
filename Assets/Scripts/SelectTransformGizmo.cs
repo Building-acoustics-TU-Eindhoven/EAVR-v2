@@ -141,53 +141,55 @@ public class SelectTransformGizmo : MonoBehaviour
                 // }
                 // else if (highlight)
                 // {
-                    Transform parentWall = raycastHit.transform.parent.transform; 
-                    // If wall is already selected remove it from the list
-                    if (selection.Contains (parentWall))
+                if (raycastHit.transform.tag != "Selectable")
+                    return;
+                Transform parentWall = raycastHit.transform.parent.transform; 
+                // If wall is already selected remove it from the list
+                if (selection.Contains (parentWall))
+                {
+                    if (shiftDown || selection.Count == 1)
                     {
-                        if (shiftDown || selection.Count == 1)
-                        {
-                            RemoveFromSelection (parentWall);
-                        }
-                        else
-                        {
-                            ClearSelection();
-                            selection.Add (parentWall);
-                        }
+                        RemoveFromSelection (parentWall);
                     }
                     else
                     {
-                        // If shift is not down, clear wall list first
-                        if (!shiftDown)
-                            ClearSelection();
-
-                        // Add the selected wall to the list
+                        ClearSelection();
                         selection.Add (parentWall);
                     }
-                    // if (selection.Contains(parentWall))
-                    // {
-                    //     highlight.GetComponent<MeshRenderer>().material = originalMaterialSelection;
-                    // }
+                }
+                else
+                {
+                    // If shift is not down, clear wall list first
+                    if (!shiftDown)
+                        ClearSelection();
 
-                    foreach (Transform sel in selection)
+                    // Add the selected wall to the list
+                    selection.Add (parentWall);
+                }
+                // if (selection.Contains(parentWall))
+                // {
+                //     highlight.GetComponent<MeshRenderer>().material = originalMaterialSelection;
+                // }
+
+                foreach (Transform sel in selection)
+                {
+                    Transform activeChild = GetActiveChild (sel);
+                    if (activeChild.GetComponent<MeshRenderer>().material != selectionMaterial)
                     {
-                        Transform activeChild = GetActiveChild (sel);
-                        if (activeChild.GetComponent<MeshRenderer>().material != selectionMaterial)
-                        {
-                            originalMaterialSelection = GetOriginalMaterial (activeChild.name);
+                        originalMaterialSelection = GetOriginalMaterial (activeChild.name);
 
-                            selectionMaterial.mainTextureScale = originalMaterialSelection.mainTextureScale;
-                            foreach (Material mat in activeChild.GetComponent<MeshRenderer>().materials)
-                                mat.Lerp(selectionMaterial, originalMaterialSelection, 0.5f);
+                        selectionMaterial.mainTextureScale = originalMaterialSelection.mainTextureScale;
+                        foreach (Material mat in activeChild.GetComponent<MeshRenderer>().materials)
+                            mat.Lerp(selectionMaterial, originalMaterialSelection, 0.5f);
 
 
-                            // runtimeTransformHandle.target = highlight;
+                        // runtimeTransformHandle.target = highlight;
 
-                            // COULD BE INTERESTING TO FIGURE OUT IF INTERESTING: 
-                            // runtimeTransformGameObj.SetActive(true);
-                        }
-                        }
-                    highlight = null;
+                        // COULD BE INTERESTING TO FIGURE OUT IF INTERESTING: 
+                        // runtimeTransformGameObj.SetActive(true);
+                    }
+                }
+                highlight = null;
                 // }
                 // else
                 // {

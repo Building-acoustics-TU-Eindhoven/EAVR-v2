@@ -13,6 +13,7 @@ public class SaveLoadController : MonoBehaviour
     [SerializeField] private AssessmentData _AssessmentData;
     public GameObject root;
     public GameObject playerGO;
+    public GameObject xrOrigin;
     public string recordName;
     public Transform viewportContent;        
     public GameObject observationItem;
@@ -260,18 +261,18 @@ public class SaveLoadController : MonoBehaviour
 
     }
 
-    public void LoadObservation (Observation obs)
+    public void LoadObservation(Observation obs)
     {
         observationLoaded = false;
         steamAudioManager.enabled = false;
 
         foreach (GameObject source in audioSourceManager.GetAllSources())
         {
-            source.SetActive (false);
+            source.SetActive(false);
         }
 
         // Load room scaling (via sliders)
-        roomSizeManager.SetRoomSizeSliders (obs.roomScaling);
+        roomSizeManager.SetRoomSizeSliders(obs.roomScaling);
 
         // Load sources //
         audioSourceManager.RemoveAllSources();
@@ -281,8 +282,8 @@ public class SaveLoadController : MonoBehaviour
             audioSourceManager.AddSource(i == 0);
 
             // Apply gaindB
-            audioSourceManager.GetCurSource().GetComponent<SteamAudioSource>().directMixLevel = audioSourceManager.ConvertFromdB (obs.sourceGaindBs[i]);
-            audioSourceManager.GetCurSource().GetComponent<SteamAudioSource>().reflectionsMixLevel = audioSourceManager.ConvertFromdB (obs.sourceGaindBs[i]);
+            audioSourceManager.GetCurSource().GetComponent<SteamAudioSource>().directMixLevel = audioSourceManager.ConvertFromdB(obs.sourceGaindBs[i]);
+            audioSourceManager.GetCurSource().GetComponent<SteamAudioSource>().reflectionsMixLevel = audioSourceManager.ConvertFromdB(obs.sourceGaindBs[i]);
 
             for (int ii = 0; ii < audioSourceManager.clipList.Count; ++ii)
             {
@@ -300,18 +301,25 @@ public class SaveLoadController : MonoBehaviour
             }
 
             // Set position
-            sourcePanelManager.SetPositionThroughSliderVals (obs.sourcePositions[i].x, obs.sourcePositions[i].y, obs.sourcePositions[i].z);
+            sourcePanelManager.SetPositionThroughSliderVals(obs.sourcePositions[i].x, obs.sourcePositions[i].y, obs.sourcePositions[i].z);
 
         }
-        sourcePanelManager.ChangeSourceIdx (obs.sourceClipNames.Count - 1);
+        sourcePanelManager.ChangeSourceIdx(obs.sourceClipNames.Count - 1);
 
         foreach (GameObject source in audioSourceManager.GetAllSources())
-            source.SetActive (true);
+            source.SetActive(true);
 
         // Apply player position
-        playerGO.GetComponent<PlayerManager>().SetPlayerPos (obs.playerXYZ, Vector3.Scale(obs.roomOrigSize, obs.roomScaling));
-        playerGO.GetComponent<PlayerManager>().mainCamera.transform.localRotation = obs.rotation;
-        playerGO.GetComponent<PlayerManager>().SetRotationAndPosition();
+        if (playerGO.activeSelf)
+        {
+            playerGO.GetComponent<PlayerManager>().SetPlayerPos(obs.playerXYZ, Vector3.Scale(obs.roomOrigSize, obs.roomScaling));
+            playerGO.GetComponent<PlayerManager>().mainCamera.transform.localRotation = obs.rotation;
+            playerGO.GetComponent<PlayerManager>().SetRotationAndPosition();
+        } 
+        else
+        {
+            xrOrigin.GetComponent<LocationChanger>().TeleportToLocation (obs.playerXYZ, Vector3.Scale(obs.roomOrigSize, obs.roomScaling));
+        }
 
         if (root.transform.GetChild(0).childCount != obs.matList.Count)
         {

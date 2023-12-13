@@ -9,6 +9,7 @@ public class RoomSizeManager : MonoBehaviour
     public GameObject root;
     // public SourceManager sourceManager;
     public GameObject playerGO;
+    public GameObject xrOrigin;
     public PlayerManager playerManager;
     public AudioSourceManager audioSourceManager;
     public GameObject roomsizeGO;
@@ -163,7 +164,10 @@ public class RoomSizeManager : MonoBehaviour
         curRoomWidth = x * originalSize.x;
         
         audioSourceManager.SetSourcesFromRoomSizeX (curRoomWidth);
-        playerManager.SetPlayerX(playerX, curRoomWidth);
+        if (playerGO.activeSelf)
+            playerManager.SetPlayerX(playerX, curRoomWidth);
+        else
+            xrOrigin.GetComponent<LocationChanger>().SetPlayerX(playerX, curRoomWidth);
         // speakerWallManager.UpdateSpeakerGrid();
     }
 
@@ -186,22 +190,47 @@ public class RoomSizeManager : MonoBehaviour
         curRoomDepth = z * originalSize.z;
 
         audioSourceManager.SetSourcesFromRoomSizeZ (curRoomDepth);
-        playerManager.SetPlayerZ(playerZ, curRoomDepth);
+        if (playerGO.activeSelf)
+            playerManager.SetPlayerZ(playerZ, curRoomDepth);
+        else
+            xrOrigin.GetComponent<LocationChanger>().SetPlayerZ(playerZ, curRoomDepth);
+
         // speakerWallManager.UpdateSpeakerGrid();
     }
     public void SetPlayerTransform()
     {
-        playerX = (playerGO.transform.position.x - root.transform.localPosition.x) / curRoomWidth;
-        playerZ = (playerGO.transform.position.z - root.transform.localPosition.z) / curRoomDepth;
+        if (playerGO.activeSelf)
+        {
+            playerX = (playerGO.transform.position.x - root.transform.localPosition.x) / curRoomWidth;
+            playerZ = (playerGO.transform.position.z - root.transform.localPosition.z) / curRoomDepth;
+        } 
+        else
+        {
+            Vector3 pos = xrOrigin.transform.position + xrOrigin.transform.GetChild(0).transform.position;
+            playerX = (pos.x - root.transform.localPosition.x) / curRoomWidth;
+            playerZ = (pos.z - root.transform.localPosition.z) / curRoomDepth;
+        }
     }
 
     public Vector3 GetNormalisedPlayerPos()
     {
-        return new Vector3 (
-            (playerGO.transform.position.x - root.transform.localPosition.x) / (curRoomWidth - playerManager.playerColliderDiameter) + 0.5f,
-            (playerGO.transform.position.y - root.transform.localPosition.y) / curRoomHeight,
-            (playerGO.transform.position.z - root.transform.localPosition.z) / (curRoomDepth - playerManager.playerColliderDiameter) + 0.5f
-        );
+        if (playerGO.activeSelf)
+        {
+            return new Vector3(
+                (playerGO.transform.position.x - root.transform.localPosition.x) / (curRoomWidth - playerManager.playerColliderDiameter) + 0.5f,
+                (playerGO.transform.position.y - root.transform.localPosition.y) / curRoomHeight,
+                (playerGO.transform.position.z - root.transform.localPosition.z) / (curRoomDepth - playerManager.playerColliderDiameter) + 0.5f
+            );
+        }
+        else
+        {
+            float cameraOffset = xrOrigin.transform.GetChild(0).transform.position.y;
+            return new Vector3 (
+                (xrOrigin.transform.position.x - root.transform.localPosition.x) / (curRoomWidth - playerManager.playerColliderDiameter) + 0.5f,
+                (xrOrigin.transform.position.y + cameraOffset - root.transform.localPosition.y) / curRoomHeight,
+                (xrOrigin.transform.position.z - root.transform.localPosition.z) / (curRoomDepth - playerManager.playerColliderDiameter) + 0.5f
+            );
+        }
 
     }
 
