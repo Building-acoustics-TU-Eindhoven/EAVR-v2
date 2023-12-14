@@ -11,7 +11,7 @@ public class LocationChanger : MonoBehaviour
     private Vector3 origCameraPos = new Vector3();
 
     public GameObject root;
-
+    private Vector3 normPrevPosition;
     private float playerColliderDiameter = 0.5f;
     // Start is called before the first frame update
     void Start()
@@ -24,7 +24,12 @@ public class LocationChanger : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        roomSizeManager.SetPlayerTransform();
+        if (normPrevPosition != roomSizeManager.GetNormalisedPlayerPos())
+        {
+            Debug.Log (normPrevPosition);
+            roomSizeManager.SetPlayerTransform();
+        }
+        normPrevPosition = roomSizeManager.GetNormalisedPlayerPos();
     }
 
     public void TeleportToLocation (Vector3 newLocation, Vector3 roomDimensions)
@@ -40,13 +45,13 @@ public class LocationChanger : MonoBehaviour
 
     public void SetPlayerX(float x, float roomWidth)
     {
-        float cameraOffset = xrOrigin.transform.GetChild(0).transform.position.y;
+        float cameraOffset = xrOrigin.transform.GetChild(0).transform.localPosition.y;
 
-        Vector3 test = new Vector3(x * (roomWidth - playerColliderDiameter) + root.transform.position.x,
-                                         transform.position.y + cameraOffset,
+        Vector3 test = new Vector3(x * roomWidth + root.transform.position.x,
+                                         transform.position.y,
                                          transform.position.z);
         var distanceDiff = mainXRCamera.transform.position - test;
-        xrOrigin.transform.position -= distanceDiff;
+        xrOrigin.transform.position = test;
 
     }
 
@@ -55,22 +60,20 @@ public class LocationChanger : MonoBehaviour
         float cameraOffset = xrOrigin.transform.GetChild(0).transform.position.y;
 
         Vector3 test = new Vector3(transform.position.x,
-                                         y * roomHeight + root.transform.position.y + cameraOffset,
+                                         y * roomHeight + root.transform.position.y,
                                          transform.position.z);
         var distanceDiff = mainXRCamera.transform.position - test;
-        xrOrigin.transform.position -= distanceDiff;
+        xrOrigin.transform.position = test;
 
     }
 
     public void SetPlayerZ(float z, float roomDepth)
     {
-        float cameraOffset = xrOrigin.transform.GetChild(0).transform.position.y;
-
         Vector3 test = new Vector3(transform.position.x,
-                                         transform.position.y + cameraOffset,
-                                         z * (roomDepth - playerColliderDiameter) + root.transform.position.z);
+                                         transform.position.y,
+                                         z * roomDepth + root.transform.position.z);
         var distanceDiff = mainXRCamera.transform.position - test;
-        xrOrigin.transform.position -= distanceDiff;
+        xrOrigin.transform.position = test;
     }
 
 }

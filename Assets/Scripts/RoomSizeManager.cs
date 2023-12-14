@@ -26,7 +26,7 @@ public class RoomSizeManager : MonoBehaviour
     public float curRoomWidth, curRoomHeight, curRoomDepth;
 
     public Vector3 originalSize;
-
+    public float playerColliderDiameter;
     Bounds getRenderBounds(GameObject objeto){
         Bounds bounds = new  Bounds(Vector3.zero,Vector3.zero);
         Renderer render = objeto.GetComponent<Renderer>();
@@ -34,6 +34,11 @@ public class RoomSizeManager : MonoBehaviour
             return render.bounds;
         }
         return bounds;
+
+        if (playerGO.activeSelf)
+            playerColliderDiameter = playerManager.playerColliderDiameter;
+        else
+            playerColliderDiameter = 0.5f;
     }
 
     public Bounds getBounds(GameObject objeto){
@@ -206,9 +211,10 @@ public class RoomSizeManager : MonoBehaviour
         } 
         else
         {
-            Vector3 pos = xrOrigin.transform.position + xrOrigin.transform.GetChild(0).transform.position;
-            playerX = (pos.x - root.transform.localPosition.x) / curRoomWidth;
-            playerZ = (pos.z - root.transform.localPosition.z) / curRoomDepth;
+            Vector3 pos = xrOrigin.transform.position;
+            playerX = (pos.x - root.transform.localPosition.x) / (curRoomWidth);
+            playerZ = (pos.z - root.transform.localPosition.z) / (curRoomDepth);
+            Debug.Log("x: " + playerX + " z: " + playerZ);
         }
     }
 
@@ -217,18 +223,18 @@ public class RoomSizeManager : MonoBehaviour
         if (playerGO.activeSelf)
         {
             return new Vector3(
-                (playerGO.transform.position.x - root.transform.localPosition.x) / (curRoomWidth - playerManager.playerColliderDiameter) + 0.5f,
+                (playerGO.transform.position.x - root.transform.localPosition.x) / (curRoomWidth - playerColliderDiameter) + 0.5f,
                 (playerGO.transform.position.y - root.transform.localPosition.y) / curRoomHeight,
-                (playerGO.transform.position.z - root.transform.localPosition.z) / (curRoomDepth - playerManager.playerColliderDiameter) + 0.5f
+                (playerGO.transform.position.z - root.transform.localPosition.z) / (curRoomDepth - playerColliderDiameter) + 0.5f
             );
         }
         else
         {
-            float cameraOffset = xrOrigin.transform.GetChild(0).transform.position.y;
+            float cameraOffset = xrOrigin.transform.GetChild(0).transform.localPosition.y;
             return new Vector3 (
-                (xrOrigin.transform.position.x - root.transform.localPosition.x) / (curRoomWidth - playerManager.playerColliderDiameter) + 0.5f,
+                (xrOrigin.transform.position.x - root.transform.localPosition.x) / (curRoomWidth - playerColliderDiameter) + 0.5f,
                 (xrOrigin.transform.position.y + cameraOffset - root.transform.localPosition.y) / curRoomHeight,
-                (xrOrigin.transform.position.z - root.transform.localPosition.z) / (curRoomDepth - playerManager.playerColliderDiameter) + 0.5f
+                (xrOrigin.transform.position.z - root.transform.localPosition.z) / (curRoomDepth - playerColliderDiameter) + 0.5f
             );
         }
 
