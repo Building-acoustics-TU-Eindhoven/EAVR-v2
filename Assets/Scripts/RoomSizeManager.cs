@@ -172,7 +172,7 @@ public class RoomSizeManager : MonoBehaviour
         if (playerGO.activeSelf)
             playerManager.SetPlayerX(playerX, curRoomWidth);
         else
-            xrOrigin.GetComponent<LocationChanger>().SetPlayerX(playerX, curRoomWidth);
+            xrOrigin.GetComponent<XRoriginManager>().SetPlayerX(playerX, curRoomWidth);
         // speakerWallManager.UpdateSpeakerGrid();
     }
 
@@ -198,7 +198,7 @@ public class RoomSizeManager : MonoBehaviour
         if (playerGO.activeSelf)
             playerManager.SetPlayerZ(playerZ, curRoomDepth);
         else
-            xrOrigin.GetComponent<LocationChanger>().SetPlayerZ(playerZ, curRoomDepth);
+            xrOrigin.GetComponent<XRoriginManager>().SetPlayerZ(playerZ, curRoomDepth);
 
         // speakerWallManager.UpdateSpeakerGrid();
     }

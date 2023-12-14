@@ -72,7 +72,10 @@ public class SaveLoadController : MonoBehaviour
         _AssessmentData.currentObservation.roomOrigSize = roomSizeManager.originalSize;
         _AssessmentData.currentObservation.roomScaling = root.transform.localScale;
         _AssessmentData.currentObservation.playerXYZ = roomSizeManager.GetNormalisedPlayerPos();
-        _AssessmentData.currentObservation.rotation = Camera.main.transform.rotation;
+        if (playerGO.activeSelf)
+            _AssessmentData.currentObservation.rotation = Camera.main.transform.rotation;
+        else
+            _AssessmentData.currentObservation.rotation = xrOrigin.transform.rotation;
         Debug.Log("Pos save: " + roomSizeManager.GetNormalisedPlayerPos());
 
         int sourceId = 0;
@@ -318,7 +321,8 @@ public class SaveLoadController : MonoBehaviour
         } 
         else
         {
-            xrOrigin.GetComponent<LocationChanger>().TeleportToLocation (obs.playerXYZ, Vector3.Scale(obs.roomOrigSize, obs.roomScaling));
+            xrOrigin.transform.localRotation = obs.rotation;
+            xrOrigin.GetComponent<XRoriginManager>().TeleportToLocation (obs.playerXYZ, Vector3.Scale(obs.roomOrigSize, obs.roomScaling));
         }
 
         if (root.transform.GetChild(0).childCount != obs.matList.Count)
