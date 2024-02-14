@@ -100,7 +100,10 @@ public class SaveLoadController : MonoBehaviour
         // Add to the list of sources in the current observation
         List<int> matList = new List<int>();
         foreach (Transform child in root.transform.GetChild(0))
-            matList.Add (child.GetComponent<WallManager>().GetActiveMaterialIdx());
+        {
+            if (child.GetComponent<WallManager>() != null)
+                matList.Add(child.GetComponent<WallManager>().GetActiveMaterialIdx());
+        }
 
         _AssessmentData.currentObservation.matList = matList;    
         //TODO make sure that we are not leaving data out
@@ -325,17 +328,20 @@ public class SaveLoadController : MonoBehaviour
             xrOrigin.GetComponent<XRoriginManager>().TeleportToLocation (obs.playerXYZ, Vector3.Scale(obs.roomOrigSize, obs.roomScaling));
         }
 
-        if (root.transform.GetChild(0).childCount != obs.matList.Count)
+        //if (root.transform.GetChild(0).childCount != obs.matList.Count)
+        //{
+        //    Debug.Log ("Observation doesn't match loaded model.");
+        //} else {
+        int iii = 0;
+        foreach (Transform child in root.transform.GetChild(0))
         {
-            Debug.Log ("Observation doesn't match loaded model.");
-        } else {
-            int i = 0;
-            foreach (Transform child in root.transform.GetChild(0))
+            if (child.GetComponent<WallManager>() != null)
             {
-                child.GetComponent<WallManager>().SetActiveMaterial (obs.matList[i]);
-                ++i;
+                child.GetComponent<WallManager>().SetActiveMaterial(obs.matList[iii]);
+                ++iii;
             }
         }
+        //}
 
         observationLoaded = true;
     }

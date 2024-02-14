@@ -10,12 +10,15 @@ public class SteamAudioDropdownManager : MonoBehaviour
     private GameObject root;
 
     int numMaterials = -1;
+
+    string roomName;
     // Start is called before the first frame update
     void Start()
     {
         root = GameObject.Find("root");
+        roomName = root.transform.GetChild(0).name;
         // numMaterials = floor.childCount;
-        if (root.transform.GetChild(0).name == "Room")
+        if (root.transform.GetChild(0).name == roomName)
         {
             numMaterials = root.transform.GetChild(0).GetChild(0).transform.childCount;
         } else {
@@ -39,7 +42,7 @@ public class SteamAudioDropdownManager : MonoBehaviour
             m_NewDataList.Add(new TMP_Dropdown.OptionData());
 
             string material;
-            if (root.transform.GetChild(0).name == "Room")
+            if (root.transform.GetChild(0).name == roomName)
             {
                 material = root.transform.GetChild(0).GetChild(0).GetChild(i).name;
             } else {

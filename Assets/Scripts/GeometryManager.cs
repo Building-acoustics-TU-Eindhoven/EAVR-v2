@@ -232,7 +232,8 @@ private string filepath = "./Assets/Models/10mcube.gltf";
                 go.AddComponent<WallManager>();
                 //// Add children to each mesh: one per material ////
                 string activeMaterial = GetMaterialBasedOnMeshName (go.name);
-
+                if (activeMaterial == "Unknown")
+                    continue;
                 // GameObject selectionGo = Instantiate<GameObject> (mf.gameObject);
                 bool firstChild = true;
                 foreach (SteamAudioMaterial steamAudioMaterial in steamAudioMaterials)
@@ -279,10 +280,12 @@ private string filepath = "./Assets/Models/10mcube.gltf";
                     SteamAudioManager.ExportDynamicObject (goChild.GetComponent<SteamAudioDynamicObject>(), false);
 
                     goChild.SetActive(steamAudioMaterial.name == activeMaterial);
+
                 }
                 // AddSelectionGeometry (selectionGo, mf, counter);
 
                 mf.GetComponent<MeshRenderer>().enabled = false;
+                Debug.Log("Loading mesh = " + counter.ToString() + "/" + mff.Length.ToString());
                 ++counter;
             }
 
@@ -442,8 +445,8 @@ private string filepath = "./Assets/Models/10mcube.gltf";
                 return "Default";
 
             default:
-                Debug.LogError("Unknown Material: " + meshname);
-                return "Default";
+                Debug.LogWarning ("Unknown Material: " + meshname);
+                return "Unknown";
         }
 
     }
