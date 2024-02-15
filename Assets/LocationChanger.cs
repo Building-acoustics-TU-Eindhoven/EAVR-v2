@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class XRoriginManager : MonoBehaviour
+public class LocationChanger : MonoBehaviour
 {
     public GameObject xrOrigin;
     public GameObject mainXRCamera;

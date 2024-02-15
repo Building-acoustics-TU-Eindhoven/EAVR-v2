@@ -324,13 +324,16 @@ public class AudioSourceManager : MonoBehaviour
                             (ratioVec[i].z - 0.5f) * (roomSize - sourceColliderDiameter) + root.transform.position.z), allSources[i].transform);
     }
 
-    public void SetOriginalRoomDimensions (float roomWidth, float roomHeight, float roomDepth)
+    public void SetOriginalRoomDimensions (float roomWidth, float roomHeight, float roomDepth, bool addSource)
     {
         origRoomWidth = roomWidth;
         origRoomHeight = roomHeight;
         origRoomDepth = roomDepth;
-        
-        AddSource(true);
+
+        if (addSource) 
+        {
+            AddSource(true);
+        }
     }
 
     // Returns the 3D position of an audio source 
@@ -338,5 +341,4 @@ public class AudioSourceManager : MonoBehaviour
     {
         return ratioVec[idx];
     }
-
 }

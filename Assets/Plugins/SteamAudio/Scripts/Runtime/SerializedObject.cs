@@ -107,7 +107,7 @@ namespace SteamAudio
 
             // TODO: Deprecate older versions of Unity.
 #if UNITY_2017_3_OR_NEWER
-            AssetDatabase.ForceReserializeAssets(assetPaths);
+            // AssetDatabase.ForceReserializeAssets(assetPaths);
 #endif
 #endif
         }

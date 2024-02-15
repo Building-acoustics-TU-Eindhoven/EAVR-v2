@@ -21,6 +21,9 @@ public class RoomSizeManager : MonoBehaviour
     private float playerX = 0.5f;
     private float playerZ = 0.5f;
 
+    private float sliderValX = 1.0f;
+    private float sliderValY = 1.0f;
+    private float sliderValZ = 1.0f;
     private List<Vector3> sourcePositions = new List<Vector3>();
 
     public float curRoomWidth, curRoomHeight, curRoomDepth;
@@ -81,7 +84,7 @@ public class RoomSizeManager : MonoBehaviour
         zSlider = GlobalFunctions.GetChildWithName(roomsizeGO, "zSlider").GetComponent<Slider>();
 
         SetPlayerTransform();
-        audioSourceManager.SetOriginalRoomDimensions (originalSize.x, originalSize.y, originalSize.z);
+        audioSourceManager.SetOriginalRoomDimensions (originalSize.x, originalSize.y, originalSize.z, true);
     }
 
     public void SetRoomSizeThroughSliderVals(float x, float y, float z)
@@ -165,7 +168,7 @@ public class RoomSizeManager : MonoBehaviour
     {
         root.transform.localScale = new Vector3(x, root.transform.localScale.y, root.transform.localScale.z);
         xText.text = x.ToString("0.0");
-
+        sliderValX = x;
         curRoomWidth = x * originalSize.x;
         
         audioSourceManager.SetSourcesFromRoomSizeX (curRoomWidth);
@@ -180,6 +183,7 @@ public class RoomSizeManager : MonoBehaviour
     {
         root.transform.localScale = new Vector3(root.transform.localScale.x, y, root.transform.localScale.z);
         yText.text = y.ToString("0.0");
+        sliderValY = y;
 
         curRoomHeight = y * originalSize.y;
 
@@ -191,6 +195,7 @@ public class RoomSizeManager : MonoBehaviour
     {
         root.transform.localScale = new Vector3(root.transform.localScale.x, root.transform.localScale.y, z);
         zText.text = z.ToString("0.0");
+        sliderValZ = z;
 
         curRoomDepth = z * originalSize.z;
 
@@ -238,6 +243,23 @@ public class RoomSizeManager : MonoBehaviour
             );
         }
 
+    }
+
+    public void SetRoot (GameObject go)
+    {
+        root = go;
+        Bounds b = getBounds(root);
+
+        // Vector3 offset = b.center;
+        originalSize = b.size;
+        curRoomWidth = originalSize.x;
+        curRoomHeight = originalSize.y;
+        curRoomDepth = originalSize.z;
+
+
+        audioSourceManager.SetOriginalRoomDimensions (originalSize.x, originalSize.y, originalSize.z, false);
+        SetRoomSizeThroughSliderVals (sliderValX, sliderValY, sliderValZ);
+        
     }
 
     // public void SetSourceTransform (Vector3 pos, int sourceIdx)

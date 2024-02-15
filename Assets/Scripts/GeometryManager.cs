@@ -21,7 +21,10 @@ public class GeometryManager : MonoBehaviour
     float scale = 1.0f;
 
     private List<Transform> selectedWalls = new List<Transform>();
-
+    public XRoriginManager xrOriginManager;
+    public RoomSizeManager roomSizeManager;
+    public AudioSourceManager audioSourceManager;
+    public PlayerManager playerManager;
 private string filepath = "./Assets/Models/10mcube.gltf";
     public List<UnityEngine.Material> visualMaterials = new List<UnityEngine.Material>();
     List<SteamAudioMaterial> steamAudioMaterials = new List<SteamAudioMaterial>();
@@ -41,7 +44,7 @@ private string filepath = "./Assets/Models/10mcube.gltf";
     // Called in the Awake function of the GeometryManagerEditor
     public void CollectMaterials()
     {
-#if UNITY_EDITOR
+// #if UNITY_EDITOR
         // UnityEditor.SerializedObject meshRenderer = new UnityEditor.SerializedObject (goChild.GetComponent<MeshRenderer>());
         // UnityEditor.SerializedProperty visualMaterialsList = this.visualMaterials;        
 
@@ -62,7 +65,7 @@ private string filepath = "./Assets/Models/10mcube.gltf";
         {
             steamAudioMaterials.Add(AssetDatabase.LoadAssetAtPath(file, typeof(SteamAudioMaterial)) as SteamAudioMaterial);
         }
-#endif
+// #endif
         Debug.Log("Tot num materials = " + visualMaterials.Count);
     }
     public void SetActiveMaterial()
@@ -199,11 +202,11 @@ private string filepath = "./Assets/Models/10mcube.gltf";
         
         if (_loadedGameObject != null)
         {
-#if UNITY_EDITOR
+// #if UNITY_EDITOR
             // Regenerate temporary folder with Dynamic Object Assets
             UnityEngine.Windows.Directory.Delete("Assets/DynamicObjects/TempFolder");
             UnityEngine.Windows.Directory.CreateDirectory("Assets/DynamicObjects/TempFolder");
-#endif
+// #endif
             // Get Meshfilters
             MeshFilter[] mff = _loadedGameObject.GetComponentsInChildren<MeshFilter>();
 
@@ -277,21 +280,25 @@ private string filepath = "./Assets/Models/10mcube.gltf";
                     CreateDynamicObjectSerializedData (goChild, name, counter);
 
                     // Export the dynamic object
+// #if UNITY_EDITOR
                     SteamAudioManager.ExportDynamicObject (goChild.GetComponent<SteamAudioDynamicObject>(), false);
-
+// #else
+                    // SteamAudioManager.Export(SteamAudioManager.GetGameObjectsForExport(goChild).ToArray(), goChild.name, null, goChild.name + ".obj", true, true);
+// #endif
                     goChild.SetActive(steamAudioMaterial.name == activeMaterial);
-
                 }
                 // AddSelectionGeometry (selectionGo, mf, counter);
 
                 mf.GetComponent<MeshRenderer>().enabled = false;
                 Debug.Log("Loading mesh = " + counter.ToString() + "/" + mff.Length.ToString());
                 ++counter;
+                // break;
             }
 
             Vector3 average = Average(mff);
 
             _loadedGameObject.transform.GetChild(0).position = new Vector3 (-average.x, 0, -average.z);
+            // SteamAudioManager.ExportDynamicObjectsInActiveScene();
         }
         else
         {
@@ -318,7 +325,7 @@ private string filepath = "./Assets/Models/10mcube.gltf";
     // }
     private void EditMeshRendererMaterial(GameObject goChild, string visualMaterialName)
     {
-#if UNITY_EDITOR
+// #if UNITY_EDITOR
         // Serialize the material of the mesh renderer of the newly instantiated child
         UnityEditor.SerializedObject meshRenderer = new UnityEditor.SerializedObject (goChild.GetComponent<MeshRenderer>());
         var matsSO = meshRenderer.FindProperty("materials");
@@ -335,15 +342,15 @@ private string filepath = "./Assets/Models/10mcube.gltf";
             }
 
         meshRenderer.ApplyModifiedProperties();
-#else
-        foreach (UnityEngine.Material mat in visualMaterials)
-            if (mat.name == visualMaterialName)
-                goChild.GetComponent<MeshRenderer>().material = mat;
-#endif
+// #else
+//         foreach (UnityEngine.Material mat in visualMaterials)
+//             if (mat.name == visualMaterialName)
+//                 goChild.GetComponent<MeshRenderer>().material = mat;
+// #endif
     }
     private void SetSteamAudioMaterial (GameObject goChild, SteamAudioMaterial newMaterialAsset)
     {
-#if UNITY_EDITOR
+// #if UNITY_EDITOR
         // Make the component a SerializedObject
         UnityEditor.SerializedObject dynGeometry = new UnityEditor.SerializedObject (goChild.GetComponent<SteamAudioGeometry>());
 
@@ -353,14 +360,14 @@ private string filepath = "./Assets/Models/10mcube.gltf";
         
         // Apply the properties to the serializedobject
         dynGeometry.ApplyModifiedProperties();
-#else
-        goChild.GetComponent<SteamAudioGeometry>().material = newMaterialAsset;
-#endif
+// #else
+//         goChild.GetComponent<SteamAudioGeometry>().material = newMaterialAsset;
+// #endif
     }
 
     private void CreateDynamicObjectSerializedData (GameObject goChild, string goName, int counter)
     {  
-#if UNITY_EDITOR
+// #if UNITY_EDITOR
         // Create dynamic object asset ...
         string filename = "Assets/DynamicObjects/TempFolder/" + goChild.name + "_" + goName + ".asset";
         var dynObj = new UnityEditor.SerializedObject (goChild.GetComponent<SteamAudioDynamicObject>());
@@ -371,7 +378,7 @@ private string filepath = "./Assets/Models/10mcube.gltf";
         AssetDatabase.CreateAsset(dataAsset, filename);
         mAsset.objectReferenceValue = dataAsset;
         dynObj.ApplyModifiedProperties();
-#endif
+// #endif
     }
     public string GetMaterialBasedOnMeshName (string meshname)
     {
@@ -453,7 +460,7 @@ private string filepath = "./Assets/Models/10mcube.gltf";
 
     public void RegenerateDynamicObjects()
     {
-#if UNITY_EDITOR
+// #if UNITY_EDITOR
         GameObject root = GameObject.FindGameObjectWithTag("Model");
 
         string filepath = EditorUtility.OpenFilePanel("Load GLTF", "", "gltf");
@@ -466,10 +473,20 @@ private string filepath = "./Assets/Models/10mcube.gltf";
         Debug.Log("Loading game object");
         _loadedGameObject = Importer.LoadFromFile(filepath);
         _loadedGameObject.tag = "Model";
+        RefreshRoot (_loadedGameObject);
         Debug.Log("Loaded game object");
 
         ImportProcedure();
-#endif
+// #endif
+    }
+
+    private void RefreshRoot (GameObject go)
+    {
+        xrOriginManager.root = go;
+        audioSourceManager.root = go;
+        playerManager.root = go;
+        
+        roomSizeManager.SetRoot (go);
     }
 
     public string GetMaterialFromName(string name)

@@ -75,6 +75,8 @@ public class SelectTransformGizmo : MonoBehaviour
     {
         foreach (Transform sel in selection)
         {
+            if (sel == null)
+                continue;
             Transform activeChild = GetActiveChild(sel);
             Material[] materials = new Material[activeChild.GetComponent<MeshRenderer>().materials.Length];
             for (int i = 0; i < activeChild.GetComponent<MeshRenderer>().materials.Length; ++i)

@@ -22,7 +22,7 @@ public class PlayerManager : MonoBehaviour
     public Camera mainCamera;
 
     // Room.
-    private GameObject root;
+    public GameObject root;
 
     public RoomSizeManager roomSizeManager;
 
