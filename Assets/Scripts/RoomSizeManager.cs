@@ -258,8 +258,10 @@ public class RoomSizeManager : MonoBehaviour
 
 
         audioSourceManager.SetOriginalRoomDimensions (originalSize.x, originalSize.y, originalSize.z, false);
+#if !UNITY_EDITOR
         SetRoomSizeThroughSliderVals (sliderValX, sliderValY, sliderValZ);
-        
+#endif
+
     }
 
     // public void SetSourceTransform (Vector3 pos, int sourceIdx)
