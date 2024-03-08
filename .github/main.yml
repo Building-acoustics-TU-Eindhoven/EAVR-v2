@@ -4,8 +4,9 @@ on: [push, pull_request]
 
 jobs:
   activate:
-    name: Unity - Activate         
-    - uses: game-ci/unity-activate@v2.0.0
+    name: Unity - Activate  
+    steps:       
+      - uses: game-ci/unity-activate@v2.0.0
   buildForAllSupportedPlatforms:
     name: Build for ${{ matrix.targetPlatform }}
     runs-on: ubuntu-latest
