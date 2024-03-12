@@ -244,6 +244,14 @@ public class AudioSourceManager : MonoBehaviour
         return nextGain;
     }
 
+    public void SetGainDbFromKnob (KnobButton knob)
+    {
+        SteamAudioSource source = curSource.GetComponent<SteamAudioSource>();
+        source.directMixLevel = ConvertFromdB (knob.GetValue(2));
+        source.reflectionsMixLevel = source.directMixLevel;
+        curSource.GetComponent<SourceController>().SetGainDb (knob.GetValue(2));
+    }
+
     public void SetPositionForAllSources (Vector3 vec)
     {
         foreach (Transform source in this.transform)

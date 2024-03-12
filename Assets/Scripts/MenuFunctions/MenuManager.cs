@@ -28,12 +28,7 @@ public class MenuManager : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(1) && mouseIsUp)
         {
-            curActive = !transform.GetChild(0).gameObject.activeSelf;
-            transform.GetChild(0).gameObject.SetActive(curActive);
-            Cursor.lockState = curActive ? CursorLockMode.None : CursorLockMode.Locked;
-            Cursor.visible = true;
-            playerManager.SetCanvasActive (curActive);
-
+            OpenCloseMenu (!transform.GetChild(0).gameObject.activeSelf);
             mouseIsUp = false;
         }
     
@@ -47,5 +42,14 @@ public class MenuManager : MonoBehaviour
     {
         for (int i = 0; i < subMenus.Count; ++i)
             subMenus[i].SetActive (i == idx);
+    }
+
+    public void OpenCloseMenu (bool shouldBeActive)
+    {
+        curActive = shouldBeActive;
+        transform.GetChild(0).gameObject.SetActive(curActive);
+        Cursor.lockState = curActive ? CursorLockMode.None : CursorLockMode.Locked;
+        Cursor.visible = true;
+        playerManager.SetCanvasActive (curActive);
     }
 }
