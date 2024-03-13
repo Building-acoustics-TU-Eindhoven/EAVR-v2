@@ -285,7 +285,7 @@ public class SaveLoadController : MonoBehaviour
         bool clipIsFound = false;
         for (int i = 0; i < obs.sourceClipNames.Count; ++i)
         {
-            audioSourceManager.AddSource(i == 0);
+            audioSourceManager.AddSource();
 
             // Apply gaindB
             audioSourceManager.GetCurSource().GetComponent<SteamAudioSource>().directMixLevel = audioSourceManager.ConvertFromdB(obs.sourceGaindBs[i]);

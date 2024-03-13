@@ -37,6 +37,8 @@ public class AudioSourceManager : MonoBehaviour
     public float sourceColliderHeight;
 
     private float origRoomWidth, origRoomHeight, origRoomDepth;
+
+    private int audioSourceIdxName = 0;
     // Start is called before the first frame update
     void Start()
     {
@@ -50,6 +52,9 @@ public class AudioSourceManager : MonoBehaviour
         sourceColliderHeight = 2.0f * initSource.GetComponent<CapsuleCollider>().height;
 
         curSource = initSource;
+
+        // init
+        AddSource();
     }
 
     // Update is called once per frame
@@ -154,11 +159,11 @@ public class AudioSourceManager : MonoBehaviour
         sourcePanelManager.RefreshTextAndUIElements();
     }
 
-    public void AddSource(bool init = false)
+    public void AddSource()
     {
         totNumSources++;
         // Duplicate currently selected source
-        if (init)
+        if (ratioVec.Count == 0)
         {
             
             allSources.Add(Instantiate(initSource, this.transform));
@@ -169,12 +174,17 @@ public class AudioSourceManager : MonoBehaviour
             Debug.Log(ratioVec[0].y);
             initSource.SetActive(false);
             allSources[0].SetActive(true);
+            allSources[0].name = "Audio Source 0";
+
         }
         else
         {
             ratioVec.Add(ratioVec[sourceIdx]);
             allSources.Add(Instantiate(allSources[sourceIdx], this.transform));
+            allSources[allSources.Count-1].name = "Audio Source " + audioSourceIdxName.ToString();
+
         }
+        ++audioSourceIdxName;
 
         // GlobalFunctions.GetChildWithName(allSources[totNumSources - 1], "Source").
         // allSources[totNumSources - 1].GetComponent<SourceController>().activeSourceIdx =
@@ -202,14 +212,22 @@ public class AudioSourceManager : MonoBehaviour
             return false;
         }
         --totNumSources;
-        Destroy (allSources[sourceIdx]);
+        StartCoroutine (SafelyRemoveSource (sourceIdx));
         ratioVec.RemoveAt(sourceIdx);
-        allSources.RemoveAt(sourceIdx);
 
         if (sourceIdx == totNumSources)
             --sourceIdx;
 
         return true;
+    }
+
+    private IEnumerator SafelyRemoveSource (int idx)
+    {
+        allSources[idx].SetActive(false);
+        yield return new WaitForSeconds(0.5f);
+        Destroy (allSources[idx]);
+        allSources.RemoveAt(idx);
+
     }
 
     public float ConvertTodB (float linGain)
@@ -247,9 +265,9 @@ public class AudioSourceManager : MonoBehaviour
     public void SetGainDbFromKnob (KnobButton knob)
     {
         SteamAudioSource source = curSource.GetComponent<SteamAudioSource>();
-        source.directMixLevel = ConvertFromdB (knob.GetValue(2));
+        source.directMixLevel = ConvertFromdB (knob.GetValue());
         source.reflectionsMixLevel = source.directMixLevel;
-        curSource.GetComponent<SourceController>().SetGainDb (knob.GetValue(2));
+        curSource.GetComponent<SourceController>().SetGainDb (knob.GetValue());
     }
 
     public void SetPositionForAllSources (Vector3 vec)
@@ -340,7 +358,7 @@ public class AudioSourceManager : MonoBehaviour
 
         if (addSource) 
         {
-            AddSource(true);
+            AddSource();
         }
     }
 
