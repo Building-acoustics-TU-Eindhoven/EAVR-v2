@@ -38,7 +38,7 @@ public class RoomMenuManger : SubMenu, iRoomMenuManager
     private bool prepared = false;
 
     [SerializeField]
-    private KnobButton Xknob, Yknob, Zknob;
+    private KnobButton xKnob, yKnob, zKnob;
 
     // Acts like Start() but is called from the menu manager
     public override void PrepareSubMenu()
@@ -166,9 +166,9 @@ public class RoomMenuManger : SubMenu, iRoomMenuManager
     private void SetKnobValuesFromCurrentRoomDimensions()
     {
         // As the scaling is not normalised (not between 0 and 1) use the SetNonNormalisedValue() function
-        Xknob.SetNonNormalisedValue (curRoomSize.x / originalSize.x, false);
-        Yknob.SetNonNormalisedValue (curRoomSize.y / originalSize.y, false);
-        Zknob.SetNonNormalisedValue (curRoomSize.z / originalSize.z, false);
+        xKnob.SetNonNormalisedValue (curRoomSize.x / originalSize.x, false);
+        yKnob.SetNonNormalisedValue (curRoomSize.y / originalSize.y, false);
+        zKnob.SetNonNormalisedValue (curRoomSize.z / originalSize.z, false);
     }
 
     public Vector3 GetNonNormalisedPlayerPosition() { return nonNormalisedPlayerPos; }

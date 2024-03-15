@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 
 public class SourcesMenuManager : SubMenu
@@ -19,8 +20,10 @@ public class SourcesMenuManager : SubMenu
     private bool dropDownListCreated = false;
 
     [SerializeField]
-    private KnobButton Xknob, Yknob, Zknob;
+    private KnobButton xKnob, yKnob, zKnob, gainKnob;
 
+    [SerializeField]
+    private Toggle loopButton, pauseButton;
     // Acts like Start() but is called from the menu manager
     public override void PrepareSubMenu()
     {
@@ -36,7 +39,8 @@ public class SourcesMenuManager : SubMenu
             CreateDropdownList();
         }
 
-        RefreshTextAndUIElements (sourceManager.GetCurSource());
+        if (sourceManager.IsPrepared())
+            RefreshTextAndUIElements (sourceManager.GetCurSource());
     }
 
     public void CreateDropdownList()
@@ -112,6 +116,13 @@ public class SourcesMenuManager : SubMenu
             m_dropdown.SetValueWithoutNotify(currentSource.GetActiveClipIdx());
         }
         SetKnobValuesFromSource (currentSource);
+
+        // Set the loop button state
+        loopButton.isOn = currentSource.GetShouldLoop();
+
+        // Set the pause button state
+        pauseButton.isOn = !currentSource.GetShouldPause();
+
         sourceSelectionButton.SetCurrentValue (activeSourceNumber);
 
     }
@@ -120,15 +131,17 @@ public class SourcesMenuManager : SubMenu
     {
         Vector3 ratioVec = source.GetRatioVec();
 
-        Xknob.SetNormalisedValue (ratioVec.x, false);
-        Yknob.SetNormalisedValue (ratioVec.y, false);
-        Zknob.SetNormalisedValue (ratioVec.z, false);
+        xKnob.SetNormalisedValue (ratioVec.x, false);
+        yKnob.SetNormalisedValue (ratioVec.y, false);
+        zKnob.SetNormalisedValue (ratioVec.z, false);
+
+        gainKnob.SetNonNormalisedValue (source.GetGainDb(), false);
     }
 
     public void SetDefaultKnobValues (Vector3 defaults)
     {
-        Xknob.SetDefaultValue (defaults.x);
-        Yknob.SetDefaultValue (defaults.y);
-        Zknob.SetDefaultValue (defaults.z);
+        xKnob.SetDefaultValue (defaults.x);
+        yKnob.SetDefaultValue (defaults.y);
+        zKnob.SetDefaultValue (defaults.z);
     }
 }

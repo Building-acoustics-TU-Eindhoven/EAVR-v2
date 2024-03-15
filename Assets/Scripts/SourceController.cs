@@ -23,11 +23,19 @@ public class SourceController : MonoBehaviour
     
     private Vector3 ratioVec = new Vector3(0.0f, 0.0f, 0.0f);
 
+    private float gainDb = 0.0f;
+
+    private bool shouldLoop = true;
+    private bool shouldPause = false;
+
     // Start is called before the first frame update
     void Start()
     {
         audioSource = GetComponent<AudioSource>();
         audioSource.Play();
+        audioSource.loop = shouldLoop;
+        if (shouldPause)
+            audioSource.Pause();
     }
 
     // Update is called once per frame
@@ -48,31 +56,34 @@ public class SourceController : MonoBehaviour
 
     }
 
-    // public void SetGainDb (float dBIn)
-    // {
-    //     gainDB = dBIn;
-    // }
-
     public void PlayFromStart()
     {
         audioSource.Stop();
         audioSource.Play();
     }
 
-    public void LoopAudio (bool val)
+    public void LoopAudio (bool l)
     {
+        shouldLoop = l;
+
+        if (audioSource == null)
+            audioSource = GetComponent<AudioSource>();
+
+
         if (!audioSource.isPlaying)
             PlayFromStart();
-        audioSource.loop = val;
+        audioSource.loop = l;
     }
 
-    public void PauseAudio()
+    public void PauseAudio (bool p)
     {
-        if (audioSource.isPlaying)
+        shouldPause = p;
+
+        if (audioSource.isPlaying && p)
         {
             audioSource.Pause();
         }
-        else if (!audioSource.isPlaying)
+        else if (!audioSource.isPlaying && !p)
         {
             audioSource.UnPause();
         }
@@ -108,4 +119,11 @@ public class SourceController : MonoBehaviour
     }
 
     public Vector3 GetRatioVec() { return ratioVec; }  
+
+    public bool GetShouldLoop() { return shouldLoop; }
+    public bool GetShouldPause() { return shouldPause; }
+
+    public float GetGainDb() { return gainDb; }
+    public void SetGainDb (float dBIn) { gainDb = dBIn; }
+
 }

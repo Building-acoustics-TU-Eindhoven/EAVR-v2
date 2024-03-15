@@ -7,11 +7,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 using System.IO;
 using UnityEngine.Networking;
 using SteamAudio;
 using Vector3 = UnityEngine.Vector3;
+
 public class AudioSourceManager : MonoBehaviour
 {
 
@@ -41,7 +43,7 @@ public class AudioSourceManager : MonoBehaviour
 
     private int audioSourceIdxName = 0;
 
-    bool prepared = false;
+    private bool prepared = false;
     private Vector3 posToSet = new Vector3(0.0f, 0.0f, 0.0f);
     private Vector3 roomDimensionsToSet = new Vector3(0.0f, 0.0f, 0.0f);
 
@@ -112,9 +114,9 @@ public class AudioSourceManager : MonoBehaviour
         return allSources;
     }
 
-    public void PauseAudio()
+    public void PauseAudioFromToggle (Toggle toggle)
     {
-        curSource.PauseAudio();
+        curSource.PauseAudio (!toggle.isOn);
     }
 
     public void StopAudio()
@@ -131,9 +133,9 @@ public class AudioSourceManager : MonoBehaviour
         }
     }
 
-    public void LoopAudio()
+    public void LoopAudioFromToggle (Toggle toggle)
     {
-        curSource.LoopAudio (true);
+        curSource.LoopAudio (toggle.isOn);
     }
 
     public void PlayAudio()
@@ -185,6 +187,8 @@ public class AudioSourceManager : MonoBehaviour
         else
         {
             allSources.Add(Instantiate(allSources[sourceIdx], this.transform));
+            allSources[allSources.Count-1].LoopAudio (allSources[sourceIdx].GetShouldLoop());
+            allSources[allSources.Count-1].PauseAudio (allSources[sourceIdx].GetShouldPause());
             allSources[allSources.Count-1].SetRatioVec (allSources[sourceIdx].GetRatioVec());
             allSources[allSources.Count-1].name = "Audio Source " + audioSourceIdxName.ToString();
         }
@@ -398,4 +402,6 @@ public class AudioSourceManager : MonoBehaviour
         origRoomHeight = roomSize.y;
         origRoomDepth = roomSize.z;
     }
+
+    public bool IsPrepared() { return prepared; }
 }
