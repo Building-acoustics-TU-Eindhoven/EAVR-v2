@@ -24,11 +24,14 @@ public class SourcesMenuManager : SubMenu
 
     [SerializeField]
     private Toggle loopButton, pauseButton;
+    
     // Acts like Start() but is called from the menu manager
     public override void PrepareSubMenu()
     {
-        m_dropdown.ClearOptions();  
+        m_dropdown.ClearOptions(); 
         CreateDropdownList();
+
+        gainKnob.Start();
     }
 
     void OnEnable()

@@ -1,12 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
 using System;
 using TMPro;
 using System.Threading;
 
+[RequireComponent(typeof(Button))]
 public class KnobButton : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler
 {
     
@@ -38,7 +40,7 @@ public class KnobButton : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
     private Coroutine TimerCoroutine;
     private string formatString = "{0:0.00}";
     // Start is called before the first frame update
-    void Start()
+    public void Start()
     {
         GetValueFormattingFromStep();
     }

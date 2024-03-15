@@ -1,16 +1,27 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class MenuManager : MonoBehaviour
 {
 
     [SerializeField]
-    public PlayerManager playerManager;
+    private PlayerManager playerManager;
+
+    [SerializeField]
+    private MenuButton wallButton;
+
     private bool mouseIsUp = true;
     private bool curActive = true;
 
-    public List<SubMenu> subMenus = new List<SubMenu>();
+    [Space]
+
+    [SerializeField]
+    private List<SubMenu> subMenus = new List<SubMenu>();
+
+    private int prevActiveMenuIdx = 0;
+    private bool calledFromActivateWall = false;
 
     // Start is called before the first frame update
     void Start()
@@ -20,9 +31,13 @@ public class MenuManager : MonoBehaviour
             if (child.GetComponent<SubMenu>())
                 subMenus.Add (child.GetComponent<SubMenu>());
         }
+        
+        foreach (SubMenu subMenu in subMenus)
+            subMenu.PrepareSubMenu();
 
-        subMenus[1].PrepareSubMenu();
-        subMenus[2].PrepareSubMenu();
+        // As no walls can be selected on startup, disable the Wall button
+        wallButton.SetDisabledText ("No wall\nselected");
+        wallButton.SetEnabled (false);
 
         // Set the "Main Menu" as active menu
         SetActiveMenu (0);
@@ -47,6 +62,11 @@ public class MenuManager : MonoBehaviour
     {
         for (int i = 0; i < subMenus.Count; ++i)
             subMenus[i].gameObject.SetActive (i == idx);
+        
+        if (!calledFromActivateWall)
+            prevActiveMenuIdx = idx;
+
+        calledFromActivateWall = false;
     }
 
     // Triggered on right-click, or the Main Menu Close button
@@ -57,5 +77,13 @@ public class MenuManager : MonoBehaviour
         Cursor.lockState = curActive ? CursorLockMode.None : CursorLockMode.Locked;
         Cursor.visible = true;
         playerManager.SetCanvasActive (curActive);
+    }
+
+    public void HasSelectedWalls (bool h)
+    {
+        wallButton.SetEnabled (h);
+
+        calledFromActivateWall = true;
+        SetActiveMenu (h ? 3 : prevActiveMenuIdx);
     }
 }

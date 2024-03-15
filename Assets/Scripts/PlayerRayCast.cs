@@ -10,16 +10,15 @@ public class PlayerRayCast : MonoBehaviour
     public TMP_Text selectedMaterialText;
     public TMP_Dropdown dropdown;
 
-    private GeometryManager geometryManager;
+    public MenuManager menuManager;
 
-    private GameManagerSteamAudio gameManager;
+    private GeometryManager geometryManager;
 
     private bool shiftDown, leftShiftDown, rightShiftDown = false;
 
     void Start()
     {
         geometryManager = GameObject.Find("GeometryManager").GetComponent<GeometryManager>();
-        gameManager = GameObject.Find("MainCanvas").GetComponent<GameManagerSteamAudio>();
     }
 
     // Update is called once per frame
@@ -43,7 +42,7 @@ public class PlayerRayCast : MonoBehaviour
         }
 
         shiftDown = (leftShiftDown || rightShiftDown);
-        if (Input.GetMouseButtonDown(0) && !gameManager.IsCanvasActive())
+        if (Input.GetMouseButtonDown(0) && !transform.GetChild(0).gameObject.activeSelf)
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
@@ -95,14 +94,17 @@ public class PlayerRayCast : MonoBehaviour
                     {
                         selectedWallText.text = "Selected wall: None";
                         selectedMaterialText.text = "Selected material: None";
+                        menuManager.HasSelectedWalls (false);
                     }
                     else if (geometryManager.GetSelectedWalls().Count == 1)
                     {
                         selectedWallText.text = "Selected wall: " + geometryManager.GetSelectedWalls()[0].name;
                         selectedMaterialText.text = "Selected material: " + geometryManager.GetActiveMaterialOf(0);
+                        menuManager.HasSelectedWalls (true);
                     } else {
                         selectedWallText.text = "Selected wall: Multiple (" + geometryManager.GetSelectedWalls().Count + ")";
-                        selectedMaterialText.text = "Selected material: Multiple (" + geometryManager.GetSelectedWalls().Count + ")";
+                        selectedMaterialText.text = "Selected material: Multiple (" + geometryManager.GetSelectedWalls().Count + ")";        
+                        menuManager.HasSelectedWalls (true);
                     }
                 }
             }
