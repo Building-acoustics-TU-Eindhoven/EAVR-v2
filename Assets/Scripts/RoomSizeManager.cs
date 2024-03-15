@@ -29,7 +29,7 @@ public class RoomSizeManager : MonoBehaviour
     public float curRoomWidth, curRoomHeight, curRoomDepth;
 
     public Vector3 originalSize;
-    public float playerColliderDiameter;
+    public float playerColliderRadius;
     Bounds getRenderBounds(GameObject objeto){
         Bounds bounds = new  Bounds(Vector3.zero,Vector3.zero);
         Renderer render = objeto.GetComponent<Renderer>();
@@ -39,9 +39,9 @@ public class RoomSizeManager : MonoBehaviour
         return bounds;
 
         if (playerGO.activeSelf)
-            playerColliderDiameter = playerManager.playerColliderDiameter;
+            playerColliderRadius = playerManager.playerColliderRadius;
         else
-            playerColliderDiameter = 0.5f;
+            playerColliderRadius = 0.25f;
     }
 
     public Bounds getBounds(GameObject objeto){
@@ -84,7 +84,7 @@ public class RoomSizeManager : MonoBehaviour
         zSlider = GlobalFunctions.GetChildWithName(roomsizeGO, "zSlider").GetComponent<Slider>();
 
         SetPlayerTransform();
-        audioSourceManager.SetOriginalRoomDimensions (originalSize.x, originalSize.y, originalSize.z, true);
+        audioSourceManager.SetOriginalRoomDimensions (originalSize, true);
     }
 
     public void SetRoomSizeThroughSliderVals(float x, float y, float z)
@@ -228,18 +228,18 @@ public class RoomSizeManager : MonoBehaviour
         if (playerGO.activeSelf)
         {
             return new Vector3(
-                (playerGO.transform.position.x - root.transform.localPosition.x) / (curRoomWidth - playerColliderDiameter) + 0.5f,
+                (playerGO.transform.position.x - root.transform.localPosition.x) / (curRoomWidth - playerColliderRadius * 2.0f) + 0.5f,
                 (playerGO.transform.position.y - root.transform.localPosition.y) / curRoomHeight,
-                (playerGO.transform.position.z - root.transform.localPosition.z) / (curRoomDepth - playerColliderDiameter) + 0.5f
+                (playerGO.transform.position.z - root.transform.localPosition.z) / (curRoomDepth - playerColliderRadius * 2.0f) + 0.5f
             );
         }
         else
         {
             float cameraOffset = xrOrigin.transform.GetChild(0).transform.localPosition.y;
             return new Vector3 (
-                (xrOrigin.transform.position.x - root.transform.localPosition.x) / (curRoomWidth - playerColliderDiameter) + 0.5f,
+                (xrOrigin.transform.position.x - root.transform.localPosition.x) / (curRoomWidth - playerColliderRadius * 2.0f) + 0.5f,
                 (xrOrigin.transform.position.y + cameraOffset - root.transform.localPosition.y) / curRoomHeight,
-                (xrOrigin.transform.position.z - root.transform.localPosition.z) / (curRoomDepth - playerColliderDiameter) + 0.5f
+                (xrOrigin.transform.position.z - root.transform.localPosition.z) / (curRoomDepth - playerColliderRadius * 2.0f) + 0.5f
             );
         }
 
@@ -257,7 +257,7 @@ public class RoomSizeManager : MonoBehaviour
         curRoomDepth = originalSize.z;
 
 
-        audioSourceManager.SetOriginalRoomDimensions (originalSize.x, originalSize.y, originalSize.z, false);
+        audioSourceManager.SetOriginalRoomDimensions (originalSize, false);
 #if !UNITY_EDITOR
         SetRoomSizeThroughSliderVals (sliderValX, sliderValY, sliderValZ);
 #endif

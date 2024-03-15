@@ -296,7 +296,7 @@ public class SaveLoadController : MonoBehaviour
                 if (audioSourceManager.clipList[ii].name == obs.sourceClipNames[i])
                 {
                     audioSourceManager.GetCurSource().GetComponent<AudioSource>().clip = audioSourceManager.clipList[ii];
-                    audioSourceManager.GetCurSource().GetComponent<SourceController>().activeClipIdx = ii;
+                    audioSourceManager.GetCurSource().GetComponent<SourceController>().SetActiveClipIdx (ii);
                     clipIsFound = true;
                     break;
                 }
@@ -318,7 +318,8 @@ public class SaveLoadController : MonoBehaviour
         // Apply player position
         if (playerGO.activeSelf)
         {
-            playerGO.GetComponent<PlayerManager>().SetPlayerPos(obs.playerXYZ, Vector3.Scale(obs.roomOrigSize, obs.roomScaling));
+            playerGO.GetComponent<PlayerManager>().PreparePlayerPosAndRoomDimensions(obs.playerXYZ, Vector3.Scale(obs.roomOrigSize, obs.roomScaling));
+            playerGO.GetComponent<PlayerManager>().ApplyPlayerPosAndRoomDimensions();
             playerGO.GetComponent<PlayerManager>().mainCamera.transform.localRotation = obs.rotation;
             playerGO.GetComponent<PlayerManager>().SetRotationAndPosition();
         } 

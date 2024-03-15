@@ -147,6 +147,7 @@ GameObject:
   - component: {fileID: 8580799176478698939}
   - component: {fileID: 8580799176478698938}
   - component: {fileID: 8580799176478698933}
+  - component: {fileID: 3094062944121340656}
   m_Layer: 5
   m_Name: MenuButton
   m_TagString: Untagged
@@ -237,7 +238,7 @@ MonoBehaviour:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.764151, g: 0.764151, b: 0.764151, a: 1}
     m_PressedColor: {r: 0.5283019, g: 0.5283019, b: 0.5283019, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_SelectedColor: {r: 0.9339623, g: 0, b: 0, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -269,3 +270,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &3094062944121340656
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8580799176478698935}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd0904c21f7694ccfb1246eae3805441, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  doubleClicked:
+    m_PersistentCalls:
+      m_Calls: []

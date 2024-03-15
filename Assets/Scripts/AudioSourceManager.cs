@@ -29,7 +29,6 @@ public class AudioSourceManager : MonoBehaviour
 
     public List<AudioClip> clipList;
     public SourcePanelManager sourcePanelManager;
-    private bool stopButtonPressedLast = false;
 
     private List<Vector3> ratioVec = new List<Vector3>();
 
@@ -39,6 +38,12 @@ public class AudioSourceManager : MonoBehaviour
     private float origRoomWidth, origRoomHeight, origRoomDepth;
 
     private int audioSourceIdxName = 0;
+
+    bool prepared = false;
+    private Vector3 posToSet = new Vector3(0.0f, 0.0f, 0.0f);
+    private Vector3 roomDimensionsToSet = new Vector3(0.0f, 0.0f, 0.0f);
+    private bool shouldAddSource = false;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -52,8 +57,10 @@ public class AudioSourceManager : MonoBehaviour
         sourceColliderHeight = 2.0f * initSource.GetComponent<CapsuleCollider>().height;
 
         curSource = initSource;
+        GetDropdownChoice (5);
 
-        // init
+        prepared = true;
+
         AddSource();
     }
 
@@ -107,43 +114,37 @@ public class AudioSourceManager : MonoBehaviour
     public void PauseAudio()
     {
         curSource.GetComponent<SourceController>().PauseAudio();
-        stopButtonPressedLast = false;
     }
 
     public void StopAudio()
     {
-        if (stopButtonPressedLast)
+ 
+        curSource.GetComponent<SourceController>().StopAudio();
+    }
+
+    public void StopAllAudio()
+    {
+        foreach (GameObject source in allSources)
         {
-            foreach (GameObject source in allSources)
-            {
-                source.GetComponent<SourceController>().StopAudio();
-            }
-            stopButtonPressedLast = false;
-        }
-        else
-        {
-            curSource.GetComponent<SourceController>().StopAudio();
-            stopButtonPressedLast = true;
+            source.GetComponent<SourceController>().StopAudio();
         }
     }
 
     public void LoopAudio()
     {
         curSource.GetComponent<SourceController>().LoopAudio (true);
-        stopButtonPressedLast = false;
     }
 
     public void PlayAudio()
     {
         curSource.GetComponent<SourceController>().PlayFromStart();
-        stopButtonPressedLast = false;
     }
 
     public void GetDropdownChoice (int dropDownValue)
     {
         AudioClip selectedClip = clipList[dropDownValue];
 
-        curSource.GetComponent<SourceController>().activeClipIdx = dropDownValue;
+        curSource.GetComponent<SourceController>().SetActiveClipIdx (dropDownValue);
         curSource.GetComponent<SourceController>().SwitchClipAndPlay(clipList[dropDownValue]);
 
         string clipName = selectedClip.name;
@@ -161,6 +162,9 @@ public class AudioSourceManager : MonoBehaviour
 
     public void AddSource()
     {
+        if (!prepared)
+            return;
+
         totNumSources++;
         // Duplicate currently selected source
         if (ratioVec.Count == 0)
@@ -171,11 +175,9 @@ public class AudioSourceManager : MonoBehaviour
                 Mathf.Clamp01((initSource.transform.position.x - root.transform.position.x) / (origRoomWidth * root.transform.localScale.x - sourceColliderDiameter) + 0.5f),
                 Mathf.Clamp01((initSource.transform.position.y - 0.5f * sourceColliderHeight - root.transform.position.y) / (origRoomHeight * root.transform.localScale.y - sourceColliderHeight * 1.0f)),
                 Mathf.Clamp01((initSource.transform.position.z - root.transform.position.z) / (origRoomDepth * root.transform.localScale.z - sourceColliderDiameter) + 0.5f)));
-            Debug.Log(ratioVec[0].y);
             initSource.SetActive(false);
             allSources[0].SetActive(true);
             allSources[0].name = "Audio Source 0";
-
         }
         else
         {
@@ -286,6 +288,29 @@ public class AudioSourceManager : MonoBehaviour
         SetSourceZ(vec.z);
     }
 
+    public void SetSourceXfromKnob (KnobButton knob)
+    {
+        if (!prepared)
+            return;
+
+        SetSourceX (knob.GetValue());
+    }
+
+    public void SetSourceYfromKnob (KnobButton knob)
+    {
+        if (!prepared)
+            return;
+
+        SetSourceY (knob.GetValue());
+    }
+
+    public void SetSourceZfromKnob (KnobButton knob)
+    {
+        if (!prepared)
+            return;
+
+        SetSourceZ (knob.GetValue());
+    }
 
     public void SetSourcePosition (Vector3 vec, Transform source = null)
     {
@@ -297,6 +322,14 @@ public class AudioSourceManager : MonoBehaviour
 
     public void SetSourceX(float x)
     {
+        // // Called by another class before it is initialised
+        // if (!prepared)
+        // {
+        //     posToSet.x = x;
+        //     shouldUpdatePosition = true;
+        //     return;
+        // }
+
         ratioVec[sourceIdx] = new Vector3 (x, ratioVec[sourceIdx].y, ratioVec[sourceIdx].z);
         //ratioVec[sourceIdx] = new Vector3 (x, ratioVec[sourceIdx].y, ratioVec[sourceIdx].z);
         SetSourcePosition(new Vector3((x - 0.5f) * (origRoomWidth * root.transform.localScale.x - sourceColliderDiameter) + root.transform.position.x,
@@ -307,6 +340,14 @@ public class AudioSourceManager : MonoBehaviour
 
     public void SetSourcesFromRoomSizeX(float roomSize)
     {
+        // // Called by another class before it is initialised
+        // if (!prepared)
+        // {
+        //     roomDimensionsToSet.x = roomSize;
+        //     shouldUpdatePosition = true;
+        //     return;
+        // }
+
         for (int i = 0; i < totNumSources; ++i)
             SetSourcePosition(new Vector3((ratioVec[i].x - 0.5f) * (roomSize - sourceColliderDiameter) + root.transform.position.x,
                              allSources[i].transform.position.y,
@@ -316,6 +357,14 @@ public class AudioSourceManager : MonoBehaviour
 
     public void SetSourceY(float y)
     {
+        // // Called by another class before it is initialised
+        // if (!prepared)
+        // {
+        //     posToSet.y = y;
+        //     shouldUpdatePosition = true;
+        //     return;
+        // }
+
         ratioVec[sourceIdx] = new Vector3(ratioVec[sourceIdx].x, y, ratioVec[sourceIdx].z);
         SetSourcePosition(new Vector3(allSources[sourceIdx].transform.position.x,
                                     y * (origRoomHeight * root.transform.localScale.y - sourceColliderHeight) + root.transform.position.y + sourceColliderHeight * 0.5f,
@@ -324,6 +373,14 @@ public class AudioSourceManager : MonoBehaviour
 
     public void SetSourcesFromRoomSizeY(float roomSize)
     {
+        // // Called by another class before it is initialised
+        // if (!prepared)
+        // {
+        //     roomDimensionsToSet.y = roomSize;
+        //     shouldUpdatePosition = true;
+        //     return;
+        // }
+
         for (int i = 0; i < totNumSources; ++i)
             SetSourcePosition(new Vector3(allSources[i].transform.position.x,
                             ratioVec[i].y * (roomSize - sourceColliderHeight) + root.transform.position.y + sourceColliderHeight * 0.5f,
@@ -333,6 +390,14 @@ public class AudioSourceManager : MonoBehaviour
 
     public void SetSourceZ(float z)
     {
+        // // Called by another class before it is initialised
+        // if (!prepared)
+        // {
+        //     posToSet.z = z;
+        //     shouldUpdatePosition = true;
+        //     return;
+        // }
+
         ratioVec[sourceIdx] = new Vector3(ratioVec[sourceIdx].x, ratioVec[sourceIdx].y, z);
         Debug.Log (z);
         SetSourcePosition(new Vector3(allSources[sourceIdx].transform.position.x,
@@ -342,7 +407,13 @@ public class AudioSourceManager : MonoBehaviour
  
     public void SetSourcesFromRoomSizeZ(float roomSize)
     {
-        Debug.Log (ratioVec[0].z);
+        // // Called by another class before it is initialised
+        // if (!prepared)
+        // {
+        //     roomDimensionsToSet.z = roomSize;
+        //     shouldUpdatePosition = true;
+        //     return;
+        // }
 
         for (int i = 0; i < totNumSources; ++i)
             SetSourcePosition(new Vector3(allSources[i].transform.position.x,
@@ -350,11 +421,11 @@ public class AudioSourceManager : MonoBehaviour
                             (ratioVec[i].z - 0.5f) * (roomSize - sourceColliderDiameter) + root.transform.position.z), allSources[i].transform);
     }
 
-    public void SetOriginalRoomDimensions (float roomWidth, float roomHeight, float roomDepth, bool addSource)
+    public void SetOriginalRoomDimensions (Vector3 roomSize, bool addSource)
     {
-        origRoomWidth = roomWidth;
-        origRoomHeight = roomHeight;
-        origRoomDepth = roomDepth;
+        origRoomWidth = roomSize.x;
+        origRoomHeight = roomSize.y;
+        origRoomDepth = roomSize.z;
 
         if (addSource) 
         {

@@ -1,14 +1,10 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Unity Editor",
-            "type": "unity",
-            "path": "/Users/SilvinW/repositories/EAVR-steam-audio/Library/EditorInstance.json",
-            "request": "launch"
+            "name": "Attach to Unity",
+            "type": "vstuc",
+            "request": "attach"
         },
         {
             "name": "Windows Player",
@@ -95,6 +91,11 @@
             "name": "SwitchPlayer",
             "type": "unity",
             "request": "launch"
+        },
+        {
+            "name": "Attach to Unity",
+            "type": "vstuc",
+            "request": "attach"
         }
     ]
 }

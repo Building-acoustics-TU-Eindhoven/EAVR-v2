@@ -14,11 +14,14 @@ public class SourceController : MonoBehaviour
     //private AudioClip clip;
 
     private AudioSource audioSource;
-    public int activeClipIdx { get; set; }
+
+    [SerializeField]
+    private int activeClipIdx = 0;  
 
     public float gainDB = 0.0f;
     private float prevRMSval = 0.0f;
     private float LPcoeff = 0.95f;
+    
     // Start is called before the first frame update
     void Start()
     {
@@ -84,9 +87,17 @@ public class SourceController : MonoBehaviour
     public void SwitchClipAndPlay (AudioClip sel_clip){
    
         audioSource.Stop();
-
         audioSource.clip = sel_clip;
         audioSource.Play();
-        //audio.PlayOneShot(clip);
+    }
+
+    public int GetActiveClipIdx()
+    {
+        return activeClipIdx;
+    }
+
+    public void SetActiveClipIdx (int i)
+    {
+        activeClipIdx = i;
     }
 }

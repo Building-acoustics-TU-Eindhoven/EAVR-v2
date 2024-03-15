@@ -14,17 +14,25 @@
 
 using UnityEngine;
 
+// Interface to the RoomMenuManager
+public interface iRoomMenuManager
+{
+    void RefreshInternalPlayerPos();
+    Vector3 GetNonNormalisedPlayerPosition();
+}
+
 /// First-person player controller for Resonance Audio demo scenes.
 [RequireComponent(typeof(CharacterController))]
 public class PlayerManager : MonoBehaviour
 {
-    /// Camera.
+    /// Camera
     public Camera mainCamera;
 
     // Room.
     public GameObject root;
 
-    public RoomSizeManager roomSizeManager;
+    // Room menu manager
+    public GameObject roomMenuManager;
 
     // Character controller.
     private CharacterController characterController = null;
@@ -46,7 +54,13 @@ public class PlayerManager : MonoBehaviour
 
     public GameObject reticleCanvas;
 
-    public float playerColliderDiameter;
+    public float playerColliderRadius;
+
+    bool prepared = false;
+    private Vector3 normalisedPosToSet = new Vector3(0.0f, 0.0f, 0.0f);
+    private Vector3 roomDimensionsToSet = new Vector3(0.0f, 0.0f, 0.0f);
+    private bool shouldUpdatePosition = false;
+
     void Start()
     {
         root = GameObject.Find("root");
@@ -57,7 +71,14 @@ public class PlayerManager : MonoBehaviour
         rotationY = rotation.y;
         reticleCanvas.SetActive (!canvasActive);
 
-        playerColliderDiameter = GetComponent<CapsuleCollider>().radius * 2;
+        playerColliderRadius = GetComponent<CapsuleCollider>().radius;
+
+        roomMenuManager.GetComponent<iRoomMenuManager>().RefreshInternalPlayerPos();
+
+        // Position and dimensions should have been given by the RoomMenuManager through the PreparePlayerPosAndRoomDimensions() function
+        ApplyPlayerPosAndRoomDimensions();
+
+        prepared = true;
 
     }
 
@@ -81,11 +102,11 @@ public class PlayerManager : MonoBehaviour
 
         if (Input.GetKeyDown("space"))
             characterController.Move(new Vector3 (0.0f, 10.0f, 0.0f));
-        // Register player-move keypresses and forward them to the roomSizeManager so that the player's relative position to the roomsize doesn't change
-        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.D) ||
-            Input.GetKeyUp(KeyCode.A) || Input.GetKeyUp(KeyCode.W) || Input.GetKeyUp(KeyCode.S) || Input.GetKeyUp(KeyCode.D))
+        
+        // Check whether the position in the RoomMenuManger is updated
+        if (Mathf.Abs(transform.position.magnitude - roomMenuManager.GetComponent<iRoomMenuManager>().GetNonNormalisedPlayerPosition().magnitude) > 0.001f)
         {
-            roomSizeManager.SetPlayerTransform();
+            roomMenuManager.GetComponent<iRoomMenuManager>().RefreshInternalPlayerPos();
         }
 
     }
@@ -154,32 +175,38 @@ public class PlayerManager : MonoBehaviour
         canvasActive = c;
     }
 
-    public void SetPlayerPos (Vector3 pos, Vector3 roomDimensions)
+    // Called from room menu manager Awake()
+    public void PreparePlayerPosAndRoomDimensions (Vector3 normalisedPos, Vector3 roomDimensions)
     {
-        Vector3 test = new Vector3((pos.x - 0.5f) * (roomDimensions.x - playerColliderDiameter) + root.transform.position.x,
-                                         pos.y * roomDimensions.y + root.transform.position.y,
-                                         (pos.z - 0.5f) * (roomDimensions.z - playerColliderDiameter) + root.transform.position.z);
-        transform.position = test;
+        normalisedPosToSet = normalisedPos;
+        roomDimensionsToSet = roomDimensions;
     }
 
-    public void SetPlayerX(float x, float roomWidth)
+    public void ApplyPlayerPosAndRoomDimensions()
     {
-        transform.position = new Vector3(x * (roomWidth - playerColliderDiameter) + root.transform.position.x,
+        SetPlayerX (normalisedPosToSet.x, roomDimensionsToSet.x);
+        SetPlayerY (normalisedPosToSet.y, roomDimensionsToSet.y);
+        SetPlayerZ (normalisedPosToSet.z, roomDimensionsToSet.z);
+    }
+
+    public void SetPlayerX(float normalisedX, float roomWidth)
+    {
+        transform.position = new Vector3(normalisedX * (roomWidth - playerColliderRadius) + root.transform.position.x,
                                          transform.position.y,
                                          transform.position.z);
     }
 
-    public void SetPlayerY(float y, float roomHeight)
+    public void SetPlayerY(float normalisedY, float roomHeight)
     {
         transform.position = new Vector3(transform.position.x,
-                                         y * roomHeight + root.transform.position.y,
+                                         normalisedY * roomHeight + root.transform.position.y + 1.0f,
                                          transform.position.z);
     }
 
-    public void SetPlayerZ(float z, float roomDepth)
+    public void SetPlayerZ(float normalisedZ, float roomDepth)
     {
         transform.position = new Vector3(transform.position.x,
                                          transform.position.y,
-                                         z * (roomDepth - playerColliderDiameter) + root.transform.position.z);
+                                         normalisedZ * (roomDepth - playerColliderRadius) + root.transform.position.z);
     }
 }

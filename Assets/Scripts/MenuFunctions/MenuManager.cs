@@ -10,15 +10,19 @@ public class MenuManager : MonoBehaviour
     private bool mouseIsUp = true;
     private bool curActive = true;
 
-    public List<GameObject> subMenus = new List<GameObject>();
+    public List<SubMenu> subMenus = new List<SubMenu>();
 
     // Start is called before the first frame update
     void Start()
     {
         foreach (Transform child in transform.GetChild(0))
         {
-            subMenus.Add (child.gameObject);
+            if (child.GetComponent<SubMenu>())
+                subMenus.Add (child.GetComponent<SubMenu>());
         }
+
+        subMenus[1].PrepareSubMenu();
+        subMenus[2].PrepareSubMenu();
 
         SetActiveMenu (0);
     }
@@ -41,7 +45,7 @@ public class MenuManager : MonoBehaviour
     public void SetActiveMenu (int idx)
     {
         for (int i = 0; i < subMenus.Count; ++i)
-            subMenus[i].SetActive (i == idx);
+            subMenus[i].gameObject.SetActive (i == idx);
     }
 
     public void OpenCloseMenu (bool shouldBeActive)

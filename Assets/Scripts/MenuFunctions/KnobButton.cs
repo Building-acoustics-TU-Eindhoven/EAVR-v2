@@ -9,7 +9,7 @@ using System.Threading;
 
 public class KnobButton : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler
 {
-
+    
     public string parameterName;
     public string unit;
     public float minVal = -30.0f;
@@ -50,7 +50,7 @@ public class KnobButton : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
     {
         // Reset formatstring
         formatString = "";
-
+    
         // Get decimal places of the step variable to determine the string formatting
         decimal decimalStep = ((decimal)step);
 
@@ -61,7 +61,7 @@ public class KnobButton : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
             decimalStepString = decimalStepString.Substring(0,decimalStepString.Length-1);
         }
         decimalStep = decimal.Parse(decimalStepString);
-
+    
         // Count decimals
         int count = BitConverter.GetBytes(decimal.GetBits(decimalStep)[3])[2];
 
