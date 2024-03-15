@@ -107,17 +107,17 @@ public class SourcePanelManager : MonoBehaviour
             return;
         sourceIdxText.text = activeSourceNumber.ToString();
 
-        GameObject curSource = sourceManager.GetCurSource();
+        SourceController curSource = sourceManager.GetCurSource();
         // Vector3 test = sourceManager.GetSourceRatioPositionAt (sourceManager.sourceIdx);
         // float xVal = (curSource.transform.position.x - root.transform.position.x) / (roomSizeManager.roomWidth - sourceManager.sourceColliderDiameter) + 0.5f;
         // float yVal = (curSource.transform.position.y - root.transform.position.y) / (roomSizeManager.roomHeight - sourceManager.sourceColliderHeight);
         // float zVal = (curSource.transform.position.z - root.transform.position.z) / (roomSizeManager.roomDepth - sourceManager.sourceColliderDiameter) + 0.5f;
 
         // SetPositionThroughSlidersVals(test.x, test.y, test.z);
-        SetPositionThroughSliderVals (sourceManager.GetSourceRatioPositionAt (sourceManager.sourceIdx));
-        SetGainText (20 * Mathf.Log10 (curSource.GetComponent<SteamAudioSource>().directMixLevel));
+        // SetPositionThroughSliderVals (sourceManager.GetSourceRatioPositionAt (sourceManager.sourceIdx));
+        SetGainText (20 * Mathf.Log10 (curSource.gameObject.GetComponent<SteamAudioSource>().directMixLevel));
 
-        m_dropdown.SetValueWithoutNotify(curSource.GetComponent<SourceController>().GetActiveClipIdx());
+        m_dropdown.SetValueWithoutNotify(curSource.GetActiveClipIdx());
     }
 
     public void SetPositionThroughSliderVals(Vector3 pos)

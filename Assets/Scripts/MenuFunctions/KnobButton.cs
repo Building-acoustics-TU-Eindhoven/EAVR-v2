@@ -12,13 +12,13 @@ public class KnobButton : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
     
     public string parameterName;
     public string unit;
-    public float minVal = -30.0f;
+    public float minVal = 0.0f;
 
-    public float maxVal = 24.0f;
+    public float maxVal = 1.0f;
     public float normalisedValue = 0.5f;
 
-    public float defaultValue = 0.0f;
-    public float step = 1.0f;
+    public float defaultValue = 0.5f;
+    public float step = 0.01f;
 
     public UnityEvent onValueChanged;
 
@@ -40,10 +40,7 @@ public class KnobButton : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
     // Start is called before the first frame update
     void Start()
     {
-
         GetValueFormattingFromStep();
-
-        SetNormalisedValue (ConvertTo0to1 (defaultValue));
     }
 
     private void GetValueFormattingFromStep()
@@ -88,10 +85,9 @@ public class KnobButton : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
         ShowValueFor (1.0f);
     }
 
-
-    // Update is called once per frame
-    void Update()
+    public void SetDefaultValue (float value)
     {
+        defaultValue = value;
     }
 
     public void OnBeginDrag(PointerEventData eventData)
@@ -111,9 +107,17 @@ public class KnobButton : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
         // And apply it to the knob
         SetNormalisedValue (normValStart + yDiff * 0.001f);
     }
- 
-    public void SetNormalisedValue (float val)
+
+    // Set value based on a non-normalised input
+    public void SetNonNormalisedValue (float val, bool sendChangeMessage = true)
     {
+        SetNormalisedValue (ConvertTo0to1 (val), sendChangeMessage);
+    }
+
+    // Set a value  Don't send change message if another source is selected and the values are simply applied to the knob
+    public void SetNormalisedValue (float val, bool sendChangeMessage = true)
+    {
+
         // Make sure that the normalisedValue is a valid value (both between 0 and 1, and based on step)
         normalisedValue = SnapToValidValue (val, 0, 1);
 
@@ -127,9 +131,11 @@ public class KnobButton : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
         // Set the text of the knob
         transform.GetChild(0).GetComponent<TMP_Text>().SetText(String.Format(formatString, GetValue()) + " " + unit);
 
-        ShowValueFor (1.0f);
+        if (gameObject.activeInHierarchy)
+            ShowValueFor (1.0f);
 
-        onValueChanged.Invoke();
+        if (sendChangeMessage)
+            onValueChanged.Invoke();
     }
 
     public void OnEndDrag(PointerEventData eventData)
@@ -144,7 +150,7 @@ public class KnobButton : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
         // Double click will set the knob to its default value
         if (pointerEventData.clickCount % 2 == 0)
         {
-            SetNormalisedValue (ConvertTo0to1(defaultValue));
+            SetNonNormalisedValue (defaultValue);
         }
     }
 

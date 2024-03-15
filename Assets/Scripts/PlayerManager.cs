@@ -191,7 +191,7 @@ public class PlayerManager : MonoBehaviour
 
     public void SetPlayerX(float normalisedX, float roomWidth)
     {
-        transform.position = new Vector3(normalisedX * (roomWidth - playerColliderRadius) + root.transform.position.x,
+        transform.position = new Vector3((normalisedX - 0.5f) * (roomWidth - playerColliderRadius) + root.transform.position.x,
                                          transform.position.y,
                                          transform.position.z);
     }
@@ -207,6 +207,6 @@ public class PlayerManager : MonoBehaviour
     {
         transform.position = new Vector3(transform.position.x,
                                          transform.position.y,
-                                         normalisedZ * (roomDepth - playerColliderRadius) + root.transform.position.z);
+                                         (normalisedZ - 0.5f)  * (roomDepth - playerColliderRadius) + root.transform.position.z);
     }
 }

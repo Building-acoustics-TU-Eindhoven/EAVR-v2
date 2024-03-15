@@ -79,7 +79,7 @@ public class SaveLoadController : MonoBehaviour
         Debug.Log("Pos save: " + roomSizeManager.GetNormalisedPlayerPos());
 
         int sourceId = 0;
-        foreach (GameObject source in audioSourceManager.GetAllSources())
+        foreach (SourceController source in audioSourceManager.GetAllSources())
         {
             // SourceData tmpSourceData = new SourceData();
 
@@ -87,13 +87,13 @@ public class SaveLoadController : MonoBehaviour
             // tmpSourceData.ID = sourceId;
 
             // Set audio clip
-            _AssessmentData.currentObservation.sourceClipNames.Add(source.GetComponent<AudioSource>().clip.name);
+            _AssessmentData.currentObservation.sourceClipNames.Add(source.gameObject.GetComponent<AudioSource>().clip.name);
             // tmpSourceData.audioFileName = source.GetComponent<AudioSource>().clip.name;
 
             // Set gaindB
-            _AssessmentData.currentObservation.sourceGaindBs.Add(audioSourceManager.ConvertTodB(source.GetComponent<SteamAudioSource>().directMixLevel));
+            _AssessmentData.currentObservation.sourceGaindBs.Add(audioSourceManager.ConvertTodB(source.gameObject.GetComponent<SteamAudioSource>().directMixLevel));
 
-            _AssessmentData.currentObservation.sourcePositions.Add (audioSourceManager.GetSourceRatioPositionAt(sourceId));
+            _AssessmentData.currentObservation.sourcePositions.Add (audioSourceManager.GetAllSources()[sourceId].GetRatioVec());
 
             ++sourceId;
         }
@@ -272,9 +272,9 @@ public class SaveLoadController : MonoBehaviour
         observationLoaded = false;
         steamAudioManager.enabled = false;
 
-        foreach (GameObject source in audioSourceManager.GetAllSources())
+        foreach (SourceController source in audioSourceManager.GetAllSources())
         {
-            source.SetActive(false);
+            source.gameObject.SetActive(false);
         }
 
         // Load room scaling (via sliders)
@@ -312,8 +312,8 @@ public class SaveLoadController : MonoBehaviour
         }
         sourcePanelManager.ChangeSourceIdx(obs.sourceClipNames.Count - 1);
 
-        foreach (GameObject source in audioSourceManager.GetAllSources())
-            source.SetActive(true);
+        foreach (SourceController source in audioSourceManager.GetAllSources())
+            source.gameObject.SetActive(true);
 
         // Apply player position
         if (playerGO.activeSelf)

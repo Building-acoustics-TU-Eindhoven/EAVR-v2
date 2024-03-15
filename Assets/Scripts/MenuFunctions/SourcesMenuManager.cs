@@ -18,6 +18,8 @@ public class SourcesMenuManager : SubMenu
 
     private bool dropDownListCreated = false;
 
+    [SerializeField]
+    private KnobButton Xknob, Yknob, Zknob;
 
     // Acts like Start() but is called from the menu manager
     public override void PrepareSubMenu()
@@ -101,15 +103,32 @@ public class SourcesMenuManager : SubMenu
         }
     }
 
-    public void RefreshTextAndUIElements (GameObject currentSource)
+    public void RefreshTextAndUIElements (SourceController currentSource)
     {
         if (currentSource == null)
             m_dropdown.GetComponentInChildren<TMP_Text>().text = "Select Audio..";
         else 
         {
-            m_dropdown.SetValueWithoutNotify(currentSource.GetComponent<SourceController>().GetActiveClipIdx());
+            m_dropdown.SetValueWithoutNotify(currentSource.GetActiveClipIdx());
         }
+        SetKnobValuesFromSource (currentSource);
         sourceSelectionButton.SetCurrentValue (activeSourceNumber);
 
+    }
+
+    private void SetKnobValuesFromSource (SourceController source)
+    {
+        Vector3 ratioVec = source.GetRatioVec();
+
+        Xknob.SetNormalisedValue (ratioVec.x, false);
+        Yknob.SetNormalisedValue (ratioVec.y, false);
+        Zknob.SetNormalisedValue (ratioVec.z, false);
+    }
+
+    public void SetDefaultKnobValues (Vector3 defaults)
+    {
+        Xknob.SetDefaultValue (defaults.x);
+        Yknob.SetDefaultValue (defaults.y);
+        Zknob.SetDefaultValue (defaults.z);
     }
 }

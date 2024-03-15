@@ -18,10 +18,11 @@ public class SourceController : MonoBehaviour
     [SerializeField]
     private int activeClipIdx = 0;  
 
-    public float gainDB = 0.0f;
     private float prevRMSval = 0.0f;
     private float LPcoeff = 0.95f;
     
+    private Vector3 ratioVec = new Vector3(0.0f, 0.0f, 0.0f);
+
     // Start is called before the first frame update
     void Start()
     {
@@ -37,20 +38,20 @@ public class SourceController : MonoBehaviour
     private void OnAudioFilterRead(float[] data, int channels)
     {
 
-        float audioSum = 0.0f;
-        for (int i = 0; i < data.Length; ++i)
-            audioSum += Mathf.Sqrt(data[i] * data[i]);
-        audioSum /= data.Length;
-        float curVal = (1.0f - LPcoeff) * audioSum * Mathf.Pow(10, gainDB / 20.0f) + LPcoeff * prevRMSval;
+        // float audioSum = 0.0f;
+        // for (int i = 0; i < data.Length; ++i)
+        //     audioSum += Mathf.Sqrt(data[i] * data[i]);
+        // audioSum /= data.Length;
+        // float curVal = (1.0f - LPcoeff) * audioSum * Mathf.Pow(10, gainDB / 20.0f) + LPcoeff * prevRMSval;
 
-        prevRMSval = curVal;
+        // prevRMSval = curVal;
 
     }
 
-    public void SetGainDb (float dBIn)
-    {
-        gainDB = dBIn;
-    }
+    // public void SetGainDb (float dBIn)
+    // {
+    //     gainDB = dBIn;
+    // }
 
     public void PlayFromStart()
     {
@@ -100,4 +101,11 @@ public class SourceController : MonoBehaviour
     {
         activeClipIdx = i;
     }
+
+    public void SetRatioVec (Vector3 newRatioVec)
+    {
+        ratioVec = newRatioVec;
+    }
+
+    public Vector3 GetRatioVec() { return ratioVec; }  
 }

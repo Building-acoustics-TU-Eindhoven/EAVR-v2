@@ -24,6 +24,7 @@ public class MenuManager : MonoBehaviour
         subMenus[1].PrepareSubMenu();
         subMenus[2].PrepareSubMenu();
 
+        // Set the "Main Menu" as active menu
         SetActiveMenu (0);
     }
 
@@ -48,6 +49,7 @@ public class MenuManager : MonoBehaviour
             subMenus[i].gameObject.SetActive (i == idx);
     }
 
+    // Triggered on right-click, or the Main Menu Close button
     public void OpenCloseMenu (bool shouldBeActive)
     {
         curActive = shouldBeActive;

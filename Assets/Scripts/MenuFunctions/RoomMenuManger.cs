@@ -12,10 +12,10 @@ public class RoomMenuManger : SubMenu, iRoomMenuManager
     public Vector3 originalSize;
 
     // Current room dimensions
-    public float curRoomWidth, curRoomHeight, curRoomDepth;
+    public Vector3 curRoomSize;
 
     // Player position normalised between -0.5 and 0.5 for X and Z and between 0 and 1 for Y.
-    private Vector3 normalisedPlayerPos = new Vector3 (0.0f, 0.2f, 0.0f);
+    private Vector3 normalisedPlayerPos = new Vector3 (0.5f, 0.2f, 0.5f);
 
     // Non normalised player position (for use in PlayerManager Update() to check if this class has the latest player position
     private Vector3 nonNormalisedPlayerPos = new Vector3 (0.0f, 1.0f, 0.0f);
@@ -37,6 +37,9 @@ public class RoomMenuManger : SubMenu, iRoomMenuManager
 
     private bool prepared = false;
 
+    [SerializeField]
+    private KnobButton Xknob, Yknob, Zknob;
+
     // Acts like Start() but is called from the menu manager
     public override void PrepareSubMenu()
     {
@@ -47,11 +50,9 @@ public class RoomMenuManger : SubMenu, iRoomMenuManager
         Bounds b = getBounds(root);
 
         originalSize = b.size;
-        curRoomWidth = originalSize.x;
-        curRoomHeight = originalSize.y;
-        curRoomDepth = originalSize.z;
+        curRoomSize = originalSize;
 
-        audioSourceManager.SetOriginalRoomDimensions (originalSize, true);
+        audioSourceManager.SetOriginalRoomDimensions (originalSize);
 
         playerActive = playerGO.activeSelf;
         if (playerActive)
@@ -66,6 +67,8 @@ public class RoomMenuManger : SubMenu, iRoomMenuManager
             playerColliderRadius = 0.25f;
 
         }
+
+        RefreshTextAndUIElements();
 
         prepared = true;
     }
@@ -83,9 +86,9 @@ public class RoomMenuManger : SubMenu, iRoomMenuManager
             return;
         nonNormalisedPlayerPos = playerActive ? playerGO.transform.position : xrOrigin.transform.position;
 
-        normalisedPlayerPos = new Vector3 ((nonNormalisedPlayerPos.x - root.transform.localPosition.x) / (curRoomWidth - playerColliderRadius), // Subtract radius so that the normalised player position all the way at the edge is 0.5
-                                           ((nonNormalisedPlayerPos.y - 1.0f) - root.transform.localPosition.y) / curRoomHeight,                // Subtract 1.0f as this is half the height of the player collider
-                                           (nonNormalisedPlayerPos.z - root.transform.localPosition.z) / (curRoomDepth - playerColliderRadius)); // Subtract radius so that the normalised player position all the way at the edge is 0.5
+        normalisedPlayerPos = new Vector3 ((nonNormalisedPlayerPos.x - root.transform.localPosition.x) / (curRoomSize.x - playerColliderRadius) + 0.5f, // Subtract radius so that the normalised player position all the way at the edge is 0 or 1
+                                           ((nonNormalisedPlayerPos.y - 1.0f) - root.transform.localPosition.y) / curRoomSize.y,                // Subtract 1.0f as this is half the height of the player collider
+                                           (nonNormalisedPlayerPos.z - root.transform.localPosition.z) / (curRoomSize.z - playerColliderRadius) + 0.5f); // Subtract radius so that the normalised player position all the way at the edge is 0 or 1
 
     }
 
@@ -98,16 +101,16 @@ public class RoomMenuManger : SubMenu, iRoomMenuManager
         root.transform.localScale = new Vector3(xScaling, root.transform.localScale.y, root.transform.localScale.z);
 
         // Set the internal room width variable by scaling the original width 
-        curRoomWidth = xScaling * originalSize.x;
+        curRoomSize = new Vector3 (xScaling * originalSize.x, curRoomSize.y, curRoomSize.z);
         
         // Update the source location
-        audioSourceManager.SetSourcesFromRoomSizeX (curRoomWidth);
+        audioSourceManager.SetSourcesFromRoomSizeX (curRoomSize.x);
 
         // Update the player X location
         if (playerActive)
-            playerManager.SetPlayerX(normalisedPlayerPos.x, curRoomWidth);
+            playerManager.SetPlayerX(normalisedPlayerPos.x, curRoomSize.x);
         else
-            xrOriginManager.SetPlayerX(normalisedPlayerPos.x, curRoomWidth);
+            xrOriginManager.SetPlayerX(normalisedPlayerPos.x, curRoomSize.x);
 
     }
 
@@ -119,17 +122,17 @@ public class RoomMenuManger : SubMenu, iRoomMenuManager
         // Set the height of the room geometry
         root.transform.localScale = new Vector3(root.transform.localScale.x, yScaling, root.transform.localScale.z);
 
-        // Set the internal room height variable by scaling the original height 
-        curRoomHeight = yScaling * originalSize.y;
+        // Set the internal room width variable by scaling the original width 
+        curRoomSize = new Vector3 (curRoomSize.x, yScaling * originalSize.y, curRoomSize.z);
 
         // Update the source location
-        audioSourceManager.SetSourcesFromRoomSizeY (curRoomHeight);
+        audioSourceManager.SetSourcesFromRoomSizeY (curRoomSize.y);
 
         // Update the player Y location
         if (playerActive)
-            playerManager.SetPlayerY(normalisedPlayerPos.y, curRoomHeight);
+            playerManager.SetPlayerY(normalisedPlayerPos.y, curRoomSize.y);
         else
-            xrOrigin.GetComponent<XRoriginManager>().SetPlayerY(normalisedPlayerPos.y, curRoomHeight);
+            xrOrigin.GetComponent<XRoriginManager>().SetPlayerY(normalisedPlayerPos.y, curRoomSize.y);
 
     }
 
@@ -141,18 +144,31 @@ public class RoomMenuManger : SubMenu, iRoomMenuManager
         // Set the depth of the room geometry
         root.transform.localScale = new Vector3(root.transform.localScale.x, root.transform.localScale.y, zScaling);
 
-        // Set the internal room height variable by scaling the original height 
-        curRoomDepth = zScaling * originalSize.z;
+        // Set the internal room width variable by scaling the original width 
+        curRoomSize = new Vector3 (curRoomSize.x, curRoomSize.y, zScaling * originalSize.z);
 
         // Update the source location
-        audioSourceManager.SetSourcesFromRoomSizeZ (curRoomDepth);
+        audioSourceManager.SetSourcesFromRoomSizeZ (curRoomSize.z);
        
         // Update the player Z location
         if (playerActive)
-            playerManager.SetPlayerZ(normalisedPlayerPos.z, curRoomDepth);
+            playerManager.SetPlayerZ(normalisedPlayerPos.z, curRoomSize.z);
         else
-            xrOriginManager.SetPlayerZ(normalisedPlayerPos.z, curRoomDepth);
+            xrOriginManager.SetPlayerZ(normalisedPlayerPos.z, curRoomSize.z);
 
+    }
+
+    public void RefreshTextAndUIElements()
+    {
+        SetKnobValuesFromCurrentRoomDimensions();
+    }
+
+    private void SetKnobValuesFromCurrentRoomDimensions()
+    {
+        // As the scaling is not normalised (not between 0 and 1) use the SetNonNormalisedValue() function
+        Xknob.SetNonNormalisedValue (curRoomSize.x / originalSize.x, false);
+        Yknob.SetNonNormalisedValue (curRoomSize.y / originalSize.y, false);
+        Zknob.SetNonNormalisedValue (curRoomSize.z / originalSize.z, false);
     }
 
     public Vector3 GetNonNormalisedPlayerPosition() { return nonNormalisedPlayerPos; }

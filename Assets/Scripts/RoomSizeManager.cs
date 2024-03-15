@@ -84,7 +84,7 @@ public class RoomSizeManager : MonoBehaviour
         zSlider = GlobalFunctions.GetChildWithName(roomsizeGO, "zSlider").GetComponent<Slider>();
 
         SetPlayerTransform();
-        audioSourceManager.SetOriginalRoomDimensions (originalSize, true);
+        audioSourceManager.SetOriginalRoomDimensions (originalSize);
     }
 
     public void SetRoomSizeThroughSliderVals(float x, float y, float z)
@@ -257,7 +257,7 @@ public class RoomSizeManager : MonoBehaviour
         curRoomDepth = originalSize.z;
 
 
-        audioSourceManager.SetOriginalRoomDimensions (originalSize, false);
+        audioSourceManager.SetOriginalRoomDimensions (originalSize);
 #if !UNITY_EDITOR
         SetRoomSizeThroughSliderVals (sliderValX, sliderValY, sliderValZ);
 #endif
