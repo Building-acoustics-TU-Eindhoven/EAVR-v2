@@ -2,7 +2,9 @@
     "files.exclude": {
         "**/.DS_Store": true,
         "**/.git": true,
+        "**/.vs": true,
         "**/.gitmodules": true,
+        "**/.vsconfig": true,
         "**/*.booproj": true,
         "**/*.pidb": true,
         "**/*.suo": true,
@@ -47,10 +49,12 @@
         "library/": true,
         "obj/": true,
         "Obj/": true,
+        "Logs/": true,
+        "logs/": true,
         "ProjectSettings/": true,
+        "UserSettings/": true,
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.preferCSharpExtension": true,
     "dotnet.defaultSolution": "EAVR-steam-audio.sln"
 }

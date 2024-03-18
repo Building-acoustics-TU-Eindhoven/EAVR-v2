@@ -35,8 +35,10 @@ public class MenuManager : MonoBehaviour
         foreach (SubMenu subMenu in subMenus)
             subMenu.PrepareSubMenu();
 
-        // As no walls can be selected on startup, disable the Wall button
+        // Set the disabled text for the wall button
+        
         wallButton.SetDisabledText ("No wall\nselected");
+        // As no walls can be selected on startup, disable the Wall button
         wallButton.SetEnabled (false);
 
         // Set the "Main Menu" as active menu
