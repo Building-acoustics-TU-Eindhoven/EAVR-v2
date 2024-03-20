@@ -21,11 +21,12 @@ public class GeometryManager : MonoBehaviour
     float scale = 1.0f;
 
     private List<Transform> selectedWalls = new List<Transform>();
+    
     public XRoriginManager xrOriginManager;
     public RoomSizeManager roomSizeManager;
     public AudioSourceManager audioSourceManager;
     public PlayerManager playerManager;
-private string filepath = "./Assets/Models/10mcube.gltf";
+    private string filepath = "./Assets/Models/10mcube.gltf";
     public List<UnityEngine.Material> visualMaterials = new List<UnityEngine.Material>();
     List<SteamAudioMaterial> steamAudioMaterials = new List<SteamAudioMaterial>();
 
@@ -155,21 +156,11 @@ private string filepath = "./Assets/Models/10mcube.gltf";
         audioSource.transform.position = audioSourceLocation.transform.position;
     }
 
-    public void ClearSelectedWalls()
+    public void SetSelectedWallRef (ref List<Transform> selectedWallsRef)
     {
-        selectedWalls.Clear();
+        selectedWalls = selectedWallsRef;
     }
 
-    public void AddSelectedWall (Transform s)
-    {
-        selectedWalls.Add(s);
-    }
-
-    public List<Transform> GetSelectedWalls()
-    {
-        return selectedWalls;
-    }
-    
     public string GetActiveMaterialOf (int idx)
     {
         foreach (Transform child in selectedWalls[idx])

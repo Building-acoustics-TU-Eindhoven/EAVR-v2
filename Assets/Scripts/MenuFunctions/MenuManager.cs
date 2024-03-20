@@ -77,7 +77,7 @@ public class MenuManager : MonoBehaviour
         menuActive = shouldBeActive;
         transform.GetChild(0).gameObject.SetActive(menuActive);
         Cursor.lockState = menuActive ? CursorLockMode.None : CursorLockMode.Locked;
-        Cursor.visible = true;
+        // Cursor.visible = true;
         playerManager.SetCanvasActive (menuActive);
     }
 
