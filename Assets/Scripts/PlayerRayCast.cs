@@ -4,8 +4,6 @@ using UnityEngine;
 using TMPro;
 public class PlayerRayCast : MonoBehaviour
 {
-    // Start is called before the first frame update
-
     public TMP_Text selectedWallText;
     public TMP_Text selectedMaterialText;
     public TMP_Dropdown dropdown;
@@ -41,8 +39,8 @@ public class PlayerRayCast : MonoBehaviour
             rightShiftDown = false;
         }
 
-        shiftDown = (leftShiftDown || rightShiftDown);
-        if (Input.GetMouseButtonDown(0) && !transform.GetChild(0).gameObject.activeSelf)
+        shiftDown = leftShiftDown || rightShiftDown;
+        if (Input.GetMouseButtonDown(0) && !menuManager.IsMenuActive())
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
@@ -81,30 +79,31 @@ public class PlayerRayCast : MonoBehaviour
                         geometryManager.AddSelectedWall (hit.transform.parent);
                     }
 
-                    // Set the selected children active 
-                    // foreach (Transform child in hit.transform.parent.parent)
-                    // {
-                    //     // Is child selected
-                    //     bool childIsSelected = geometryManager.GetSelectedWalls().Contains (child);
-                    //     Debug.Log ("Is child selected? " + childIsSelected);
-                    //     child.GetChild(hit.transform.parent.childCount - 1).gameObject.SetActive(childIsSelected);
-                    // }
+                    // Update UI elements based on number of selected walls
+                    switch (geometryManager.GetSelectedWalls().Count)
+                    {
+                        case 0:
+                        {
+                            selectedWallText.text = "Selected wall: None";
+                            selectedMaterialText.text = "Selected material: None";
+                            menuManager.HasSelectedWalls (false);
+                            break;
+                        }
 
-                    if (geometryManager.GetSelectedWalls().Count == 0)
-                    {
-                        selectedWallText.text = "Selected wall: None";
-                        selectedMaterialText.text = "Selected material: None";
-                        menuManager.HasSelectedWalls (false);
-                    }
-                    else if (geometryManager.GetSelectedWalls().Count == 1)
-                    {
-                        selectedWallText.text = "Selected wall: " + geometryManager.GetSelectedWalls()[0].name;
-                        selectedMaterialText.text = "Selected material: " + geometryManager.GetActiveMaterialOf(0);
-                        menuManager.HasSelectedWalls (true);
-                    } else {
-                        selectedWallText.text = "Selected wall: Multiple (" + geometryManager.GetSelectedWalls().Count + ")";
-                        selectedMaterialText.text = "Selected material: Multiple (" + geometryManager.GetSelectedWalls().Count + ")";        
-                        menuManager.HasSelectedWalls (true);
+                        case 1: 
+                        {
+                            selectedWallText.text = "Selected wall: " + geometryManager.GetSelectedWalls()[0].name;
+                            selectedMaterialText.text = "Selected material: " + geometryManager.GetActiveMaterialOf(0);
+                            menuManager.HasSelectedWalls (true);
+                            break;
+                        }
+                        default:
+                        {
+                            selectedWallText.text = "Selected wall: Multiple (" + geometryManager.GetSelectedWalls().Count + ")";
+                            selectedMaterialText.text = "Selected material: Multiple (" + geometryManager.GetSelectedWalls().Count + ")";        
+                            menuManager.HasSelectedWalls (true);
+                            break;
+                        }
                     }
                 }
             }

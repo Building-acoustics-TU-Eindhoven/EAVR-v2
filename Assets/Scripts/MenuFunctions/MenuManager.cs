@@ -13,7 +13,7 @@ public class MenuManager : MonoBehaviour
     private MenuButton wallButton;
 
     private bool mouseIsUp = true;
-    private bool curActive = true;
+    private bool menuActive = true;
 
     [Space]
 
@@ -74,11 +74,11 @@ public class MenuManager : MonoBehaviour
     // Triggered on right-click, or the Main Menu Close button
     public void OpenCloseMenu (bool shouldBeActive)
     {
-        curActive = shouldBeActive;
-        transform.GetChild(0).gameObject.SetActive(curActive);
-        Cursor.lockState = curActive ? CursorLockMode.None : CursorLockMode.Locked;
+        menuActive = shouldBeActive;
+        transform.GetChild(0).gameObject.SetActive(menuActive);
+        Cursor.lockState = menuActive ? CursorLockMode.None : CursorLockMode.Locked;
         Cursor.visible = true;
-        playerManager.SetCanvasActive (curActive);
+        playerManager.SetCanvasActive (menuActive);
     }
 
     public void HasSelectedWalls (bool h)
@@ -88,4 +88,6 @@ public class MenuManager : MonoBehaviour
         calledFromActivateWall = true;
         SetActiveMenu (h ? 3 : prevActiveMenuIdx);
     }
+
+    public bool IsMenuActive() { return menuActive; }
 }
