@@ -105,7 +105,7 @@ public class SelectTransformGizmo : MonoBehaviour
             rightShiftDown = false;
         }
 
-        shiftDown = (leftShiftDown || rightShiftDown);
+        shiftDown = leftShiftDown || rightShiftDown;
                     
 
         // Highlight

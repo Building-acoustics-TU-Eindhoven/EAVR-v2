@@ -2,17 +2,27 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using Unity.VisualScripting;
+
 public class WallSelectionHandler : MonoBehaviour
 {
+    // UI elements in the Wall Menu
     public TMP_Text selectedWallText;
     public TMP_Text selectedMaterialText;
     public TMP_Dropdown dropdown;
+
+    // The Unity material with which we interpolate the original material to show that it is selected (currently, makes the original material more red)
+    [SerializeField]
+    private Material selectionMaterial;
 
     // Main Menu (for updating Wall button based on if any walls are selected)
     public MenuManager menuManager;
 
     // Reference to the geometry manager for aApplying the selected material to the selected walls
     private GeometryManager geometryManager;
+
+    // Reference to the geometry manager for aApplying the selected material to the selected walls
+    public GameObject inWorldMenu;
 
     // List of walls that are currently selected
     private List<Transform> selectedWalls = new List<Transform>();
@@ -32,6 +42,7 @@ public class WallSelectionHandler : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
         // Handle mouse modifiers
         if (Input.GetKeyDown("left shift"))
         {
@@ -55,6 +66,8 @@ public class WallSelectionHandler : MonoBehaviour
         // If the menu manager is not active and the left mouse button is clicked, check whether the mouse position ray intersects with a wall
         if (!menuManager.IsMenuActive() && Input.GetMouseButtonDown(0))
         {
+            bool hasAddedWallToSelection = false;
+
             // Convert mouse position to ray
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
@@ -65,6 +78,8 @@ public class WallSelectionHandler : MonoBehaviour
                 // .. a wall (walls start with a number)..
                 if (int.TryParse(hit.transform.name.Substring(0, 1), out int value) )
                 {
+                    // inWorldMenu.transform.position = hit.point;
+
                     // .. set the material dropdown to the currently active material of this wall.
                     Debug.Log("Hit child " + hit.transform.name);
                     for (int o = 1; o < dropdown.options.Count; ++o)
@@ -80,21 +95,25 @@ public class WallSelectionHandler : MonoBehaviour
                     if (selectedWalls.Contains (hit.transform.parent))
                     {
                         if (shiftDown || selectedWalls.Count == 1)
-                            selectedWalls.Remove (hit.transform.parent);
+                        {
+                            DeselectWall (hit.transform.parent, false);
+                        }
                         else
                         {
-                            selectedWalls.Clear();
-                            selectedWalls.Add (hit.transform.parent);
+                            ClearSelection();
+                            SelectWall (hit.transform.parent);
+                            hasAddedWallToSelection = true;
                         }
                     }
                     else
                     {
                         // If shift is not down, clear wall list first
                         if (!shiftDown)
-                            selectedWalls.Clear();
+                            ClearSelection();
 
                         // Add the selected wall to the list
-                        selectedWalls.Add (hit.transform.parent);
+                        SelectWall (hit.transform.parent);
+                        hasAddedWallToSelection = true;
                     }
 
                     // Update UI elements based on number of selected walls
@@ -104,7 +123,6 @@ public class WallSelectionHandler : MonoBehaviour
                         {
                             selectedWallText.text = "Selected wall: None";
                             selectedMaterialText.text = "Selected material: None";
-                            menuManager.HasSelectedWalls (false);
                             break;
                         }
 
@@ -112,19 +130,98 @@ public class WallSelectionHandler : MonoBehaviour
                         {
                             selectedWallText.text = "Selected wall: " + selectedWalls[0].name;
                             selectedMaterialText.text = "Selected material: " + geometryManager.GetActiveMaterialOf(0);
-                            menuManager.HasSelectedWalls (true);
                             break;
                         }
                         default:
                         {
                             selectedWallText.text = "Selected wall: Multiple (" + selectedWalls.Count + ")";
                             selectedMaterialText.text = "Selected material: Multiple (" + selectedWalls.Count + ")";        
-                            menuManager.HasSelectedWalls (true);
                             break;
                         }
                     }
+                    if (hasAddedWallToSelection)
+                    {
+                        inWorldMenu.transform.rotation = Quaternion.LookRotation(hit.normal);
+                        // inWorldMenu.transform.position = ray.GetPoint (Vector3.Distance (ray.origin, hit.point) - 1);
+                        inWorldMenu.transform.position = hit.point + hit.normal * 0.01f;
+                    }
+                    inWorldMenu.SetActive (hasAddedWallToSelection);
+                    menuManager.HasSelectedWalls (selectedWalls.Count != 0);
+
+                    Cursor.lockState = CursorLockMode.Locked;
+
                 }
             }
         }
     }
+
+    private void SelectWall (Transform wall)
+    {
+        Transform activeChild = GetActiveChild (wall);
+
+        Material originalMaterialSelection = GetOriginalMaterial (activeChild.name);
+
+        selectionMaterial.mainTextureScale = originalMaterialSelection.mainTextureScale;
+
+        // Interpolate all faces with the selection material (red)
+        foreach (Material mat in activeChild.GetComponent<MeshRenderer>().materials)
+            mat.Lerp(selectionMaterial, originalMaterialSelection, 0.5f);
+
+        selectedWalls.Add (wall);
+    }
+
+    private void DeselectWall (Transform wall, bool clearingAll)
+    {
+        // .. get the active child
+        Transform activeChild = GetActiveChild (wall);
+
+        // .. one wall can have multiple faces and therefore multiple (identical) materials
+        Material[] materials = new Material[activeChild.GetComponent<MeshRenderer>().materials.Length];
+        for (int i = 0; i < activeChild.GetComponent<MeshRenderer>().materials.Length; ++i)
+            materials[i] = GetOriginalMaterial (activeChild.name);
+        
+        // Set all the materials back to the orignal material
+        activeChild.GetComponent<MeshRenderer>().materials = materials;
+
+        if (!clearingAll)
+            selectedWalls.Remove (wall);
+    }
+
+    private void ClearSelection()
+    {
+        // For each selected wall..
+        foreach (Transform sel in selectedWalls)
+            // .. deselect it, and set the original material
+            DeselectWall (sel, true);
+
+        selectedWalls.Clear();
+
+    }
+
+        private Transform GetActiveChild (Transform wall)
+    {
+            foreach (Transform child in wall)
+                if (child.gameObject.activeSelf)
+                    return child;
+
+        Debug.LogError ("NO ACTIVE CHILD OBJECT");
+        return wall.GetChild(0).transform;
+    }
+
+    private Material GetOriginalMaterial (string activeChildName)
+    {
+        foreach (Material mat in geometryManager.visualMaterials)
+        {
+            if (mat.name == activeChildName.Split('_')[1])
+            {
+                return mat;
+            }
+
+        }
+
+        Debug.LogError ("NO MATERIAL SELECTED!");
+        return geometryManager.visualMaterials[0];
+    }
+
+
 }

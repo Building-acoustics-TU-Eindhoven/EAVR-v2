@@ -62,6 +62,9 @@ public class MenuManager : MonoBehaviour
 
     public void SetActiveMenu (int idx)
     {
+        // Called from in world UI buttons
+        if (!menuActive)
+            OpenCloseMenu (true);
         for (int i = 0; i < subMenus.Count; ++i)
             subMenus[i].gameObject.SetActive (i == idx);
         
@@ -77,7 +80,7 @@ public class MenuManager : MonoBehaviour
         menuActive = shouldBeActive;
         transform.GetChild(0).gameObject.SetActive(menuActive);
         Cursor.lockState = menuActive ? CursorLockMode.None : CursorLockMode.Locked;
-        Cursor.visible = true;
+        // Cursor.visible = true;
         playerManager.SetCanvasActive (menuActive);
     }
 
@@ -85,8 +88,8 @@ public class MenuManager : MonoBehaviour
     {
         wallButton.SetEnabled (h);
 
-        calledFromActivateWall = true;
-        SetActiveMenu (h ? 3 : prevActiveMenuIdx);
+        // calledFromActivateWall = true;
+        // SetActiveMenu (h ? 3 : prevActiveMenuIdx);
     }
 
     public bool IsMenuActive() { return menuActive; }
