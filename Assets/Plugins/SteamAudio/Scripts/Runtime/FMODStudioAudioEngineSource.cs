@@ -1,11 +1,22 @@
 ﻿//
-// Copyright 2017 Valve Corporation. All rights reserved. Subject to the following license:
-// https://valvesoftware.github.io/steam-audio/license.html
+// Copyright 2017-2023 Valve Corporation.
 //
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+#if STEAMAUDIO_ENABLED
 
 using System;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using UnityEngine;
 
 namespace SteamAudio
@@ -13,8 +24,11 @@ namespace SteamAudio
     public sealed class FMODStudioAudioEngineSource : AudioEngineSource
     {
         bool mFoundDSP = false;
+        object mEventEmitter = null;
+        object mEventInstance = null;
         object mDSP = null;
-        byte[] mSimulationOutputs = null;
+        SteamAudioSource mSteamAudioSource = null;
+        int mHandle = -1;
 
         static Type FMOD_DSP;
         static Type FMOD_ChannelGroup;
@@ -26,56 +40,63 @@ namespace SteamAudio
         static MethodInfo FMOD_ChannelGroup_getNumDSPs;
         static MethodInfo FMOD_ChannelGroup_getDSP;
         static MethodInfo FMOD_DSP_getInfo;
-        static MethodInfo FMOD_DSP_setParameterData;
+        static MethodInfo FMOD_DSP_setParameterInt;
         static bool mBoundToPlugin = false;
 
-        const int kSimulationOutputsParamIndex = 30;
+        const int kSimulationOutputsParamIndex = 33;
 
         public override void Initialize(GameObject gameObject)
         {
             FindDSP(gameObject);
 
-            mSimulationOutputs = new byte[IntPtr.Size];
+            mSteamAudioSource = gameObject.GetComponent<SteamAudioSource>();
+            if (mSteamAudioSource)
+            {
+                mHandle = FMODStudioAPI.iplFMODAddSource(mSteamAudioSource.GetSource().Get());
+            }
         }
 
         public override void Destroy()
         {
             mFoundDSP = false;
+
+            if (mSteamAudioSource)
+            {
+                FMODStudioAPI.iplFMODRemoveSource(mHandle);
+            }
         }
 
         public override void UpdateParameters(SteamAudioSource source)
         {
+            CheckForChangedEventInstance();
+
             FindDSP(source.gameObject);
             if (!mFoundDSP)
                 return;
 
-            var ptr = source.GetSource().Get();
+            var index = kSimulationOutputsParamIndex;
+            FMOD_DSP_setParameterInt.Invoke(mDSP, new object[] { index++, mHandle });
+        }
 
-            if (IntPtr.Size == sizeof(Int64))
+        void CheckForChangedEventInstance()
+        {
+            if (mEventEmitter != null)
             {
-                var ptrValue = ptr.ToInt64();
-
-                mSimulationOutputs[0] = (byte) (ptrValue >> 0);
-                mSimulationOutputs[1] = (byte) (ptrValue >> 8);
-                mSimulationOutputs[2] = (byte) (ptrValue >> 16);
-                mSimulationOutputs[3] = (byte) (ptrValue >> 24);
-                mSimulationOutputs[4] = (byte) (ptrValue >> 32);
-                mSimulationOutputs[5] = (byte) (ptrValue >> 40);
-                mSimulationOutputs[6] = (byte) (ptrValue >> 48);
-                mSimulationOutputs[7] = (byte) (ptrValue >> 56);
+                var eventInstance = FMODUnity_StudioEventEmitter_EventInstance.GetValue(mEventEmitter, null);
+                if (eventInstance != mEventInstance)
+                {
+                    // The event instance is different from the one we last used, which most likely means the
+                    // event-related objects were destroyed and re-created. Make sure we look for the DSP instance
+                    // when FindDSP is called next.
+                    mFoundDSP = false;
+                }
             }
             else
             {
-                var ptrValue = ptr.ToInt32();
-
-                mSimulationOutputs[0] = (byte) (ptrValue >> 0);
-                mSimulationOutputs[1] = (byte) (ptrValue >> 8);
-                mSimulationOutputs[2] = (byte) (ptrValue >> 16);
-                mSimulationOutputs[3] = (byte) (ptrValue >> 24);
+                // We haven't yet seen a valid event emitter component, so make sure we look for one when
+                // FindDSP is called.
+                mFoundDSP = false;
             }
-
-            var index = kSimulationOutputsParamIndex;
-            FMOD_DSP_setParameterData.Invoke(mDSP, new object[] { index++, mSimulationOutputs });
         }
 
         void FindDSP(GameObject gameObject)
@@ -85,18 +106,18 @@ namespace SteamAudio
 
             BindToFMODStudioPlugin();
 
-            var eventEmitter = gameObject.GetComponent(FMODUnity_StudioEventEmitter) as object;
-            if (eventEmitter == null)
+            mEventEmitter = gameObject.GetComponent(FMODUnity_StudioEventEmitter) as object;
+            if (mEventEmitter == null)
                 return;
 
-            var eventInstance = FMODUnity_StudioEventEmitter_EventInstance.GetValue(eventEmitter, null);
-            if (!((bool)FMOD_Studio_EventInstance_isValid.Invoke(eventInstance, null)))
+            mEventInstance = FMODUnity_StudioEventEmitter_EventInstance.GetValue(mEventEmitter, null);
+            if (!((bool)FMOD_Studio_EventInstance_isValid.Invoke(mEventInstance, null)))
                 return;
 
             var channelGroup = Activator.CreateInstance(FMOD_ChannelGroup);
 
             var getChannelGroupArgs = new object[] { channelGroup };
-            FMOD_Studio_EventInstance_getChannelGroup.Invoke(eventInstance, getChannelGroupArgs);
+            FMOD_Studio_EventInstance_getChannelGroup.Invoke(mEventInstance, getChannelGroupArgs);
             channelGroup = getChannelGroupArgs[0];
 
             var getNumDSPsArgs = new object[] { 0 };
@@ -145,7 +166,7 @@ namespace SteamAudio
             FMOD_Studio_EventInstance_isValid = FMOD_Studio_EventInstance.GetMethod("isValid");
             FMOD_ChannelGroup_getNumDSPs = FMOD_ChannelGroup.GetMethod("getNumDSPs");
             FMOD_ChannelGroup_getDSP = FMOD_ChannelGroup.GetMethod("getDSP");
-            FMOD_DSP_setParameterData = FMOD_DSP.GetMethod("setParameterData");
+            FMOD_DSP_setParameterInt = FMOD_DSP.GetMethod("setParameterInt");
 
             var candidates = FMOD_DSP.GetMethods();
             foreach (var candidate in candidates)
@@ -161,3 +182,5 @@ namespace SteamAudio
         }
     }
 }
+
+#endif

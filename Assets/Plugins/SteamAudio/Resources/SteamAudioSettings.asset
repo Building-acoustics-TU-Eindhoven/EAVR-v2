@@ -13,8 +13,12 @@ MonoBehaviour:
   m_Name: SteamAudioSettings
   m_EditorClassIdentifier: 
   audioEngine: 0
+  perspectiveCorrection: 0
+  perspectiveCorrectionFactor: 1
+  hrtfVolumeGainDB: 0
+  hrtfNormalizationType: 0
   SOFAFiles: []
-  defaultMaterial: {fileID: 11400000, guid: a086f686223eed942816c70be67841b0, type: 2}
+  defaultMaterial: {fileID: 11400000, guid: e03f351722da74789972434763069579, type: 2}
   sceneType: 0
   layerMask:
     serializedVersion: 2
@@ -22,10 +26,10 @@ MonoBehaviour:
   maxOcclusionSamples: 16
   realTimeRays: 8192
   realTimeBounces: 16
-  realTimeDuration: 5
+  realTimeDuration: 10
   realTimeAmbisonicOrder: 1
-  realTimeMaxSources: 16
-  realTimeCPUCoresPercentage: 25
+  realTimeMaxSources: 32
+  realTimeCPUCoresPercentage: 5
   realTimeIrradianceMinDistance: 1
   bakeConvolution: 1
   bakeParametric: 0
@@ -52,3 +56,4 @@ MonoBehaviour:
   TANDuration: 1
   TANAmbisonicOrder: 1
   TANMaxSources: 32
+  EnableValidation: 0

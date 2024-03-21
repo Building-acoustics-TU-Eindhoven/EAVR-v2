@@ -1,6 +1,17 @@
 ﻿//
-// Copyright 2017 Valve Corporation. All rights reserved. Subject to the following license:
-// https://valvesoftware.github.io/steam-audio/license.html
+// Copyright 2017-2023 Valve Corporation.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 //
 
 using UnityEngine;
@@ -13,6 +24,7 @@ namespace SteamAudio
     {
         SerializedProperty mDirectBinaural;
         SerializedProperty mInterpolation;
+        SerializedProperty mPerspectiveCorrection;
         SerializedProperty mDistanceAttenuation;
         SerializedProperty mDistanceAttenuationInput;
         SerializedProperty mAirAbsorption;
@@ -37,6 +49,7 @@ namespace SteamAudio
         SerializedProperty mTransmissionLow;
         SerializedProperty mTransmissionMid;
         SerializedProperty mTransmissionHigh;
+        SerializedProperty mTransmissionRays;
         SerializedProperty mDirectMixLevel;
         SerializedProperty mReflections;
         SerializedProperty mReflectionsType;
@@ -59,6 +72,7 @@ namespace SteamAudio
         {
             mDirectBinaural = serializedObject.FindProperty("directBinaural");
             mInterpolation = serializedObject.FindProperty("interpolation");
+            mPerspectiveCorrection = serializedObject.FindProperty("perspectiveCorrection");
             mDistanceAttenuation = serializedObject.FindProperty("distanceAttenuation");
             mDistanceAttenuationInput = serializedObject.FindProperty("distanceAttenuationInput");
             mAirAbsorption = serializedObject.FindProperty("airAbsorption");
@@ -83,6 +97,7 @@ namespace SteamAudio
             mTransmissionLow = serializedObject.FindProperty("transmissionLow");
             mTransmissionMid = serializedObject.FindProperty("transmissionMid");
             mTransmissionHigh = serializedObject.FindProperty("transmissionHigh");
+            mTransmissionRays = serializedObject.FindProperty("maxTransmissionSurfaces");
             mDirectMixLevel = serializedObject.FindProperty("directMixLevel");
             mReflections = serializedObject.FindProperty("reflections");
             mReflectionsType = serializedObject.FindProperty("reflectionsType");
@@ -108,6 +123,11 @@ namespace SteamAudio
             {
                 EditorGUILayout.PropertyField(mDirectBinaural);
                 EditorGUILayout.PropertyField(mInterpolation);
+            }
+
+            if (audioEngineIsUnity && SteamAudioSettings.Singleton.perspectiveCorrection)
+            {
+                EditorGUILayout.PropertyField(mPerspectiveCorrection);
             }
 
             if (audioEngineIsUnity)
@@ -196,6 +216,10 @@ namespace SteamAudio
                             {
                                 EditorGUILayout.PropertyField(mTransmissionMid);
                             }
+                        }
+                        else if ((TransmissionInput) mTransmissionInput.enumValueIndex == TransmissionInput.SimulationDefined)
+                        {
+                            EditorGUILayout.PropertyField(mTransmissionRays);
                         }
                     }
                 }

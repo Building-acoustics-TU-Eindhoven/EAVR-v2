@@ -269,7 +269,6 @@ public class GeometryManager : MonoBehaviour
 
                     // Crate the SerializedData for the SteamAudioDynamicObject
                     CreateDynamicObjectSerializedData (goChild, name, counter);
-
                     // Export the dynamic object
 #if UNITY_EDITOR
                     SteamAudioManager.ExportDynamicObject (goChild.GetComponent<SteamAudioDynamicObject>(), false);

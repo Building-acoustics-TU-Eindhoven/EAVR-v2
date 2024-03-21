@@ -7,11 +7,14 @@ using UnityEngine;
 
 class WorldSpaceUIEnabler : MonoBehaviour
 {
+    [SerializeField]
+    private MenuManager menuManager;
+
     private void Update() {
-        Cursor.lockState = CursorLockMode.Confined;
+        Cursor.lockState = menuManager.IsMenuActive() ? CursorLockMode.None : CursorLockMode.Confined;
     }
  
     private void LateUpdate() {
-        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.lockState = menuManager.IsMenuActive() ? CursorLockMode.None : CursorLockMode.Locked;
     }
 }

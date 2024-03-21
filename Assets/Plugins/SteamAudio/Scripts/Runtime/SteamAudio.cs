@@ -1,6 +1,17 @@
 ﻿//
-// Copyright 2017 Valve Corporation. All rights reserved. Subject to the following license:
-// https://valvesoftware.github.io/steam-audio/license.html
+// Copyright 2017-2023 Valve Corporation.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 //
 
 using System;
@@ -14,8 +25,8 @@ namespace SteamAudio
     public static class Constants
     {
         public const uint kVersionMajor = 4;
-        public const uint kVersionMinor = 0;
-        public const uint kVersionPatch = 0;
+        public const uint kVersionMinor = 5;
+        public const uint kVersionPatch = 1;
         public const uint kVersion = (kVersionMajor << 16) | (kVersionMinor << 8) | kVersionPatch;
     }
 
@@ -53,6 +64,13 @@ namespace SteamAudio
         NEON = SSE2
     }
 
+    [Flags]
+    public enum ContextFlags
+    {
+        Validation = 1 << 0,
+        Force32Bit = 0x7fffffff
+    }
+
     public enum OpenCLDeviceType
     {
         Any,
@@ -75,6 +93,12 @@ namespace SteamAudio
     {
         Default,
         SOFA
+    }
+
+    public enum HRTFNormType
+    {
+        None,
+        RMS
     }
 
     public enum ProbeGenerationType
@@ -210,6 +234,9 @@ namespace SteamAudio
     [UnmanagedFunctionPointer(CallingConvention.Winapi)]
     public delegate float DirectivityCallback(Vector3 direction, IntPtr userData);
 
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+    public delegate void PathingVisualizationCallback(Vector3 from, Vector3 to, Bool occluded, IntPtr userData);
+
     // STRUCTURES
 
     [StructLayout(LayoutKind.Sequential)]
@@ -220,6 +247,7 @@ namespace SteamAudio
         public AllocateCallback allocateCallback;
         public FreeCallback freeCallback;
         public SIMDLevel simdLevel;
+        public ContextFlags flags;
     }
 
     [Serializable]
@@ -407,6 +435,10 @@ namespace SteamAudio
     {
         public HRTFType type;
         public string sofaFileName;
+        public IntPtr sofaFileData;
+        public int sofaFileDataSize;
+        public float volume;
+        public HRTFNormType normType;
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -548,6 +580,7 @@ namespace SteamAudio
         public int pathingOrder;
         public Bool enableValidation;
         public Bool findAlternatePaths;
+        public int numTransmissionRays;
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -559,6 +592,8 @@ namespace SteamAudio
         public float duration;
         public int order;
         public float irradianceMinDistance;
+        public PathingVisualizationCallback pathingVisualizationCallback;
+        public IntPtr pathingUserData;
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -603,6 +638,9 @@ namespace SteamAudio
         public float eqCoeffsHigh;
         public IntPtr shCoeffs;
         public int order;
+        public Bool binaural;
+        public IntPtr hrtf;
+        public CoordinateSpace3 listener;
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -613,339 +651,722 @@ namespace SteamAudio
         public PathEffectParams pathing;
     }
 
+    [StructLayout(LayoutKind.Sequential)]
+    public struct PerspectiveCorrection
+    {
+        public Bool enabled;
+        public float xfactor;
+        public float yfactor;
+        public Matrix4x4 transform;
+    }
+
     // FUNCTIONS
 
     public static class API
     {
         // Context
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern Error iplContextCreate(ref ContextSettings settings, out IntPtr context);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern IntPtr iplContextRetain(IntPtr context);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern void iplContextRelease(ref IntPtr context);
 
         // Geometry
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern Vector3 iplCalculateRelativeDirection(IntPtr context, Vector3 sourcePosition, Vector3 listenerPosition, Vector3 listenerAhead, Vector3 listenerUp);
 
         // Serialization
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern Error iplSerializedObjectCreate(IntPtr context, ref SerializedObjectSettings settings, out IntPtr serializedObject);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern IntPtr iplSerializedObjectRetain(IntPtr serializedObject);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern void iplSerializedObjectRelease(ref IntPtr serializedObject);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern UIntPtr iplSerializedObjectGetSize(IntPtr serializedObject);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern IntPtr iplSerializedObjectGetData(IntPtr serializedObject);
 
         // Embree
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern Error iplEmbreeDeviceCreate(IntPtr context, ref EmbreeDeviceSettings settings, out IntPtr device);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern IntPtr iplEmbreeDeviceRetain(IntPtr device);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern void iplEmbreeDeviceRelease(ref IntPtr device);
 
         // OpenCL
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern Error iplOpenCLDeviceListCreate(IntPtr context, ref OpenCLDeviceSettings settings, out IntPtr deviceList);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern IntPtr iplOpenCLDeviceListRetain(IntPtr deviceList);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern void iplOpenCLDeviceListRelease(ref IntPtr deviceList);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern int iplOpenCLDeviceListGetNumDevices(IntPtr deviceList);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern void iplOpenCLDeviceListGetDeviceDesc(IntPtr deviceList, int index, out OpenCLDeviceDesc deviceDesc);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern Error iplOpenCLDeviceCreate(IntPtr context, IntPtr deviceList, int index, out IntPtr device);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern IntPtr iplOpenCLDeviceRetain(IntPtr device);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern void iplOpenCLDeviceRelease(ref IntPtr device);
 
         // Radeon Rays
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern Error iplRadeonRaysDeviceCreate(IntPtr openCLDevice, ref RadeonRaysDeviceSettings settings, out IntPtr rrDevice);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern IntPtr iplRadeonRaysDeviceRetain(IntPtr device);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern void iplRadeonRaysDeviceRelease(ref IntPtr device);
 
         // TrueAudio Next
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern Error iplTrueAudioNextDeviceCreate(IntPtr openCLDevice, ref TrueAudioNextDeviceSettings settings, out IntPtr tanDevice);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern IntPtr iplTrueAudioNextDeviceRetain(IntPtr device);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern void iplTrueAudioNextDeviceRelease(ref IntPtr device);
 
         // Scene
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern Error iplSceneCreate(IntPtr context, ref SceneSettings settings, out IntPtr scene);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern IntPtr iplSceneRetain(IntPtr scene);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern void iplSceneRelease(ref IntPtr scene);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern Error iplSceneLoad(IntPtr context, ref SceneSettings settings, IntPtr serializedObject, ProgressCallback progressCallback, IntPtr progressCallbackUserData, out IntPtr scene);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern void iplSceneSave(IntPtr scene, IntPtr serializedObject);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern void iplSceneSaveOBJ(IntPtr scene, string fileBaseName);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern void iplSceneCommit(IntPtr scene);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern Error iplStaticMeshCreate(IntPtr scene, ref StaticMeshSettings settings, out IntPtr staticMesh);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern IntPtr iplStaticMeshRetain(IntPtr staticMesh);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern void iplStaticMeshRelease(ref IntPtr staticMesh);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern Error iplStaticMeshLoad(IntPtr scene, IntPtr serializedObject, ProgressCallback progressCallback, IntPtr progressCallbackUserData, out IntPtr staticMesh);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern void iplStaticMeshSave(IntPtr staticMesh, IntPtr serializedObject);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern void iplStaticMeshAdd(IntPtr staticMesh, IntPtr scene);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern void iplStaticMeshRemove(IntPtr staticMesh, IntPtr scene);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern Error iplInstancedMeshCreate(IntPtr scene, ref InstancedMeshSettings settings, out IntPtr instancedMesh);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern IntPtr iplInstancedMeshRetain(IntPtr instancedMesh);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern void iplInstancedMeshRelease(ref IntPtr instancedMesh);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern void iplInstancedMeshAdd(IntPtr instancedMesh, IntPtr scene);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern void iplInstancedMeshRemove(IntPtr instancedMesh, IntPtr scene);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern void iplInstancedMeshUpdateTransform(IntPtr instancedMesh, IntPtr scene, Matrix4x4 transform);
 
         // HRTF
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern Error iplHRTFCreate(IntPtr context, ref AudioSettings audioSettings, ref HRTFSettings hrtfSettings, out IntPtr hrtf);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern IntPtr iplHRTFRetain(IntPtr hrtf);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern void iplHRTFRelease(ref IntPtr hrtf);
 
         // Probes
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern Error iplProbeArrayCreate(IntPtr context, out IntPtr probeArray);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern IntPtr iplProbeArrayRetain(IntPtr probeArray);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern void iplProbeArrayRelease(ref IntPtr probeArray);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern void iplProbeArrayGenerateProbes(IntPtr probeArray, IntPtr scene, ref ProbeGenerationParams generationParams);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern int iplProbeArrayGetNumProbes(IntPtr probeArray);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern Sphere iplProbeArrayGetProbe(IntPtr probeArray, int index);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern Error iplProbeBatchCreate(IntPtr context, out IntPtr probeBatch);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern IntPtr iplProbeBatchRetain(IntPtr probeBatch);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern void iplProbeBatchRelease(ref IntPtr probeBatch);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern Error iplProbeBatchLoad(IntPtr context, IntPtr serializedObject, out IntPtr probeBatch);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern void iplProbeBatchSave(IntPtr probeBatch, IntPtr serializedObject);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern int iplProbeBatchGetNumProbes(IntPtr probeBatch);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern void iplProbeBatchAddProbe(IntPtr probeBatch, Sphere probe);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern void iplProbeBatchAddProbeArray(IntPtr probeBatch, IntPtr probeArray);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern void iplProbeBatchRemoveProbe(IntPtr probeBatch, int index);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern void iplProbeBatchCommit(IntPtr probeBatch);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern void iplProbeBatchRemoveData(IntPtr probeBatch, ref BakedDataIdentifier identifier);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern UIntPtr iplProbeBatchGetDataSize(IntPtr probeBatch, ref BakedDataIdentifier identifier);
 
         // Baking
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern void iplReflectionsBakerBake(IntPtr context, ref ReflectionsBakeParams bakeParams, ProgressCallback progressCallback, IntPtr userData);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern void iplReflectionsBakerCancelBake(IntPtr context);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern void iplPathBakerBake(IntPtr context, ref PathBakeParams bakeParams, ProgressCallback progressCallback, IntPtr userData);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern void iplPathBakerCancelBake(IntPtr context);
 
         // Run-Time Simulation
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern Error iplSimulatorCreate(IntPtr context, ref SimulationSettings settings, out IntPtr simulator);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern IntPtr iplSimulatorRetain(IntPtr simulator);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern void iplSimulatorRelease(ref IntPtr simulator);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern void iplSimulatorSetScene(IntPtr simulator, IntPtr scene);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern void iplSimulatorAddProbeBatch(IntPtr simulator, IntPtr probeBatch);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern void iplSimulatorRemoveProbeBatch(IntPtr simulator, IntPtr probeBatch);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern void iplSimulatorSetSharedInputs(IntPtr simulator, SimulationFlags flags, ref SimulationSharedInputs sharedInputs);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern void iplSimulatorCommit(IntPtr simulator);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern void iplSimulatorRunDirect(IntPtr simulator);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern void iplSimulatorRunReflections(IntPtr simulator);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern void iplSimulatorRunPathing(IntPtr simulator);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern Error iplSourceCreate(IntPtr simulator, ref SourceSettings settings, out IntPtr source);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern IntPtr iplSourceRetain(IntPtr source);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern void iplSourceRelease(ref IntPtr source);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern void iplSourceAdd(IntPtr source, IntPtr simulator);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern void iplSourceRemove(IntPtr source, IntPtr simulator);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern void iplSourceSetInputs(IntPtr source, SimulationFlags flags,  ref SimulationInputs inputs);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("phonon")]
+#endif
         public static extern void iplSourceGetOutputs(IntPtr source, SimulationFlags flags,  ref SimulationOutputs outputs);
 
         // UNITY PLUGIN
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("audioplugin_phonon")]
+#endif
         public static extern void iplUnityInitialize(IntPtr context);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("audioplugin_phonon")]
-        public static extern void iplUnitySetHRTF(IntPtr hrtf);
+#endif
+        public static extern void iplUnitySetPerspectiveCorrection(PerspectiveCorrection correction);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("audioplugin_phonon")]
+#endif
+        public static extern void  iplUnitySetHRTF(IntPtr hrtf);
+
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
+        [DllImport("audioplugin_phonon")]
+#endif
         public static extern void iplUnitySetSimulationSettings(SimulationSettings simulationSettings);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("audioplugin_phonon")]
+#endif
         public static extern void iplUnitySetReverbSource(IntPtr reverbSource);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("audioplugin_phonon")]
+#endif
         public static extern int iplUnityAddSource(IntPtr source);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("audioplugin_phonon")]
+#endif
         public static extern void iplUnityRemoveSource(int handle);
 
+#if UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")]
+#else
         [DllImport("audioplugin_phonon")]
+#endif
         public static extern void iplUnityTerminate();
-
-        // FMOD STUDIO PLUGIN
-
-        [DllImport("phonon_fmod")]
-        public static extern void iplFMODInitialize(IntPtr context);
-
-        [DllImport("phonon_fmod")]
-        public static extern void iplFMODSetHRTF(IntPtr hrtf);
-
-        [DllImport("phonon_fmod")]
-        public static extern void iplFMODSetSimulationSettings(SimulationSettings simulationSettings);
-
-        [DllImport("phonon_fmod")]
-        public static extern void iplFMODSetReverbSource(IntPtr reverbSource);
-
-        [DllImport("phonon_fmod")]
-        public static extern void iplFMODTerminate();
     }
 }
