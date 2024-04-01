@@ -11,7 +11,11 @@ using UnityEngine;
 [RequireComponent(typeof(AudioSource))]
 public class SourceController : MonoBehaviour
 {
-    //private AudioClip clip;
+    [SerializeField]
+    private MenuManager menuManager;
+
+    [SerializeField]
+    private AudioSourceSelectionHandler audioSourceSelectionHandler;
 
     private AudioSource audioSource;
 
@@ -28,9 +32,13 @@ public class SourceController : MonoBehaviour
     private bool shouldLoop = true;
     private bool shouldPause = false;
 
+    private bool wasJustHighlighted = false;
+
     // Start is called before the first frame update
     void Start()
     {
+        audioSourceSelectionHandler = FindObjectOfType<AudioSourceSelectionHandler>();
+
         audioSource = GetComponent<AudioSource>();
         audioSource.Play();
         audioSource.loop = shouldLoop;
@@ -41,6 +49,36 @@ public class SourceController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (!menuManager.IsMenuActive())
+        {
+            // Convert mouse position to ray
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+
+            // If the ray hit..
+            if (Physics.Raycast(ray, out hit, 100))
+            {
+                // .. the audioSourceRayCast (walls start with a number)..
+                if (hit.transform.gameObject == audioSourceSelectionHandler.gameObject)
+                {
+                    if (Input.GetMouseButtonDown(0))
+                    {
+                        audioSourceSelectionHandler.SetPositionBasedOnHit (hit);
+                        wasJustHighlighted = true;
+                    }
+                    else if (!wasJustHighlighted)
+                    {
+                        audioSourceSelectionHandler.Hover (true);
+                    }
+                } else {
+                    wasJustHighlighted = false;
+                    audioSourceSelectionHandler.Hover (false);
+                }
+            }
+        }
+
+
+
     }
 
     private void OnAudioFilterRead(float[] data, int channels)
