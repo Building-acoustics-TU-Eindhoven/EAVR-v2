@@ -108,13 +108,13 @@ public class SourcePanelManager : MonoBehaviour
         sourceIdxText.text = activeSourceNumber.ToString();
 
         SourceController curSource = sourceManager.GetCurSource();
-        // Vector3 test = sourceManager.GetSourceRatioPositionAt (sourceManager.sourceIdx);
+        // Vector3 test = sourceManager.GetSourceRatioPositionAt (sourceManager.curSourceIdx);
         // float xVal = (curSource.transform.position.x - root.transform.position.x) / (roomSizeManager.roomWidth - sourceManager.sourceColliderDiameter) + 0.5f;
         // float yVal = (curSource.transform.position.y - root.transform.position.y) / (roomSizeManager.roomHeight - sourceManager.sourceColliderHeight);
         // float zVal = (curSource.transform.position.z - root.transform.position.z) / (roomSizeManager.roomDepth - sourceManager.sourceColliderDiameter) + 0.5f;
 
         // SetPositionThroughSlidersVals(test.x, test.y, test.z);
-        // SetPositionThroughSliderVals (sourceManager.GetSourceRatioPositionAt (sourceManager.sourceIdx));
+        // SetPositionThroughSliderVals (sourceManager.GetSourceRatioPositionAt (sourceManager.curSourceIdx));
         SetGainText (20 * Mathf.Log10 (curSource.gameObject.GetComponent<SteamAudioSource>().directMixLevel));
 
         m_dropdown.SetValueWithoutNotify(curSource.GetActiveClipIdx());
@@ -151,17 +151,17 @@ public class SourcePanelManager : MonoBehaviour
     public void RemoveSource()
     {
         if (sourceManager.RemoveSource())
-            ChangeSourceIdx(sourceManager.sourceIdx);
+            ChangeSourceIdx(sourceManager.curSourceIdx);
     }
 
     public void NextSource()
     {
-        ChangeSourceIdx((sourceManager.sourceIdx + 1) % sourceManager.totNumSources);
+        ChangeSourceIdx((sourceManager.curSourceIdx + 1) % sourceManager.totNumSources);
     }
 
     public void PrevSource()
     {
-        ChangeSourceIdx((sourceManager.sourceIdx + sourceManager.totNumSources - 1) % sourceManager.totNumSources);
+        ChangeSourceIdx((sourceManager.curSourceIdx + sourceManager.totNumSources - 1) % sourceManager.totNumSources);
     }
 
     public void IncreaseGain3dB()

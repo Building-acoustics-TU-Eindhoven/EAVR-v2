@@ -11,6 +11,9 @@ public class SourcesMenuManager : SubMenu
 
     public IncDecButton sourceSelectionButton;
 
+    [SerializeField] 
+    private InWorldSelectionHandler inWorldSelectionHandler;
+
     private int activeSourceNumber = 1;
     public int totNumSources = 0;
     public TMP_Dropdown m_dropdown;
@@ -95,9 +98,12 @@ public class SourcesMenuManager : SubMenu
     {
         sourceManager.AddSource();
         ++totNumSources;
-
+        
         sourceSelectionButton.SetMaxValue (totNumSources);
         ChangeSourceIdx(totNumSources, false);
+
+        inWorldSelectionHandler.UpdateSelectionHandlers();
+
     }
 
     public void RemoveSource()
@@ -108,6 +114,9 @@ public class SourcesMenuManager : SubMenu
             sourceSelectionButton.SetMaxValue (totNumSources);
             ChangeSourceIdx(activeSourceNumber == 1 ? activeSourceNumber : (activeSourceNumber-1), false);
         }
+
+        inWorldSelectionHandler.UpdateSelectionHandlers();
+
     }
 
     public void RefreshTextAndUIElements (SourceController currentSource)

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @author [Alessia Milo]
  * @email [a.milo@tue.nl]
  * @create date 2021-04-27 14:54:46
@@ -15,12 +15,17 @@ public class SourceController : MonoBehaviour
     private MenuManager menuManager;
 
     [SerializeField]
+    private SourcesMenuManager sourcesMenuManager;
+
+    [SerializeField]
     private AudioSourceSelectionHandler audioSourceSelectionHandler;
 
     private AudioSource audioSource;
 
     [SerializeField]
     private int activeClipIdx = 0;  
+
+    private int sourceIdx = 0;
 
     private float prevRMSval = 0.0f;
     private float LPcoeff = 0.95f;
@@ -58,12 +63,16 @@ public class SourceController : MonoBehaviour
             // If the ray hit..
             if (Physics.Raycast(ray, out hit, 100))
             {
-                // .. the audioSourceRayCast (walls start with a number)..
+                // .. the audioSourceRayCast
                 if (hit.transform.gameObject == audioSourceSelectionHandler.gameObject)
                 {
                     if (Input.GetMouseButtonDown(0))
                     {
                         audioSourceSelectionHandler.SetPositionBasedOnHit (hit);
+
+                        sourcesMenuManager.ChangeSourceIdx (sourceIdx, true);
+                        // SET CURRENT SOURCE INDEX IN THE MENU
+
                         wasJustHighlighted = true;
                     }
                     else if (!wasJustHighlighted)
@@ -80,6 +89,9 @@ public class SourceController : MonoBehaviour
 
 
     }
+
+    public void SetSourceIdx (int idx) { sourceIdx = idx; } 
+    public int GetSourceIdx() { return sourceIdx; }
 
     private void OnAudioFilterRead(float[] data, int channels)
     {

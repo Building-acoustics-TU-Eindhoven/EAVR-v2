@@ -4,6 +4,7 @@ using SteamAudio;
 using Unity.VisualScripting;
 using UnityEditor.ShaderKeywordFilter;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 // This class handles in world selections. 
 // Meaning that if one object (such as a wall or audio source) is selected, all other objects should be deselected
@@ -14,25 +15,15 @@ public class InWorldSelectionHandler : MonoBehaviour
 
 
     [SerializeField]
-    private List<InWorldSubMenu> subMenus = new List<InWorldSubMenu>();
+    private GameObject sourceMenu;
+
+    [SerializeField]
+    private GameObject wallMenu; 
 
     // Start is called before the first frame update
     void Start()
     {
-        Object[] test = FindObjectsOfType(typeof (SelectionHandler), false);
-        foreach (Object objec in test)
-        {
-            selectionHandlers.Add (objec.GetComponent<SelectionHandler>()); 
-        }
-
-        foreach (Transform child in transform)
-        {
-            if (child.GetComponent<InWorldSubMenu>())
-                subMenus.Add (child.GetComponent<InWorldSubMenu>());
-        }
-        
-        foreach (SelectionHandler s in selectionHandlers)
-             s.SetInWorldSelectionHandler (this);
+        UpdateSelectionHandlers();
 
         // Disable in-world UI
         gameObject.SetActive(false);
@@ -44,20 +35,38 @@ public class InWorldSelectionHandler : MonoBehaviour
         
     }
 
+    public void UpdateSelectionHandlers()
+    {
+        selectionHandlers.Clear();
+        Object[] selectionHandlersInScene = FindObjectsOfType(typeof (SelectionHandler), false);
+        foreach (Object objec in selectionHandlersInScene)
+        {
+            selectionHandlers.Add (objec.GetComponent<SelectionHandler>()); 
+        }
+
+        foreach (SelectionHandler s in selectionHandlers)
+        {
+            s.SetInWorldSelectionHandler (this);
+
+            // Assign the correct menus to the selection handlers
+            if (s.GetType() == typeof(AudioSourceSelectionHandler))
+                s.SetInWorldSubMenu (ref sourceMenu);
+            else if (s.GetType() == typeof(WallSelectionHandler))
+                s.SetInWorldSubMenu (ref wallMenu);
+        }
+    }
+
     public void ActivateThisSelection (SelectionHandler handlerThatGotActivated)
     {
         int j = 0; 
-        for (int i = 0; i < subMenus.Count; ++i)
+        for (int i = 0; i < selectionHandlers.Count; ++i)
         {
             if (selectionHandlers[i] != handlerThatGotActivated)
             {
                 selectionHandlers[i].Deselect();
-                subMenus[i].gameObject.SetActive (false);
-
-            } else {
-                subMenus[i].gameObject.SetActive (true);
+                selectionHandlers[i].GetInWorldSubMenu().SetActive(false);
             }
-            ++j;
         }
+        handlerThatGotActivated.GetInWorldSubMenu().SetActive(true);
     }
 }
