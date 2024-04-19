@@ -29,7 +29,7 @@ MonoBehaviour:
   realTimeDuration: 10
   realTimeAmbisonicOrder: 1
   realTimeMaxSources: 32
-  realTimeCPUCoresPercentage: 5
+  realTimeCPUCoresPercentage: 25
   realTimeIrradianceMinDistance: 1
   bakeConvolution: 1
   bakeParametric: 0
