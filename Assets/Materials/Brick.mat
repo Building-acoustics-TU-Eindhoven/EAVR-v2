@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Brick
-  m_Shader: {fileID: 4800000, guid: 057d08f5d01be134593d0fe0e40c1759, type: 3}
+  m_Shader: {fileID: 4800000, guid: 10f1e106b5a2a4bbbb3424077097a991, type: 3}
   m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 4
@@ -44,6 +44,18 @@ Material:
         m_Texture: {fileID: 2800000, guid: e5dcdfc3d99264c598bc78a4cde6e8b9, type: 3}
         m_Scale: {x: 0.1, y: 0.1}
         m_Offset: {x: 0, y: 0}
+    - _MainTexFlr2:
+        m_Texture: {fileID: 2800000, guid: e5dcdfc3d99264c598bc78a4cde6e8b9, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTexWall:
+        m_Texture: {fileID: 2800000, guid: e5dcdfc3d99264c598bc78a4cde6e8b9, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTexWall2:
+        m_Texture: {fileID: 2800000, guid: f31bd0069e4734f6c8b7f9b6edfc1cf6, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -71,6 +83,7 @@ Material:
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _Roughness: 1
+    - _Scale: 0.3
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1

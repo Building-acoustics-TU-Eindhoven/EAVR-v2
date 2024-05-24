@@ -71,7 +71,6 @@ public class SourceController : MonoBehaviour
                         audioSourceSelectionHandler.SetPositionBasedOnHit (hit);
 
                         sourcesMenuManager.ChangeSourceIdx (sourceIdx, true);
-                        // SET CURRENT SOURCE INDEX IN THE MENU
 
                         wasJustHighlighted = true;
                     }
