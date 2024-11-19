@@ -7,8 +7,10 @@ The Eindhoven Acoustic Virtual Reality (EAVR) project is part of an ongoing rese
 - Materials of the walls
 - ..etc..
 
+The tool has been used in education at the TU/e and two spin-offs have been presented at the annual Dutch Design Week (DDW) in 2023. See [3] for more info.
+
 ## Releases
-Working applications for Windows and Mac can be found via https://github.com/SilvinWillemsen/EAVR-steam-audio/releases/. The model that is loaded is the Trappenzaal in the Vertigo building at Eindhoven Univeristy of Technology.
+Working applications for Windows and Mac can be found via https://github.com/SilvinWillemsen/EAVR-steam-audio/releases/. The model that is loaded is the Trappenzaal in the Vertigo building at Eindhoven University of Technology.
 
 ## Controls
 
@@ -20,24 +22,27 @@ When control panel is disabled:
 - `Left-click`: Select wall to change material of.
 - `Shift + Left-click`: Select multiple walls.
 
-When the control panel is enabled:
-- `Choose material..`: change the material of the currently selected wall(s). If no wall is selected ("Selected Wall: None"), the change in material will not have any effect.
-- `Room`
-    - `scaling`: change the scaling of the room in x, y and z direction individually (range: x0.5-x2.0).
-- `Source`
-    - `< 1 >`: Select source to edit.
-    - `Add source`: Adds a source based on the currently selected source.
-    - `Remove source`: Removes currently selected source.
-    - `Position`: Change the position of the source as a ratio of the current room dimensions (range: 0-1).
-    - `Select Audio..`: Select an audio file from the dropdown list.
-    - `< Gain = 0 dB >`: Increase / decrease the gain of the currently selected source.
+When the control panel is enabled you'll find the following menus:
+- `Sources`:
+    - `< Source: 1 >`: Select source to edit.
+    - `+`: Adds a source based on the currently selected source.
+    - `-`: Removes currently selected source.
+    - `x`, `y`, `z`: Change the position of the source as a ratio of the current room dimensions (range: 0-1).
     - `Buttons`: In order of appearance:
         - `Play`: Plays the currently selected audio file through the currently selected source.
         - `Pause`: Pauses the currently selected source. 
         - `Stop`: Stops the currently selected source.
         - `Stop (Double click)`: Stops all sources.
         - `Loop`: Loops audio played by current source.
-    - `Saved observations`: Shows a list of observations which are created after pressing the `Save` button.
+    - `Select Audio..`: Select an audio file from the dropdown list.
+    - `Gain`: Increase / decrease the gain of the currently selected source.
+- `Observations` *(Work in progress!)*
+    - Planning to add functionality to save the current state of the application (sources, player position, materials, etc.)
+- `Room`
+    - `x`, `y`, `z`: change the scaling of the room in x, y and z direction individually (range: x0.5-x2.0).
+- `Wall` (or `No wall selected`)
+    - Change the material of the currently selected wall(s). 
+    - If no wall is selected, the menu will be disabled.
 
 
 ## 1. Setup and Usage Instructions
@@ -93,3 +98,5 @@ The most important folders in this repository are shown below
 [1] A. Milo and M. Hornikx, "Acoustic Virtual Reality as a Learning Framework for Built Environment Students," *Euronoise*, 2021.
 
 [2] A. Milo, "EAVR-EDU-release," GitLab Repository. Accessed 7 July 2023. [Online] Available: https://gitlab.tue.nl/building-acoustics-tue/eavr/eavr-edu-release/-/tree/v209
+
+[3] S. Willemsen and M. Hornikx, "The Eindhoven Acoustic Virtual Reality (EAVR) toolkit in education and beyond," *INTER-NOISE and NOISE-CON Congress and Conference Proceedings*, 2024.
