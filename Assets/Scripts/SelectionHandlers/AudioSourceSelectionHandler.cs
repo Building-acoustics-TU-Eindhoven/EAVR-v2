@@ -46,14 +46,18 @@ public class AudioSourceSelectionHandler : SelectionHandler
     {
         var test = Quaternion.LookRotation(hit.point - playerGO.transform.position);
         test.eulerAngles = new Vector3 (0.0f, test.eulerAngles.y + 180.0f, 0.0f);
-        inWorldSelectionHandler.transform.rotation = test;
-        inWorldSelectionHandler.transform.position = new Vector3 (
-            audioSource.transform.position.x, 
-            hit.collider.bounds.max.y + 0.5f * inWorldSelectionHandler.GetComponent<RectTransform>().rect.height * inWorldSelectionHandler.GetComponent<RectTransform>().localScale.y, 
-            audioSource.transform.position.z);
 
-        Highlight();
-        inWorldSelectionHandler.gameObject.SetActive (isHighlighted);
+        if (GlobalFunctions.shouldUseInWorldMenu)
+        {
+
+            inWorldSelectionHandler.transform.rotation = test;
+            inWorldSelectionHandler.transform.position = new Vector3(
+                audioSource.transform.position.x,
+                hit.collider.bounds.max.y + 0.5f * inWorldSelectionHandler.GetComponent<RectTransform>().rect.height * inWorldSelectionHandler.GetComponent<RectTransform>().localScale.y,
+                audioSource.transform.position.z);
+            Highlight();
+            inWorldSelectionHandler.gameObject.SetActive(isHighlighted);
+        }
 
         // Somehow the SetActive function (perhaps because it is a UI element) makes the cursor visible. This makes sure that the cursor stays Locked and thereby invisible.
         Cursor.lockState = CursorLockMode.Locked;

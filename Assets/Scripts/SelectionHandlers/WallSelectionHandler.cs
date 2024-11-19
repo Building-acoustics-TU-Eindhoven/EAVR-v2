@@ -145,8 +145,10 @@ public class WallSelectionHandler : SelectionHandler
                     {
                         SetPositionBasedOnHit (hit);
                     }
-                    inWorldSelectionHandler.gameObject.SetActive (hasAddedWallToSelection);
-
+                    if (GlobalFunctions.shouldUseInWorldMenu)
+                    {
+                        inWorldSelectionHandler.gameObject.SetActive(hasAddedWallToSelection);
+                    }
                     // This changes the Wall button state
                     menuManager.HasSelectedWalls (selectedWalls.Count != 0);
 
@@ -160,8 +162,11 @@ public class WallSelectionHandler : SelectionHandler
 
     public override void SetPositionBasedOnHit (RaycastHit hit)
     {
-        inWorldSelectionHandler.transform.rotation = Quaternion.LookRotation(hit.normal);
-        inWorldSelectionHandler.transform.position = hit.point + hit.normal * 0.01f;
+        if (GlobalFunctions.shouldUseInWorldMenu)
+        {
+            inWorldSelectionHandler.transform.rotation = Quaternion.LookRotation(hit.normal);
+            inWorldSelectionHandler.transform.position = hit.point + hit.normal * 0.01f;
+        }
         base.SetPositionBasedOnHit (hit);
     }
 
