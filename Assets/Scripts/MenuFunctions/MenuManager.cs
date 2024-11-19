@@ -23,6 +23,8 @@ public class MenuManager : MonoBehaviour
     private int prevActiveMenuIdx = 0;
     private bool calledFromActivateWall = false;
 
+    public GameObject XRDeviceSimulator;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -43,11 +45,17 @@ public class MenuManager : MonoBehaviour
 
         // Set the "Main Menu" as active menu
         SetActiveMenu (0);
+
+        // If the simulator is on, close the menu automatically
+        if (XRDeviceSimulator.activeSelf)
+            OpenCloseMenu(false);
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (XRDeviceSimulator.activeSelf)
+            return;
         if (Input.GetMouseButtonDown(1) && mouseIsUp)
         {
             OpenCloseMenu (!transform.GetChild(0).gameObject.activeSelf);
