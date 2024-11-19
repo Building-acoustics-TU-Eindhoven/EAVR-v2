@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Carpet
-  m_Shader: {fileID: 4800000, guid: 057d08f5d01be134593d0fe0e40c1759, type: 3}
+  m_Shader: {fileID: 4800000, guid: 10f1e106b5a2a4bbbb3424077097a991, type: 3}
   m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 4
@@ -44,6 +44,18 @@ Material:
         m_Texture: {fileID: 2800000, guid: 6fbd0544d59b74477b8be7b372148ace, type: 3}
         m_Scale: {x: 0.1, y: 0.1}
         m_Offset: {x: 0, y: 0}
+    - _MainTexFlr2:
+        m_Texture: {fileID: 2800000, guid: 6fbd0544d59b74477b8be7b372148ace, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTexWall:
+        m_Texture: {fileID: 2800000, guid: 6fbd0544d59b74477b8be7b372148ace, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTexWall2:
+        m_Texture: {fileID: 2800000, guid: 2f181cf895b5644d99fb5b0b9b1404b3, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -71,6 +83,7 @@ Material:
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _Roughness: 1
+    - _Scale: 0.1
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1

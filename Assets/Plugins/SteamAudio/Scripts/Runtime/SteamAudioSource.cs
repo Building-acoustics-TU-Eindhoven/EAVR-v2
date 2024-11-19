@@ -1,6 +1,17 @@
 ﻿//
-// Copyright 2017 Valve Corporation. All rights reserved. Subject to the following license:
-// https://valvesoftware.github.io/steam-audio/license.html
+// Copyright 2017-2023 Valve Corporation.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 //
 
 using AOT;
@@ -61,6 +72,7 @@ namespace SteamAudio
         [Header("HRTF Settings")]
         public bool directBinaural = true;
         public HRTFInterpolation interpolation = HRTFInterpolation.Nearest;
+        public bool perspectiveCorrection = false;
 
         [Header("Attenuation Settings")]
         public bool distanceAttenuation = false;
@@ -104,6 +116,8 @@ namespace SteamAudio
         public float transmissionMid = 1.0f;
         [Range(0.0f, 1.0f)]
         public float transmissionHigh = 1.0f;
+        [Range(1, 8)]
+        public int maxTransmissionSurfaces = 1;
 
         [Header("Direct Mix Settings")]
         [Range(0.0f, 1.0f)]
@@ -137,6 +151,7 @@ namespace SteamAudio
         [Range(0.0f, 10.0f)]
         public float pathingMixLevel = 1.0f;
 
+#if STEAMAUDIO_ENABLED
         Simulator mSimulator = null;
         Source mSource = null;
         AudioEngineSource mAudioEngineSource = null;
@@ -148,6 +163,7 @@ namespace SteamAudio
         AudioSourceAttenuationData mAttenuationData = new AudioSourceAttenuationData { };
         DistanceAttenuationModel mCurveAttenuationModel = new DistanceAttenuationModel { };
         GCHandle mThis;
+        SteamAudioSettings mSettings = null;
 
         private void Awake()
         {
@@ -155,8 +171,9 @@ namespace SteamAudio
 
             var settings = SteamAudioManager.GetSimulationSettings(false);
             mSource = new Source(SteamAudioManager.Simulator, settings);
+            mSettings = SteamAudioSettings.Singleton;
 
-            mAudioEngineSource = AudioEngineSource.Create(SteamAudioSettings.Singleton.audioEngine);
+            mAudioEngineSource = AudioEngineSource.Create(mSettings.audioEngine);
             if (mAudioEngineSource != null)
             {
                 mAudioEngineSource.Initialize(gameObject);
@@ -167,7 +184,7 @@ namespace SteamAudio
 
             mThis = GCHandle.Alloc(this);
 
-            if (SteamAudioSettings.Singleton.audioEngine == AudioEngineType.Unity &&
+            if (mSettings.audioEngine == AudioEngineType.Unity &&
                 distanceAttenuation &&
                 distanceAttenuationInput == DistanceAttenuationInput.CurveDriven &&
                 reflections &&
@@ -206,7 +223,10 @@ namespace SteamAudio
                 mSource.Release();
                 mSource = null;
             }
+        }
 
+        ~SteamAudioSource()
+        {
             mThis.Free();
         }
 
@@ -263,7 +283,7 @@ namespace SteamAudio
             inputs.source.up = Common.ConvertVector(transform.up);
             inputs.source.right = Common.ConvertVector(transform.right);
 
-            if (SteamAudioSettings.Singleton.audioEngine == AudioEngineType.Unity &&
+            if (mSettings.audioEngine == AudioEngineType.Unity &&
                 distanceAttenuation &&
                 distanceAttenuationInput == DistanceAttenuationInput.CurveDriven &&
                 reflections &&
@@ -282,17 +302,18 @@ namespace SteamAudio
             inputs.occlusionType = occlusionType;
             inputs.occlusionRadius = occlusionRadius;
             inputs.numOcclusionSamples = occlusionSamples;
+            inputs.numTransmissionRays = maxTransmissionSurfaces;
             inputs.reverbScaleLow = 1.0f;
             inputs.reverbScaleMid = 1.0f;
             inputs.reverbScaleHigh = 1.0f;
-            inputs.hybridReverbTransitionTime = SteamAudioSettings.Singleton.hybridReverbTransitionTime;
-            inputs.hybridReverbOverlapPercent = SteamAudioSettings.Singleton.hybridReverbOverlapPercent / 100.0f;
+            inputs.hybridReverbTransitionTime = mSettings.hybridReverbTransitionTime;
+            inputs.hybridReverbOverlapPercent = mSettings.hybridReverbOverlapPercent / 100.0f;
             inputs.baked = (reflectionsType != ReflectionsType.Realtime) ? Bool.True : Bool.False;
             inputs.pathingProbes = (pathingProbeBatch != null) ? pathingProbeBatch.GetProbeBatch() : IntPtr.Zero;
-            inputs.visRadius = SteamAudioSettings.Singleton.bakingVisibilityRadius;
-            inputs.visThreshold = SteamAudioSettings.Singleton.bakingVisibilityThreshold;
-            inputs.visRange = SteamAudioSettings.Singleton.bakingVisibilityRange;
-            inputs.pathingOrder = SteamAudioSettings.Singleton.bakingAmbisonicOrder;
+            inputs.visRadius = mSettings.bakingVisibilityRadius;
+            inputs.visThreshold = mSettings.bakingVisibilityThreshold;
+            inputs.visRange = mSettings.bakingVisibilityRange;
+            inputs.pathingOrder = mSettings.bakingAmbisonicOrder;
             inputs.enableValidation = pathValidation ? Bool.True : Bool.False;
             inputs.findAlternatePaths = findAlternatePaths ? Bool.True : Bool.False;
 
@@ -493,7 +514,7 @@ namespace SteamAudio
                         return 0.0f;
                     else
                         return rMin / distance;
-                
+
                 case AudioRolloffMode.Linear:
                     if (distance < rMin)
                         return 1.0f;
@@ -518,5 +539,6 @@ namespace SteamAudio
                     return 0.0f;
             }
         }
+#endif
     }
 }

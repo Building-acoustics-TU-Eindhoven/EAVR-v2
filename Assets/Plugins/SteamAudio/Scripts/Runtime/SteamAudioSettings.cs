@@ -1,6 +1,17 @@
 ﻿//
-// Copyright 2017 Valve Corporation. All rights reserved. Subject to the following license:
-// https://valvesoftware.github.io/steam-audio/license.html
+// Copyright 2017-2023 Valve Corporation.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 //
 
 using UnityEngine;
@@ -23,7 +34,13 @@ namespace SteamAudio
         public AudioEngineType audioEngine = AudioEngineType.Unity;
 
         [Header("HRTF Settings")]
-        public string[] SOFAFiles = null;
+        public bool perspectiveCorrection = false;
+        [Range(.25f, 4.0f)]
+        public float perspectiveCorrectionFactor = 1.0f;
+        [Range(-12.0f, 12.0f)]
+        public float hrtfVolumeGainDB = 0.0f;
+        public HRTFNormType hrtfNormalizationType = HRTFNormType.None;
+        public SOFAFile[] SOFAFiles = null;
 
         [Header("Material Settings")]
         public SteamAudioMaterial defaultMaterial = null;
@@ -113,6 +130,9 @@ namespace SteamAudio
         public int TANAmbisonicOrder = 1;
         [Range(1, 128)]
         public int TANMaxSources = 32;
+
+        [Header("Advanced Settings")]
+        public bool EnableValidation = false;
 
         static SteamAudioSettings sSingleton = null;
 

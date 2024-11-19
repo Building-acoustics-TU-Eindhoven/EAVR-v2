@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
 static public class GlobalFunctions
 {
     static public GameObject GetChildWithName(GameObject obj, string name)
@@ -18,4 +19,19 @@ static public class GlobalFunctions
         }
     }
 
+
+    static public void GetChildrenWithComponent<T> (GameObject parent, ref List<GameObject> childrenWithComponent)
+    {
+        foreach (Transform child in parent.transform)
+        {
+            T test = child.gameObject.GetComponent<T>();
+            if (child.gameObject.GetComponent<T>().ToString() != "null")
+                childrenWithComponent.Add(child.gameObject);
+            GetChildrenWithComponent<T> (child.gameObject, ref childrenWithComponent);
+        }
+    }
+
+    static public bool shouldUseInWorldMenu = false;
 }
+
+

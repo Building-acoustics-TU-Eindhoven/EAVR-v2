@@ -1,6 +1,17 @@
 ﻿//
-// Copyright 2017 Valve Corporation. All rights reserved. Subject to the following license:
-// https://valvesoftware.github.io/steam-audio/license.html
+// Copyright 2017-2023 Valve Corporation.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 //
 
 using UnityEditor;
@@ -12,6 +23,10 @@ namespace SteamAudio
     public class SteamAudioSettingsInspector : Editor
     {
         SerializedProperty mAudioEngine;
+        SerializedProperty mPerspectiveCorrection;
+        SerializedProperty mPerspectiveCorrectionFactor;
+        SerializedProperty mHRTFVolumeNormalizationType;
+        SerializedProperty mHRTFVolumeGainDB;
         SerializedProperty mSOFAFiles;
         SerializedProperty mDefaultMaterial;
         SerializedProperty mSceneType;
@@ -49,6 +64,7 @@ namespace SteamAudio
         SerializedProperty mTANDuration;
         SerializedProperty mTANAmbisonicOrder;
         SerializedProperty mTANMaxSources;
+        SerializedProperty mEnableValidation;
 
 #if !UNITY_2019_2_OR_NEWER
         static string[] sSceneTypes = new string[] { "Phonon", "Embree", "Radeon Rays", "Unity" };
@@ -61,6 +77,10 @@ namespace SteamAudio
         private void OnEnable()
         {
             mAudioEngine = serializedObject.FindProperty("audioEngine");
+            mPerspectiveCorrection = serializedObject.FindProperty("perspectiveCorrection");
+            mPerspectiveCorrectionFactor = serializedObject.FindProperty("perspectiveCorrectionFactor");
+            mHRTFVolumeGainDB = serializedObject.FindProperty("hrtfVolumeGainDB");
+            mHRTFVolumeNormalizationType = serializedObject.FindProperty("hrtfNormalizationType");
             mSOFAFiles = serializedObject.FindProperty("SOFAFiles");
             mDefaultMaterial = serializedObject.FindProperty("defaultMaterial");
             mSceneType = serializedObject.FindProperty("sceneType");
@@ -98,6 +118,7 @@ namespace SteamAudio
             mTANDuration = serializedObject.FindProperty("TANDuration");
             mTANAmbisonicOrder = serializedObject.FindProperty("TANAmbisonicOrder");
             mTANMaxSources = serializedObject.FindProperty("TANMaxSources");
+            mEnableValidation = serializedObject.FindProperty("EnableValidation");
         }
 
         public override void OnInspectorGUI()
@@ -105,6 +126,14 @@ namespace SteamAudio
             serializedObject.Update();
 
             EditorGUILayout.PropertyField(mAudioEngine);
+            EditorGUILayout.PropertyField(mPerspectiveCorrection, new UnityEngine.GUIContent("Enable Perspective Correction"));
+
+            if (mPerspectiveCorrection.boolValue)
+                EditorGUILayout.PropertyField(mPerspectiveCorrectionFactor);
+
+            EditorGUILayout.PropertyField(mHRTFVolumeGainDB, new UnityEngine.GUIContent("HRTF Volume Gain (dB)"));
+            EditorGUILayout.PropertyField(mHRTFVolumeNormalizationType, new UnityEngine.GUIContent("HRTF Normalization Type"));
+
             EditorGUILayout.PropertyField(mSOFAFiles, true);
             EditorGUILayout.PropertyField(mDefaultMaterial);
 #if UNITY_2019_2_OR_NEWER
@@ -166,7 +195,7 @@ namespace SteamAudio
                 EditorGUILayout.PropertyField(mFractionCUsForIRUpdate);
 
                 if (((SceneType) mSceneType.enumValueIndex) == SceneType.RadeonRays)
-                { 
+                {
                     EditorGUILayout.PropertyField(mBakingBatchSize);
                 }
 
@@ -177,6 +206,8 @@ namespace SteamAudio
                     EditorGUILayout.PropertyField(mTANMaxSources);
                 }
             }
+
+            EditorGUILayout.PropertyField(mEnableValidation);
 
             serializedObject.ApplyModifiedProperties();
         }
