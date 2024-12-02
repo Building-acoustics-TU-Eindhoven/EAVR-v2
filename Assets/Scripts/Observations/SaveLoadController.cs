@@ -20,9 +20,9 @@ public class SaveLoadController : MonoBehaviour
     public List<GameObject> assessmentList;
 
     private SteamAudioManager steamAudioManager;
-    public SourcePanelManager sourcePanelManager;
+    public SourcesMenuManager sourcesMenuManager;
     public AudioSourceManager audioSourceManager;
-    public RoomSizeManager roomSizeManager;
+    public RoomMenuManager roomMenuManager;
     public GeometryManager geometryManager;
     bool observationLoaded = false;
     // Start is called before the first frame update
@@ -69,14 +69,14 @@ public class SaveLoadController : MonoBehaviour
         }
 
         _AssessmentData.currentObservation.observationTime = timestamp;
-        _AssessmentData.currentObservation.roomOrigSize = roomSizeManager.originalSize;
+        _AssessmentData.currentObservation.roomOrigSize = roomMenuManager.originalSize;
         _AssessmentData.currentObservation.roomScaling = root.transform.localScale;
-        _AssessmentData.currentObservation.playerXYZ = roomSizeManager.GetNormalisedPlayerPos();
+        _AssessmentData.currentObservation.playerXYZ = roomMenuManager.GetNormalisedPlayerPosition();
         if (playerGO.activeSelf)
             _AssessmentData.currentObservation.rotation = Camera.main.transform.rotation;
         else
             _AssessmentData.currentObservation.rotation = xrOrigin.transform.rotation;
-        Debug.Log("Pos save: " + roomSizeManager.GetNormalisedPlayerPos());
+        Debug.Log("Pos save: " + roomMenuManager.GetNormalisedPlayerPosition());
 
         int sourceId = 0;
         foreach (SourceController source in audioSourceManager.GetAllSources())
@@ -262,42 +262,45 @@ public class SaveLoadController : MonoBehaviour
         }
 
         // Load room scaling (via sliders)
-        roomSizeManager.SetRoomSizeSliders(obs.roomScaling);
+        roomMenuManager.SetKnobValuesFromObservation(obs.roomScaling);
 
         // Load sources //
-        audioSourceManager.RemoveAllSources();
-        bool clipIsFound = false;
-        for (int i = 0; i < obs.sourceClipNames.Count; ++i)
+        StartCoroutine(audioSourceManager.RemoveAllSources(() =>
         {
-            audioSourceManager.AddSource();
-
-            // Apply gaindB
-            audioSourceManager.GetCurSource().GetComponent<SteamAudioSource>().directMixLevel = audioSourceManager.ConvertFromdB(obs.sourceGaindBs[i]);
-            audioSourceManager.GetCurSource().GetComponent<SteamAudioSource>().reflectionsMixLevel = audioSourceManager.ConvertFromdB(obs.sourceGaindBs[i]);
-
-            for (int ii = 0; ii < audioSourceManager.clipList.Count; ++ii)
+            bool clipIsFound = false;
+            for (int i = 0; i < obs.sourceClipNames.Count; ++i)
             {
-                if (audioSourceManager.clipList[ii].name == obs.sourceClipNames[i])
+                audioSourceManager.AddSource();
+
+                // Apply gaindB
+                audioSourceManager.GetCurSource().GetComponent<SteamAudioSource>().directMixLevel = audioSourceManager.ConvertFromdB(obs.sourceGaindBs[i]);
+                audioSourceManager.GetCurSource().GetComponent<SteamAudioSource>().reflectionsMixLevel = audioSourceManager.ConvertFromdB(obs.sourceGaindBs[i]);
+
+                for (int ii = 0; ii < audioSourceManager.clipList.Count; ++ii)
                 {
-                    audioSourceManager.GetCurSource().GetComponent<AudioSource>().clip = audioSourceManager.clipList[ii];
-                    audioSourceManager.GetCurSource().GetComponent<SourceController>().SetActiveClipIdx (ii);
-                    clipIsFound = true;
-                    break;
+                    if (audioSourceManager.clipList[ii].name == obs.sourceClipNames[i])
+                    {
+                        audioSourceManager.GetCurSource().GetComponent<AudioSource>().clip = audioSourceManager.clipList[ii];
+                        audioSourceManager.GetCurSource().GetComponent<SourceController>().SetActiveClipIdx(ii);
+                        clipIsFound = true;
+                        break;
+                    }
                 }
+                if (!clipIsFound)
+                {
+                    Debug.Log("Saved clip " + obs.sourceClipNames[i] + " can't be found!");
+                }
+
+                // Set position
+                sourcesMenuManager.SetKnobValuesFromRatioVec(obs.sourcePositions[i]);
+
             }
-            if (!clipIsFound)
-            {
-                Debug.Log("Saved clip " + obs.sourceClipNames[i] + " can't be found!");
-            }
+            sourcesMenuManager.ChangeSourceIdx(obs.sourceClipNames.Count - 1, true);
 
-            // Set position
-            sourcePanelManager.SetPositionThroughSliderVals(obs.sourcePositions[i].x, obs.sourcePositions[i].y, obs.sourcePositions[i].z);
+            foreach (SourceController source in audioSourceManager.GetAllSources())
+                source.gameObject.SetActive(true);
 
-        }
-        sourcePanelManager.ChangeSourceIdx(obs.sourceClipNames.Count - 1);
-
-        foreach (SourceController source in audioSourceManager.GetAllSources())
-            source.gameObject.SetActive(true);
+        }));
 
         // Apply player position
         if (playerGO.activeSelf)

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 // Inherits from the interface in PlayerManager to allow for bidirectional communication between the classes
-public class RoomMenuManger : SubMenu, iRoomMenuManager 
+public class RoomMenuManager : SubMenu, iRoomMenuManager 
 {
     // The GameObject holding the room geometry 
     public GameObject root;
@@ -158,6 +158,13 @@ public class RoomMenuManger : SubMenu, iRoomMenuManager
 
     }
 
+    public void SetKnobValuesFromObservation(Vector3 obs)
+    {
+        xKnob.SetNonNormalisedValue(obs.x);
+        yKnob.SetNonNormalisedValue(obs.y);
+        zKnob.SetNonNormalisedValue(obs.z);
+    }
+
     public void RefreshTextAndUIElements()
     {
         SetKnobValuesFromCurrentRoomDimensions();
@@ -171,6 +178,7 @@ public class RoomMenuManger : SubMenu, iRoomMenuManager
         zKnob.SetNonNormalisedValue (curRoomSize.z / originalSize.z, false);
     }
 
+    public Vector3 GetNormalisedPlayerPosition() { return normalisedPlayerPos; }
     public Vector3 GetNonNormalisedPlayerPosition() { return nonNormalisedPlayerPos; }
 
     // Functions found online to get the bounds of a game object
