@@ -26362,7 +26362,7 @@ PrefabInstance:
     - target: {fileID: 340965606432675799, guid: c38bbfacf933f46a9aad049eab02e27f, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 405021229}
     - target: {fileID: 340965606432675799, guid: c38bbfacf933f46a9aad049eab02e27f, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: SetActiveMenu
