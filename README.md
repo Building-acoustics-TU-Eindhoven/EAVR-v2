@@ -96,6 +96,8 @@ The most important folders in this repository are shown below
 
 # Appendix A: Material List
 
+Below is a table of valid material names that you can use to tag groups in SketchUp. The values given are absorption coefficients (0.0 - 1.0) of three frequency bands (their center frequencies indicated).
+
 | Material name | Low absorption (400 Hz) | Mid absorption (2500 Hz) | High absorption (15000 Hz) |
 | --- | --- | --- | --- |
 | Brick | 0.03 | 0.04 | 0.07 |
