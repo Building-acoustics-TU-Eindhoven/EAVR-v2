@@ -143,9 +143,7 @@ public class SourcesMenuManager : SubMenu
     {
         Vector3 ratioVec = source.GetRatioVec();
 
-        xKnob.SetNormalisedValue (ratioVec.x, false);
-        yKnob.SetNormalisedValue (ratioVec.y, false);
-        zKnob.SetNormalisedValue (ratioVec.z, false);
+        SetKnobValuesFromRatioVec(ratioVec);
 
         gainKnob.SetNonNormalisedValue (source.GetGainDb(), false);
     }
@@ -155,5 +153,12 @@ public class SourcesMenuManager : SubMenu
         xKnob.SetDefaultValue (defaults.x);
         yKnob.SetDefaultValue (defaults.y);
         zKnob.SetDefaultValue (defaults.z);
+    }
+
+    public void SetKnobValuesFromRatioVec(Vector3 obs)
+    {
+        xKnob.SetNormalisedValue(obs.x, false);
+        yKnob.SetNormalisedValue(obs.y, false);
+        zKnob.SetNormalisedValue(obs.z, false);
     }
 }

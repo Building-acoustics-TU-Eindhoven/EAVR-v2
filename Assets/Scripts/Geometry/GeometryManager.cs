@@ -378,44 +378,52 @@ public class GeometryManager : MonoBehaviour
                 return "Transparent";
             case "AcousticCeilingTiles":
                 return "Default";
-            
+
+            case "Brick":
             case "BrickBare":
             case "BrickPainted":
                 return "Brick";
-            
+
+            case "Concrete":
             case "ConcreteBlockCoarse":
             case "ConcreteBlockPainted":
             case "PolishedConcreteOrTile":
                 return "Concrete";
 
+            case "Curtain":
+            case "Carpet":
             case "CurtainHeavy":
                 return "Carpet";
 
             case "FiberglassInsulation":
                 return "Default";
-
-            case "FullAbsorption":
-                return "FullAbsorption";
-
+                
+            case "Glass":
             case "GlassThin":
             case "GlassThick":
                 return "Glass";
 
+            case "Gravel":
             case "Grass":
                 return "Gravel"; //?;
 
             case "LinoleumOnConcrete":
                 return "Default";
-                
+
+            case "Ceramic":
             case "Marble":
                 return "Ceramic"; //?
 
             case "Metal":
                 return "Metal";
 
+            case "NoAbsorption":
+                return "NoAbsorption";
+
             case "ParquetOnConcrete":
                 return "Default";
 
+            case "Plaster":
             case "PlasterRough":
             case "PlasterSmooth":
                 return "Plaster";
@@ -423,12 +431,14 @@ public class GeometryManager : MonoBehaviour
             case "PlywoodPanel":
                 return "Default";
 
+            case "Rock":
             case "Sheetrock":
                 return "Rock";
 
             case "WaterOrIceSurface":
                 return "Default";
 
+            case "Wood":
             case "WoodCeiling":
             case "WoodPanel":
                 return "Wood";
@@ -492,6 +502,8 @@ public class GeometryManager : MonoBehaviour
             case "Glass":
             case "Gravel":
             case "Metal":
+            case "NoAbsorption":
+            case "Transparent":
             case "Wood":
                 return name;
             default:

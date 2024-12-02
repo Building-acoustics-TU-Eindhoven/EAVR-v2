@@ -4,6 +4,7 @@
  * @desc [A class to manage the audio sources]
 */
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -201,17 +202,21 @@ public class AudioSourceManager : MonoBehaviour
 
     }
 
-    public void RemoveAllSources()
+    public IEnumerator RemoveAllSources(Action callback)
     {
         curSourceIdx = totNumSources - 1;
         int i = totNumSources;
         while (i > 0)
         {
-            RemoveSource (true);
+            --totNumSources;
+            yield return StartCoroutine(SafelyRemoveSource(curSourceIdx));
             i = totNumSources;
         }
+        curSourceIdx = -1;
 
         RefreshSourceIndices();
+
+        callback();
     }
 
     public bool RemoveSource (bool loadingNewObservation = false)
@@ -233,7 +238,7 @@ public class AudioSourceManager : MonoBehaviour
     private IEnumerator SafelyRemoveSource (int idx)
     {
         allSources[idx].gameObject.SetActive(false);
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.1f);
         while (idx >= allSources.Count)
         {
             --idx;

@@ -103,11 +103,11 @@ The most important folders in this repository are shown below
 | Ceramic | 0.01 | 0.01 | 0.02 |
 | Concrete | 0.05 | 0.07 | 0.08 |
 | Default | 0.1 | 0.2 | 0.3 |
-| FullAbsorption | 1.0 | 1.0 | 1.0 | 
 | Glass | 0.06 | 0.03 | 0.02 |
 | Gravel | 0.6 | 0.7 | 0.8 |
 | Metal | 0.2 | 0.07 | 0.06 |
 | NoAbsorption | 0.0 | 0.0 | 0.0 |
 | Plaster | 0.12 | 0.06 | 0.04 |
 | Rock | 0.13 | 0.2 | 0.24 |
+| Transparent | 1.0 | 1.0 | 1.0 | 
 | Wood | 0.11 | 0.07 | 0.06 |

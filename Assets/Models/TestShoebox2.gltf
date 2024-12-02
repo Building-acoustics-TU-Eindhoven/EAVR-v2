@@ -23,7 +23,7 @@
       ]
     },
     {
-      "name": "root",
+      "name": "Room",
       "children": [
         2,
         3,
@@ -38,7 +38,7 @@
       "mesh": 0
     },
     {
-      "name": "Curtain",
+      "name": "Glass",
       "mesh": 1
     },
     {
