@@ -166,8 +166,8 @@ public class WallSelectionHandler : SelectionHandler
         {
             inWorldSelectionHandler.transform.rotation = Quaternion.LookRotation(hit.normal);
             inWorldSelectionHandler.transform.position = hit.point + hit.normal * 0.01f;
+            base.SetPositionBasedOnHit(hit);
         }
-        base.SetPositionBasedOnHit (hit);
     }
 
     private void SelectWall (Transform wall)
