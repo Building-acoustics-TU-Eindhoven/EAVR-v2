@@ -394,6 +394,9 @@ public class GeometryManager : MonoBehaviour
             case "FiberglassInsulation":
                 return "Default";
 
+            case "FullAbsorption":
+                return "FullAbsorption";
+
             case "GlassThin":
             case "GlassThick":
                 return "Glass";
