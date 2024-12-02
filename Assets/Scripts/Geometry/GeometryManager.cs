@@ -417,6 +417,9 @@ public class GeometryManager : MonoBehaviour
             case "Metal":
                 return "Metal";
 
+            case "NoAbsorption":
+                return "NoAbsorption";
+
             case "ParquetOnConcrete":
                 return "Default";
 
@@ -499,6 +502,8 @@ public class GeometryManager : MonoBehaviour
             case "Glass":
             case "Gravel":
             case "Metal":
+            case "NoAbsorption":
+            case "Transparent":
             case "Wood":
                 return name;
             default:

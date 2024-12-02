@@ -93,3 +93,21 @@ The most important folders in this repository are shown below
 [1] A. Milo and M. Hornikx, "Acoustic Virtual Reality as a Learning Framework for Built Environment Students," *Euronoise*, 2021.
 
 [2] A. Milo, "EAVR-EDU-release," GitLab Repository. Accessed 7 July 2023. [Online] Available: https://gitlab.tue.nl/building-acoustics-tue/eavr/eavr-edu-release/-/tree/v209
+
+# Appendix A: Material List
+
+| Material name | Low absorption (400 Hz) | Mid absorption (2500 Hz) | High absorption (15000 Hz) |
+| --- | --- | --- | --- |
+| Brick | 0.03 | 0.04 | 0.07 |
+| Carpet | 0.24 | 0.69 | 0.73 |
+| Ceramic | 0.01 | 0.01 | 0.02 |
+| Concrete | 0.05 | 0.07 | 0.08 |
+| Default | 0.1 | 0.2 | 0.3 |
+| Glass | 0.06 | 0.03 | 0.02 |
+| Gravel | 0.6 | 0.7 | 0.8 |
+| Metal | 0.2 | 0.07 | 0.06 |
+| NoAbsorption | 0.0 | 0.0 | 0.0 |
+| Plaster | 0.12 | 0.06 | 0.04 |
+| Rock | 0.13 | 0.2 | 0.24 |
+| Transparent | 1.0 | 1.0 | 1.0 | 
+| Wood | 0.11 | 0.07 | 0.06 |
