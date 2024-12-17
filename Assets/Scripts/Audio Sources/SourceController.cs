@@ -54,7 +54,7 @@ public class SourceController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!menuManager.IsMenuActive())
+        if (!menuManager.IsMenuActive() && GlobalFunctions.shouldUseInWorldMenu)
         {
             // Convert mouse position to ray
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
