@@ -58,7 +58,13 @@ public class AudioSourceManager : MonoBehaviour
         sourceColliderY = initSource.transform.position.y;
 
         curSource = initSource.GetComponent<SourceController>();
-        GetDropdownChoice (5);
+
+#if UNITY_EDITOR
+        AddLocalFilesToClipList();
+#else
+        StartCoroutine(AddLocalFilesToClipList());
+#endif
+        GetDropdownChoice (3); // Select Canon_Violin
 
         prepared = true;
 
@@ -71,10 +77,34 @@ public class AudioSourceManager : MonoBehaviour
     {
     }
 
+#if UNITY_EDITOR
+    public void AddLocalFilesToClipList()
+    {
+        string path = Path.Combine(Application.dataPath, "Resources/Audio").Replace("\\", "/");
+        if (Directory.Exists(path))
+        {
+            clipList.Clear();
+            DirectoryInfo info = new DirectoryInfo(path);
+
+            foreach (FileInfo item in info.GetFiles("*.wav"))
+            {
+
+                string filePath = Path.Combine("Audio/", item.Name).Replace("\\", "/");
+                filePath = filePath.Split('.')[0];
+
+                AudioClip clip = Resources.Load<AudioClip>(filePath);
+                clipList.Add(clip);
+
+            }
+
+        }
+        sourcesMenuManager.CreateDropdownList();
+
+    }
+#else
     public IEnumerator AddLocalFilesToClipList()
     {
         string path = Path.Combine(Application.persistentDataPath, "Audios").Replace("\\", "/");
-
         if (Directory.Exists(path))
         {
             DirectoryInfo info = new DirectoryInfo(path);
@@ -101,7 +131,10 @@ public class AudioSourceManager : MonoBehaviour
             }
 
         }
+        sourcesMenuManager.CreateDropdownList();
+
     }
+#endif
 
     public SourceController GetCurSource()
     {
