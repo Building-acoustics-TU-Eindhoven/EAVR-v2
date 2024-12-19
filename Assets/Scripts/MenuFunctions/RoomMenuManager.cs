@@ -94,7 +94,7 @@ public class RoomMenuManager : SubMenu, iRoomMenuManager
                                            ((nonNormalisedPlayerPos.y - (isXRorigin ? 0.0f : 1.0f)) - root.transform.localPosition.y) / curRoomSize.y,                // Subtract 1.0f as this is half the height of the player collider
                                            (nonNormalisedPlayerPos.z - root.transform.localPosition.z) / (curRoomSize.z - playerColliderRadius) + 0.5f); // Subtract radius so that the normalised player position all the way at the edge is 0 or 1
 
-        Debug.Log("Normalised pos: " + normalisedPlayerPos);
+        //Debug.Log("Normalised pos: " + normalisedPlayerPos);
     }
 
     public void SetRoomXfromKnob (KnobButton knob)

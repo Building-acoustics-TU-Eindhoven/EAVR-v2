@@ -49,12 +49,18 @@ public class SourceController : MonoBehaviour
         audioSource.loop = shouldLoop;
         if (shouldPause)
             audioSource.Pause();
+
+        if (!GlobalFunctions.shouldUseInWorldMenu)
+        {
+            GetComponent<CapsuleCollider>().enabled = false;
+            transform.GetComponentInChildren<MeshCollider>().enabled = false;
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (!menuManager.IsMenuActive())
+        if (!menuManager.IsMenuActive() && GlobalFunctions.shouldUseInWorldMenu)
         {
             // Convert mouse position to ray
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
