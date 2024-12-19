@@ -31,13 +31,12 @@ public class SourcesMenuManager : SubMenu
     // Acts like Start() but is called from the menu manager
     public override void PrepareSubMenu()
     {
-        m_dropdown.ClearOptions(); 
         CreateDropdownList();
 
         gainKnob.Start();
     }
 
-    void OnEnable()
+    void Start()
     {
         if (!dropDownListCreated)
         {
@@ -51,6 +50,7 @@ public class SourcesMenuManager : SubMenu
 
     public void CreateDropdownList()
     {
+        m_dropdown.ClearOptions();
 
         int i = 0;
         foreach (AudioClip clip in sourceManager.clipList)

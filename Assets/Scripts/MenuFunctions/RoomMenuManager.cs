@@ -33,7 +33,7 @@ public class RoomMenuManager : SubMenu, iRoomMenuManager
     // Audio source manager
     public AudioSourceManager audioSourceManager;
 
-    public float playerColliderRadius = 0.75f;
+    private float playerColliderRadius = 0.5f;
 
     private bool prepared = false;
 
@@ -58,13 +58,12 @@ public class RoomMenuManager : SubMenu, iRoomMenuManager
         if (playerActive)
         {
             playerManager = playerGO.GetComponent<PlayerManager>();
-            playerColliderRadius = playerManager.GetComponent<CapsuleCollider>().radius;
-            RefreshInternalPlayerPos();
-            playerManager.PreparePlayerPosAndRoomDimensions (normalisedPlayerPos, originalSize); // This also calls RefreshInternalPlayerPos
+            RefreshInternalPlayerPos(false);
+            playerManager.PreparePlayerPosAndRoomDimensions (normalisedPlayerPos, originalSize);
         }
         else {
             xrOriginManager = xrOrigin.GetComponent<XRoriginManager>();
-            playerColliderRadius = 0.25f;
+            RefreshInternalPlayerPos(true);
 
         }
 
@@ -79,17 +78,23 @@ public class RoomMenuManager : SubMenu, iRoomMenuManager
         
     }
 
+    public Vector3 GetNormalisedPlayerPos()
+    {
+        return normalisedPlayerPos;
+    }
+
     // Doesn't change the player position, simply retrieves its position as a ratio of the room width and height
-    public void RefreshInternalPlayerPos()
+    public void RefreshInternalPlayerPos (bool isXRorigin)
     {
         if (!prepared)
             return;
         nonNormalisedPlayerPos = playerActive ? playerGO.transform.position : xrOrigin.transform.position;
 
         normalisedPlayerPos = new Vector3 ((nonNormalisedPlayerPos.x - root.transform.localPosition.x) / (curRoomSize.x - playerColliderRadius) + 0.5f, // Subtract radius so that the normalised player position all the way at the edge is 0 or 1
-                                           ((nonNormalisedPlayerPos.y - 1.0f) - root.transform.localPosition.y) / curRoomSize.y,                // Subtract 1.0f as this is half the height of the player collider
+                                           ((nonNormalisedPlayerPos.y - (isXRorigin ? 0.0f : 1.0f)) - root.transform.localPosition.y) / curRoomSize.y,                // Subtract 1.0f as this is half the height of the player collider
                                            (nonNormalisedPlayerPos.z - root.transform.localPosition.z) / (curRoomSize.z - playerColliderRadius) + 0.5f); // Subtract radius so that the normalised player position all the way at the edge is 0 or 1
 
+        //Debug.Log("Normalised pos: " + normalisedPlayerPos);
     }
 
     public void SetRoomXfromKnob (KnobButton knob)
