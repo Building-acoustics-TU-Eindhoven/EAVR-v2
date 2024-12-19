@@ -30,18 +30,17 @@ public class RoomSizeManager : MonoBehaviour
 
     public Vector3 originalSize;
     public float playerColliderRadius;
-    Bounds getRenderBounds(GameObject objeto){
-        Bounds bounds = new  Bounds(Vector3.zero,Vector3.zero);
+    Bounds getRenderBounds(GameObject objeto)
+    {
+        Bounds bounds = new Bounds(Vector3.zero, Vector3.zero);
         Renderer render = objeto.GetComponent<Renderer>();
-        if(render!=null){
+        if (render != null)
+        {
             return render.bounds;
         }
         return bounds;
 
-        if (playerGO.activeSelf)
-            playerColliderRadius = playerManager.playerColliderRadius;
-        else
-            playerColliderRadius = 0.25f;
+        playerColliderRadius = 0.5f;
     }
 
     public Bounds getBounds(GameObject objeto){

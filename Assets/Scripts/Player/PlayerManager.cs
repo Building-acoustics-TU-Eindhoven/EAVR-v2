@@ -17,7 +17,7 @@ using UnityEngine;
 // Interface to the RoomMenuManager
 public interface iRoomMenuManager
 {
-    void RefreshInternalPlayerPos();
+    void RefreshInternalPlayerPos(bool isXRorigin);
     Vector3 GetNonNormalisedPlayerPosition();
 }
 
@@ -54,7 +54,7 @@ public class PlayerManager : MonoBehaviour
 
     public GameObject reticleCanvas;
 
-    public float playerColliderRadius;
+    private float playerColliderRadius = 0.5f;
 
     bool prepared = false;
     private Vector3 normalisedPosToSet = new Vector3(0.0f, 0.0f, 0.0f);
@@ -73,7 +73,7 @@ public class PlayerManager : MonoBehaviour
 
         playerColliderRadius = GetComponent<CapsuleCollider>().radius;
 
-        roomMenuManager.GetComponent<iRoomMenuManager>().RefreshInternalPlayerPos();
+        roomMenuManager.GetComponent<iRoomMenuManager>().RefreshInternalPlayerPos(false);
 
         // Position and dimensions should have been given by the RoomMenuManager through the PreparePlayerPosAndRoomDimensions() function
         ApplyPlayerPosAndRoomDimensions();
@@ -106,7 +106,7 @@ public class PlayerManager : MonoBehaviour
         // Check whether the position in the RoomMenuManger is updated
         if (Mathf.Abs(transform.position.magnitude - roomMenuManager.GetComponent<iRoomMenuManager>().GetNonNormalisedPlayerPosition().magnitude) > 0.001f)
         {
-            roomMenuManager.GetComponent<iRoomMenuManager>().RefreshInternalPlayerPos();
+            roomMenuManager.GetComponent<iRoomMenuManager>().RefreshInternalPlayerPos(false);
         }
 
     }
