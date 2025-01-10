@@ -35,8 +35,6 @@ public class RoomMenuManager : SubMenu, iRoomMenuManager
 
     private float playerColliderRadius = 0.5f;
 
-    private bool prepared = false;
-
     [SerializeField]
     private KnobButton xKnob, yKnob, zKnob;
 
@@ -69,7 +67,6 @@ public class RoomMenuManager : SubMenu, iRoomMenuManager
 
         RefreshTextAndUIElements();
 
-        prepared = true;
     }
 
     // Update is called once per frame
@@ -86,8 +83,6 @@ public class RoomMenuManager : SubMenu, iRoomMenuManager
     // Doesn't change the player position, simply retrieves its position as a ratio of the room width and height
     public void RefreshInternalPlayerPos (bool isXRorigin)
     {
-        if (!prepared)
-            return;
         nonNormalisedPlayerPos = playerActive ? playerGO.transform.position : xrOrigin.transform.position;
 
         normalisedPlayerPos = new Vector3 ((nonNormalisedPlayerPos.x - root.transform.localPosition.x) / (curRoomSize.x - playerColliderRadius) + 0.5f, // Subtract radius so that the normalised player position all the way at the edge is 0 or 1
