@@ -292,7 +292,7 @@ public class SaveLoadController : MonoBehaviour
                 }
 
                 // Set position
-                sourcesMenuManager.SetKnobValuesFromRatioVec(obs.sourcePositions[i]);
+                sourcesMenuManager.SetKnobValuesFromRatioVec(obs.sourcePositions[i], true);
 
             }
             sourcesMenuManager.ChangeSourceIdx(obs.sourceClipNames.Count - 1, true);

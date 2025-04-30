@@ -155,10 +155,10 @@ public class SourcesMenuManager : SubMenu
         zKnob.SetDefaultValue (defaults.z);
     }
 
-    public void SetKnobValuesFromRatioVec(Vector3 obs)
+    public void SetKnobValuesFromRatioVec(Vector3 obs, bool sendChangeMessage = false)
     {
-        xKnob.SetNormalisedValue(obs.x, false);
-        yKnob.SetNormalisedValue(obs.y, false);
-        zKnob.SetNormalisedValue(obs.z, false);
+        xKnob.SetNormalisedValue(obs.x, sendChangeMessage);
+        yKnob.SetNormalisedValue(obs.y, sendChangeMessage);
+        zKnob.SetNormalisedValue(obs.z, sendChangeMessage);
     }
 }

@@ -218,6 +218,8 @@ public class AudioSourceManager : MonoBehaviour
         }
         else
         {
+            if (curSourceIdx == -1)
+                curSourceIdx = 0;
             allSources.Add(Instantiate(allSources[curSourceIdx], this.transform));
             allSources[allSources.Count-1].LoopAudio (allSources[curSourceIdx].GetShouldLoop());
             allSources[allSources.Count-1].PauseAudio (allSources[curSourceIdx].GetShouldPause());
@@ -242,7 +244,12 @@ public class AudioSourceManager : MonoBehaviour
         while (i > 0)
         {
             --totNumSources;
-            yield return StartCoroutine(SafelyRemoveSource(curSourceIdx));
+
+            Destroy(allSources[totNumSources].gameObject);
+            allSources.RemoveAt(totNumSources);
+
+            yield return new WaitForSeconds(0.1f);
+
             i = totNumSources;
         }
         curSourceIdx = -1;
@@ -270,6 +277,9 @@ public class AudioSourceManager : MonoBehaviour
 
     private IEnumerator SafelyRemoveSource (int idx)
     {
+        if (idx >= allSources.Count)
+            Debug.Log("Trying to remove a source that seems to already be removed");
+
         allSources[idx].gameObject.SetActive(false);
         yield return new WaitForSeconds(0.1f);
         while (idx >= allSources.Count)
